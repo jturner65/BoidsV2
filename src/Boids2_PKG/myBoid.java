@@ -21,9 +21,10 @@ public class myBoid {
 	public float mass,oldRotAngle;	
 	public final float sizeMult = .15f;
 	public final myVectorf scMult = new myVectorf(.5f,.5f,.5f);				//multiplier for scale based on mass
-	public myVectorf scaleBt,rotVec, birthVel, birthForce;						//scale of boat - reflects mass, rotational vector, vel and force applied at birth - hit the ground running
+	private myVectorf scaleBt,rotVec, birthVel, birthForce;						//scale of boat - reflects mass, rotational vector, vel and force applied at birth - hit the ground running
+	
 	public myPointf coords;													//com coords
-	public myVectorf[] velocity,													//velocity history
+	public myVectorf velocity,
 					  forces;												//force accumulator
 	public myVectorf[] orientation;												//Rot matrix - 3x3 orthonormal basis matrix - cols are bases for body frame orientation in world frame
 	
@@ -64,15 +65,9 @@ public class myBoid {
 		preCalcAnimSpd = (float) ThreadLocalRandom.current().nextDouble(.5f,2.0);		
 		animCntr = (float) ThreadLocalRandom.current().nextDouble(.000001f ,maxAnimCntr );
 		coords = new myPointf(_coords);	//new myPointf[2]; 
-		velocity = new myVectorf[2];
-		//oldForce = new myVectorf(0,0,0);
-		forces = new myVectorf[2];
+		velocity = new myVectorf();
+		forces  = new myVectorf();//= new myVectorf[2];
 		type=_type;
-		for (int i = 0; i < 2 ; ++i){
-			velocity[i] = myVectorf.ZEROVEC.cloneMe();
-			forces[i] = myVectorf.ZEROVEC.cloneMe(); 
-		}
-
 		setInitState();
 		O_axisAngle=new float[]{0,1,0,0};
 		oldRotAngle = 0;
@@ -146,12 +141,11 @@ public class myBoid {
 	
 	//initialize newborn velocity, forces, and orientation
 	public void initNewborn(myVectorf[] bVelFrc){
-		this.velocity[0].set(bVelFrc[0]); this.velocity[1].set(bVelFrc[0]); 
-		this.forces[0].set(bVelFrc[1]);this.forces[1].set(bVelFrc[1]); 
+		velocity.set(bVelFrc[0]);
+		forces.set(bVelFrc[1]);
 	}	
 	//align the boid along the current orientation matrix
 	private void alignBoid(){
-		//double res[] = f.toAxisAngle(orientation, O_FWD, O_RHT, O_UP);
 		rotVec.set(O_axisAngle[1],O_axisAngle[2],O_axisAngle[3]);
 		//TODO change f.delT to get value from win UI input
 		float rotAngle = (float) (oldRotAngle + ((O_axisAngle[0]-oldRotAngle) * f.delT));
@@ -174,7 +168,6 @@ public class myBoid {
 		tmpEyeMod._mult(4.0f);
 		//move eye to be on deck
 		eyeTmp._add(tmpEyeMod);
-		//myPointf dir = myPointf._add(eye, orientation[O_FWD]);
 		myVectorf rotdir = myVectorf._rotAroundAxis( orientation[O_FWD], orientation[O_UP], dPhi);
 		myVectorf eyeLookVec = myVectorf._rotAroundAxis( rotdir, rotdir._cross(orientation[O_UP]), dThet);
 		myPointf eye = myPointf._add(eyeTmp, .1f*dz, eyeLookVec);
@@ -185,10 +178,9 @@ public class myBoid {
 	//draw this body on mesh
 	public void drawMe(){
 		p.pushMatrix();p.pushStyle();
-			//p.strokeWeight(1.0f/(float)mass);
 			p.translate(coords.x,coords.y,coords.z);		//move to location
 			if(win.getPrivFlags(win.debugAnimIDX)){drawMyVec(rotVec, Boids_2.gui_Black,4.0f);p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
-			if(win.getPrivFlags(win.showVel)){drawMyVec(velocity[0], Boids_2.gui_DarkMagenta,.5f);}
+			if(win.getPrivFlags(win.showVel)){drawMyVec(velocity, Boids_2.gui_DarkMagenta,.5f);}
 			alignBoid();
 			p.rotate(p.PI/2.0f,1,0,0);
 			p.rotate(p.PI/2.0f,0,1,0);
@@ -202,13 +194,13 @@ public class myBoid {
 		animIncr();
 	}//drawme	
 	
-	//draw this boid as a ball
+	//draw this boid as a ball - replace with sphere render obj 
 	public void drawMeBall(){
 		p.pushMatrix();p.pushStyle();
-			p.strokeWeight(1.0f);
+			//p.strokeWeight(1.0f);
 			p.translate(coords.x,coords.y,coords.z);		//move to location
 			if(win.getPrivFlags(win.debugAnimIDX)){drawMyVec(rotVec, Boids_2.gui_Black,4.0f);p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
-			if(win.getPrivFlags(win.showVel)){drawMyVec(velocity[0], Boids_2.gui_DarkMagenta,.5f);}
+			if(win.getPrivFlags(win.showVel)){drawMyVec(velocity, Boids_2.gui_DarkMagenta,.5f);}
 			p.setColorValFill(p.gui_boatBody1 + type);
 			p.noStroke();
 			p.sphere(5);
@@ -242,8 +234,7 @@ public class myBoid {
 			p.sphere(10);
 		p.popStyle();p.popMatrix();
 		
-	}	
-	
+	}		
 	//public double calcBobbing(){		return 2*(p.cos(.01f*animCntr));	}		//bobbing motion
 	
 	public void drawMyVec(myVectorf v, int clr, float sw){
@@ -251,17 +242,13 @@ public class myBoid {
 			p.pushStyle();
 			p.setColorValStroke(clr);
 			p.strokeWeight(sw);
-			//myVector tmpv = myVector._mult(v, 1);
-			//myPointf tmp =  new myPointf(new myPointf(0,0,0),v);
 			p.line(new myPointf(0,0,0),v);
 			p.popStyle();
 		p.popMatrix();		
 	}
 	
 	private void animIncr(){
-		//use animCntr to control animation
-		//animCntr+=(baseAnimSpd + (velocity[0].magn*.1f))*preCalcAnimSpd;						//set animMod based on velocity -> 1 + mag of velocity		
-		animCntr = (animCntr + (baseAnimSpd + (velocity[0].magn*.1f))*preCalcAnimSpd) % maxAnimCntr;						//set animMod based on velocity -> 1 + mag of velocity		
+		animCntr = (animCntr + (baseAnimSpd + (velocity.magn*.1f))*preCalcAnimSpd) % maxAnimCntr;						//set animMod based on velocity -> 1 + mag of velocity		
 //		if((animCntr>maxAnimCntr)||(animCntr<0)){
 //			animCntr =0;
 //		}
@@ -269,7 +256,7 @@ public class myBoid {
 	
 	public String toString(){
 		String result = "ID : " + ID + " Type : "+win.flkNames[f.type]+" | Mass : " + mass + " | Spawn CD "+spawnCntr + " | Starve CD " + starveCntr+"\n";
-		result+=" | location : " + coords + " | velocity : " + velocity[0] + " | forces : " + forces[0] +"\n" ;
+		result+=" | location : " + coords + " | velocity : " + velocity + " | forces : " + forces +"\n" ;
 		//if(p.flags[p.debugMode]){result +="\nOrientation : UP : "+orientation[O_UP] + " | FWD : "+orientation[O_FWD] + " | RIGHT : "+orientation[O_RHT] + "\n";}
 		int num =neighbors.size();
 		result += "# neighbors : "+ num + (num==0 ? "\n" : " | Neighbor IDs : \n");

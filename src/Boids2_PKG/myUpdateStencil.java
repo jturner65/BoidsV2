@@ -49,7 +49,7 @@ public class myUpdateStencil implements Callable<Boolean> {
 		for(myBoid ptWife : b.ptnWife.values()){
 			chance = ThreadLocalRandom.current().nextFloat();
 			if(chance < spawnPct){
-				b.haveChild(new myPointf(ptWife.coords,.5f,b.coords), new myVectorf(ptWife.velocity[0],.5f,b.velocity[0]), new myVectorf(ptWife.forces[0],.5f,b.forces[0]));
+				b.haveChild(new myPointf(ptWife.coords,.5f,b.coords), new myVectorf(ptWife.velocity,.5f,b.velocity), new myVectorf(ptWife.forces,.5f,b.forces));
 				ptWife.hasSpawned();	
 				b.hasSpawned();	return;
 			}
@@ -83,7 +83,6 @@ public class myUpdateStencil implements Callable<Boolean> {
 			return new float[]{angle,x,y,z}; // return 180 deg rotation
 		}
 		//no singularities - handle normally
-		//myVectorf tmp = new myVectorf((b.orientation[O_UP].y - b.orientation[O_RHT].z), (b.orientation[O_FWD].z - b.orientation[O_UP].x), (b.orientation[O_RHT].x - b.orientation[O_FWD].y));
 		myVectorf tmp = new myVectorf(rzuy, uxfz, fyrx);
 		s = tmp.magn;
 		if (s < p.epsValCalc){ s=1; }
@@ -94,9 +93,9 @@ public class myUpdateStencil implements Callable<Boolean> {
 	}//toAxisAngle
 	
 	private myVectorf getFwdVec(myBoid b){
-		if(b.velocity[0].magn==0){			return b.orientation[O_FWD]._normalize();		}
+		if(b.velocity.magn < p.eps){			return b.orientation[O_FWD]._normalize();		}
 		else {		
-			myVectorf tmp = b.velocity[0].cloneMe()._normalize();			
+			myVectorf tmp = b.velocity.cloneMe()._normalize();			
 			return new myVectorf(b.orientation[O_FWD], f.delT, tmp);		
 		}
 	}
@@ -135,16 +134,18 @@ public class myUpdateStencil implements Callable<Boolean> {
 		}
 	}//kill
 	
+	
+	
 	public void run(){	
 		for(myBoid b : bAra){
 			if(b.bd_flags[myBoid.isDead]){
 				//System.out.println("Dead boid in bAra in myUpdateStencil integrate : ID : " + b.ID);
 				continue;
 			}
-			b.velocity[0].set(integrate(myVectorf._mult(b.forces[0], (1.0f/b.mass)), b.velocity[0]));			//myVectorf._add(velocity[0], myVectorf._mult(forces[1], p.delT/(1.0f * mass)));	divide by  mass, multiply by delta t
-			if(b.velocity[0].magn > f.flv.maxVelMag){b.velocity[0]._scale(f.flv.maxVelMag);}
-			if(b.velocity[0].magn < f.flv.minVelMag){b.velocity[0]._scale(f.flv.minVelMag);}
-			b.coords.set(integrate(b.velocity[0], b.coords));												// myVectorf._add(coords[0], myVectorf._mult(velocity[1], p.delT));	
+			b.velocity.set(integrate(myVectorf._mult(b.forces, (1.0f/b.mass)), b.velocity));			//myVectorf._add(velocity[0], myVectorf._mult(forces[1], p.delT/(1.0f * mass)));	divide by  mass, multiply by delta t
+			if(b.velocity.magn > f.flv.maxVelMag){b.velocity._scale(f.flv.maxVelMag);}
+			if(b.velocity.magn < f.flv.minVelMag){b.velocity._scale(f.flv.minVelMag);}
+			b.coords.set(integrate(b.velocity, b.coords));												// myVectorf._add(coords[0], myVectorf._mult(velocity[1], p.delT));	
 			setValWrapCoordsForDraw(b.coords);
 			setOrientation(b);
 			//b.setOrientation();

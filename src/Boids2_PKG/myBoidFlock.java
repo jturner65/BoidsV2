@@ -174,11 +174,9 @@ public class myBoidFlock {
 	//handle click in menu region - abs x, rel to start y
 	public boolean handleFlkMenuDrag(int flkVarIDX, int mouseX, int mouseY, int pmx, int pmy, int mseBtn){
 		boolean res = true;
-		float mod = (mouseX-pmx) + (mouseY-pmy)*-5.0f;
-		
+		float mod = (mouseX-pmx) + (mouseY-pmy)*-5.0f;		
 		flv.modFlkVal(flkVarIDX, mod);		
-		p.outStr2Scr("handleFlkMenuDrag : Flock : " + name + " flkVar IDX : " + flkVarIDX + " mod amt : " + mod);
-		
+		p.outStr2Scr("handleFlkMenuDrag : Flock : " + name + " flkVar IDX : " + flkVarIDX + " mod amt : " + mod);		
 		return res;
 	}//handleFlkMenuClick
 	
@@ -200,8 +198,6 @@ public class myBoidFlock {
 		for(int j=1;j<fvData.length; ++j){p.text(fvData[j],0,-win.yOff*.5f);p.translate(0,win.yOff*.75f);}	
 	}//drawFlockMenu
 	
-	//clear out last time step boid values
-	public void clearBoidForces(){for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).forces[0].set(0,0,0);}}	
 	//clear out all data for each boid
 	public void clearOutBoids(){
 		curFlagState = win.getFlkFlagsInt();

@@ -79,19 +79,19 @@ public abstract class myFwdStencil implements Callable<Boolean> {
 	public void run(){
 		//if((p.flags[p.mouseClicked] ) && (!p.flags[p.shiftKeyPressed])){//add click force : overwhelms all forces - is not scaled
 		if (addFrc){
-			for(myBoid b : bAra){b.forces[0]._add(p.mouseForceAtLoc(b.coords, stFlags[attractMode]));}
+			for(myBoid b : bAra){b.forces._add(p.mouseForceAtLoc(b.coords, stFlags[attractMode]));}
 		}
 		//if(!stFlags[singleFlock]){
 			if (stFlags[flkHunt]) {//go to closest prey
 				if (stFlags[flkAvoidPred]){//avoid predators
 					for(myBoid b : bAra){
 						if (b.predFlkLoc.size() !=0){//avoid predators if they are nearby
-							//b.forces[0]._add(setFrcVal(frcAvoidCol(b, b.predFlk, b.predFlkLoc, predRadSq), fv.wts, fv.maxFrcs,fv.wFrcAvdPred));	//flee from predators
-							b.forces[0]._add(setFrcVal(frcAvoidCol(b, b.predFlkLoc, predRadSq), fv.wts, fv.maxFrcs,fv.wFrcAvdPred));	//flee from predators
+							//b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlk, b.predFlkLoc, predRadSq), fv.wts, fv.maxFrcs,fv.wFrcAvdPred));	//flee from predators
+							b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlkLoc, predRadSq), fv.wts, fv.maxFrcs,fv.wFrcAvdPred));	//flee from predators
 							if(b.canSprint()){ 
 								//add greater force if within collision radius
-								//b.forces[0]._add(setFrcVal(frcAvoidCol(b, b.predFlk, b.predFlkLoc,  colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvdPred));
-								b.forces[0]._add(setFrcVal(frcAvoidCol(b, b.predFlkLoc,  colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvdPred));
+								//b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlk, b.predFlkLoc,  colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvdPred));
+								b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlkLoc,  colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvdPred));
 								//expensive to sprint, hunger increases
 								--b.starveCntr;
 							}//last gasp, only a brief period for sprint allowed, and can starve prey
@@ -111,7 +111,7 @@ public abstract class myFwdStencil implements Callable<Boolean> {
 //							System.out.println("Flock : " + f.name+" ID : " + b.ID + " Chase force : " + chase.toString() + " mult : " + mult + " starve : " + b.starveCntr);
 //							
 //						}						
-						b.forces[0]._add(chase);						
+						b.forces._add(chase);						
 					}
 				}
 			}		
@@ -120,33 +120,34 @@ public abstract class myFwdStencil implements Callable<Boolean> {
 		if(stFlags[flkAvoidCol]){//find avoidance forces, if appropriate within f.colRad
 			for(myBoid b : bAra){
 				if(b.colliderLoc.size()==0){continue;}
-				//b.forces[0]._add(setFrcVal(frcAvoidCol(b, b.colliders, b.colliderLoc, colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvd));
-				b.forces[0]._add(setFrcVal(frcAvoidCol(b, b.colliderLoc, colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvd));
+				//b.forces._add(setFrcVal(frcAvoidCol(b, b.colliders, b.colliderLoc, colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvd));
+				b.forces._add(setFrcVal(frcAvoidCol(b, b.colliderLoc, colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvd));
 			}
 		}				
 		
 		if(stFlags[flkVelMatch]){		//find velocity matching forces, if appropriate within f.colRad	
 			for(myBoid b : bAra){
 				if(b.neighbors.size()==0){continue;}
-				b.forces[0]._add(setFrcVal(frcVelMatch(b),fv.wts, fv.maxFrcs,fv.wFrcVel));
+				b.forces._add(setFrcVal(frcVelMatch(b),fv.wts, fv.maxFrcs,fv.wFrcVel));
 			}
 		}	
 		if(stFlags[flkCenter]){ //find attracting forces, if appropriate within f.nghbrRad	
 			for(myBoid b : bAra){	
 				if(b.neighbors.size()==0){continue;}
-				b.forces[0]._add(setFrcVal(frcToCenter(b),fv.wts, fv.maxFrcs,fv.wFrcCtr));
+				b.forces._add(setFrcVal(frcToCenter(b),fv.wts, fv.maxFrcs,fv.wFrcCtr));
 			}
 		}		
 		if(stFlags[flkWander]){//brownian motion
-			for(myBoid b : bAra){	b.forces[0]._add(setFrcVal(frcWander(b),fv.wts, fv.maxFrcs,fv.wFrcWnd));}
+			for(myBoid b : bAra){	b.forces._add(setFrcVal(frcWander(b),fv.wts, fv.maxFrcs,fv.wFrcWnd));}
 		}	
 		//damp velocity
 		for(myBoid b : bAra){	
-			dampFrc.set(b.velocity[0]);
+			//dampFrc.set(b.velocity[0]);
+			dampFrc.set(b.velocity);
 			dampFrc._mult(-fv.dampConst);
-			b.forces[0]._add(dampFrc);		
+			b.forces._add(dampFrc);		
 		}
-		//for(myBoid b : bAra){b.forces[0].set(getForceAtLocation(b));}
+		//for(myBoid b : bAra){b.forces.set(getForceAtLocation(b));}
 	}//run
 	
 	@Override
@@ -200,7 +201,8 @@ class myOrigForceStencil extends myFwdStencil{
 			if(bd_k>velRadSq){continue;}
 			dsq = 1.0f/bd_k;
 			wtSqSum += dsq;
-			frcVec._add(myVectorf._mult(myVectorf._sub(b.neighbors.get(bd_k).velocity[0], b.velocity[0]), dsq));
+			//frcVec._add(myVectorf._mult(myVectorf._sub(b.neighbors.get(bd_k).velocity[0], b.velocity[0]), dsq));
+			frcVec._add(myVectorf._mult(myVectorf._sub(b.neighbors.get(bd_k).velocity, b.velocity), dsq));
 		}
 		frcVec._div(wtSqSum == 0 ? 1 : wtSqSum);
 		return frcVec;
@@ -247,7 +249,8 @@ class myLinForceStencil extends myFwdStencil{
 		for(Float bd_k : b.neighbors.keySet()){	
 			if(bd_k>velRadSq){continue;}
 			dsq=(velRadSq-bd_k);
-			frcVec._add(myVectorf._mult(myVectorf._sub(b.neighbors.get(bd_k).velocity[0], b.velocity[0]), dsq));
+			//frcVec._add(myVectorf._mult(myVectorf._sub(b.neighbors.get(bd_k).velocity[0], b.velocity[0]), dsq));
+			frcVec._add(myVectorf._mult(myVectorf._sub(b.neighbors.get(bd_k).velocity, b.velocity), dsq));
 		}
 		return frcVec;
 	}

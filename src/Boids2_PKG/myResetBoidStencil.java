@@ -27,7 +27,7 @@ public class myResetBoidStencil implements Callable<Boolean> {
 	} 
 	
 	public void run(){	
-		for(myBoid b:bAra){	b.forces[0].set(myPointf.ZEROPT); b.clearNeighborMaps();	}
+		for(myBoid b:bAra){	b.forces.set(myPointf.ZEROPT); b.clearNeighborMaps();	}
 		if (stFlags[doHunt] && (f!=pry)){	for(myBoid b:bAra){b.clearHuntMaps();			}}
 		if (stFlags[doSpawn]) {	for(myBoid b : bAra){	b.ptnWife.clear();}}	
 	}//run()	

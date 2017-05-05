@@ -1,8 +1,6 @@
 package Boids2_PKG;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
-
 import processing.core.PImage;
 
 public class myBoids3DWin extends myDispWindow {
@@ -163,7 +161,6 @@ public class myBoids3DWin extends myDispWindow {
 			rndrTmpl[i] = new myBoatRndrObj(pa, this, i);
 		}
 	}
-
 	
 	//turn on/off all flocking control boolean variables
 	public void setFlockingOn(){setFlocking(true);}
@@ -217,7 +214,6 @@ public class myBoids3DWin extends myDispWindow {
 	public void setBoidCam(float rx, float ry, float dz){
 		flocks[flockToWatch].boidFlock.get(boidToWatch).setBoatCam(rx,ry,dz);
 	}
-
 	
 	@Override
 	//set flag values and execute special functionality for this sequencer
@@ -290,14 +286,8 @@ public class myBoids3DWin extends myDispWindow {
 		}
 	}
 	//when flockToWatch changes, reset maxBoidToWatch value
-	private void setMaxUIBoidToWatch(int flkIdx){
-		guiObjs[gIDX_BoidToObs].setNewMax(flocks[flkIdx].boidFlock.size()-1);setUIWinVals(gIDX_BoidToObs);
-	}
-	
-	private void setMaxUIFlockToWatch(){
-		guiObjs[gIDX_FlockToObs].setNewMax(numFlocks - 1);	setUIWinVals(gIDX_FlockToObs);
-	}
-		
+	private void setMaxUIBoidToWatch(int flkIdx){guiObjs[gIDX_BoidToObs].setNewMax(flocks[flkIdx].boidFlock.size()-1);setUIWinVals(gIDX_BoidToObs);}	
+	private void setMaxUIFlockToWatch(){guiObjs[gIDX_FlockToObs].setNewMax(numFlocks - 1);	setUIWinVals(gIDX_FlockToObs);}		
 	@Override
 	protected void setUIWinVals(int UIidx) {
 		float val = (float)guiObjs[UIidx].getVal();
