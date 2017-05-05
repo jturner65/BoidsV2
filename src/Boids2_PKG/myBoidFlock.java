@@ -33,7 +33,7 @@ public class myBoidFlock {
 	public int curFlagState;					//holds current state of first 32 flags from win/UI
 	
 	public final int type, mtFrameSize = 100;	
-	public myBoatRndrObj tmpl;							//template to render boid	
+	public myRenderObj tmpl;							//template to render boid	
 	public myBoidFlock preyFlock, predFlock;		//direct reference to flock that is my prey and my predator -- set in main program after init is called
 	
 	public List<Future<Boolean>> callFwdSimFutures, callUpdFutures, callInitFutures, callResetBoidFutures;
@@ -93,7 +93,7 @@ public class myBoidFlock {
 		}
 	}//initFlock - run after each flock has been constructed
 	
-	public void setPredPreyTmpl(int predIDX, int preyIDX, myBoatRndrObj _tmpl){
+	public void setPredPreyTmpl(int predIDX, int preyIDX, myRenderObj _tmpl){
 		predFlock = win.flocks[predIDX];//flock 0 preys on flock 2, is preyed on by flock 1
 		preyFlock = win.flocks[preyIDX];	
 		tmpl = _tmpl;

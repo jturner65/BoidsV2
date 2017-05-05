@@ -41,7 +41,7 @@ public class myBoid {
 	public static final float maxAnimCntr = 1000.0f, baseAnimSpd = 1.0f;
 	public final float preCalcAnimSpd;
 	//boat construction variables
-	public final int type,gender,bodyColor;													//for spawning gender = 0 == female, 1 == male;
+	public final int type,gender;//,bodyColor;													//for spawning gender = 0 == female, 1 == male;
 	public static final int O_FWD = 0, O_RHT = 1,  O_UP = 2;
 		
 	public ConcurrentSkipListMap<Float, myBoid> neighbors,			//sorted map of neighbors to this boid
@@ -85,8 +85,6 @@ public class myBoid {
 		colliderLoc = new ConcurrentSkipListMap<Float, myPointf>();
 		predFlkLoc	= new ConcurrentSkipListMap<Float, myPointf>();
 		preyFlkLoc	= new ConcurrentSkipListMap<Float, myPointf>();
-		
-		bodyColor = win.bodyColor[type];
 
 	}//constructor
 	
@@ -196,7 +194,7 @@ public class myBoid {
 			p.rotate(p.PI/2.0f,0,1,0);
 			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
 			p.pushStyle();
-			f.tmpl.drawMe(animCntr, type);
+			f.tmpl.drawMe(animCntr);
 
 			p.popStyle();
 			

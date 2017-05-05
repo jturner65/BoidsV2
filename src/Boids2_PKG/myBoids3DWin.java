@@ -50,24 +50,34 @@ public class myBoids3DWin extends myDispWindow {
 	public final int MaxNumBoids = 15000;		//max # of boids per flock
 	public final int initNumBoids = 500;		//initial # of boids per flock
 	
-//	// structure holding boids
-	public String[] flkNames = new String[]{"Privateers","Pirates","Corsairs", "Marauders", "Freebooters", "Raiders"};
+//	// structure holding boid flocks and the rendered versions of them - move to myRenderObj?
+	//only 5 different flocks will display nicely on side menu
+	public String[] flkNames = new String[]{"Privateers", "Pirates", "Corsairs", "Marauders", "Freebooters"};
 	public float[] flkRadMults = {1.0f, 0.5f, 0.25f, 0.75f, 0.66f, 0.33f};
-	public final int MaxNumFlocks = 5;// flkNames.length;			//max # of flocks we'll support 
 	public PImage[] flkSails;						//image sigils for sails
 	public PImage blankSail;
 	public final static int 
-			privateer = 0,		
-			pirate = 1,				
-			corsair = 2,			
-			marauder = 3,
-			freebooter = 4,
-			raider = 5;
+			privateer 	= 0,		
+			pirate 		= 1,				
+			corsair 	= 2,			
+			marauder 	= 3,
+			freebooter 	= 4;
+	public final int MaxNumFlocks = flkNames.length;			//max # of flocks we'll support 
 	//array of template objects to render
-	public myBoatRndrObj[] rndrTmpl;
-	public int[] bodyColor = new int[]{Boids_2.gui_boatBody1, Boids_2.gui_boatBody2, Boids_2.gui_boatBody3 , Boids_2.gui_boatBody4 , Boids_2.gui_boatBody5  };	//idxs of body color for 3 types			
-
-	//public flkVrs fv;										//variable that holds multiple flocks-related constants and multipliers
+	public myRenderObj[] rndrTmpl;
+	
+	//colors for boat reps of boids
+	public static final int baseBoatIDX = 0;
+	//divisors for stroke color from fill color
+	public static float[] clrStrkDiv = new float[]{.8f,5.0f,.75f,4.0f,.3f};
+	public static int[][] 
+			boatFillClrs = new int[][]{{110, 65, 30,255},	{30, 30, 30,255},	{130, 22, 10,255},	{22, 230, 10,255},	{22, 10, 130,255}},
+			//boatStrokeClrs = new int[][]{{80, 40, 25,255},	{0, 0, 0, 255},		{40, 0, 0,255},		{0, 80, 0,255},		{40, 0, 80,255}},//overridden to be fraction of fill color
+			boatStrokeClrs = new int[5][4],//overridden to be fraction of fill color
+			boatEmitClrs = new int[][]{boatFillClrs[0],		boatFillClrs[1],	boatFillClrs[2],	boatFillClrs[3],	boatFillClrs[4]}
+			;
+	public static final int[] boatSpecClr = new int[]{255,255,255,255};
+	//current values
 	public int numFlocks = 1;						
 	public myBoidFlock[] flocks;
 	public int curFlock = 0;
@@ -124,14 +134,9 @@ public class myBoids3DWin extends myDispWindow {
 
 		clrList = new int[]{pa.gui_DarkGreen, pa.gui_DarkCyan, pa.gui_DarkRed, pa.gui_DarkBlue, pa.gui_DarkMagenta};
 		initPrivFlags(numPrivFlags);
-		
-		flkSails = new PImage[MaxNumFlocks];
-		rndrTmpl = new myBoatRndrObj[MaxNumFlocks];
-		for(int i=0; i<MaxNumFlocks; ++i){	
-			flkSails[i] = pa.loadImage(flkNames[i]+".jpg");
-			rndrTmpl[i] = new myBoatRndrObj(pa, this, i);
-		}
-		
+		//TODO set this to be determined by UI input (?)
+		initBoatBoids();
+	
 		setPrivFlags(drawBoids, true);
 		setPrivFlags(attractMode, true);
 		setPrivFlags(useTorroid, true);
@@ -143,6 +148,22 @@ public class myBoids3DWin extends myDispWindow {
 		initFlocks();	
 		flkMenuOffset = uiClkCoords[1] + uiClkCoords[3] - y45Off;	//495
 	}//initMe
+	
+	//initialize all instances of boat boid models
+	public void initBoatBoids(){
+		flkSails = new PImage[MaxNumFlocks];
+		rndrTmpl = new myBoatRndrObj[MaxNumFlocks];
+		for(int i=0; i<MaxNumFlocks; ++i){	
+			for(int j=0;j<3;++j){
+				boatStrokeClrs[i][j] = (int) (boatFillClrs[i][j]/clrStrkDiv[i]);
+			}
+			boatStrokeClrs[i][3] = 255;			//stroke alpha
+			flkSails[i] = pa.loadImage(flkNames[i]+".jpg");
+			//build render object for each individual flock type
+			rndrTmpl[i] = new myBoatRndrObj(pa, this, i);
+		}
+	}
+
 	
 	//turn on/off all flocking control boolean variables
 	public void setFlockingOn(){setFlocking(true);}
@@ -166,7 +187,7 @@ public class myBoids3DWin extends myDispWindow {
 		setPrivFlags(flkSpawn, val);		
 	}//setHunting
 	
-	//
+	//set up current flock configuration, based on ui selections
 	private void initFlocks(){
 		setHunting(numFlocks > 1);
 		flockToWatch = 0;
