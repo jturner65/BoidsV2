@@ -24,6 +24,8 @@ public class myBoids3DWin extends myDispWindow {
 
 	public final int numGUIObjs = uiVals.length;											//# of gui objects for ui
 	
+	public float timeStepMult = 1.0f;													//multiplier to modify timestep to make up for lag
+	
 	//private child-class flags - window specific
 	public static final int 
 			debugAnimIDX 		= 0,						//debug
@@ -326,7 +328,7 @@ public class myBoids3DWin extends myDispWindow {
 	}
 	
 	public float getTimeStep(){
-		return uiVals[gIDX_TimeStep];
+		return uiVals[gIDX_TimeStep] * timeStepMult;
 	}
 
 	@Override
@@ -355,7 +357,9 @@ public class myBoids3DWin extends myDispWindow {
 	}//drawMe
 	
 	@Override
-	protected void simMe() {//run simulation
+	protected void simMe(float modAmtSec) {//run simulation
+		//scale timestep to account for lag of rendering
+		timeStepMult = modAmtSec * 30.0f;
 		for(int i =0; i<flocks.length; ++i){flocks[i].clearOutBoids();}			//clear boid accumulators of neighbors, preds and prey  initAllMaps
 		for(int i =0; i<flocks.length; ++i){flocks[i].initAllMaps();}
 		if(getFlags(useOrigDistFuncs)){for(int i =0; i<flocks.length; ++i){flocks[i].moveBoidsOrigMultTH();}} 

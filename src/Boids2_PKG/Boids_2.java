@@ -98,9 +98,10 @@ public class Boids_2 extends PApplet{
 		float modAmtSec = (glblStartSimTime - glblLastSimTime)/1000.0f;
 		glblLastSimTime = millis();
 		if(flags[runSim] ){
+			//outStr2Scr("Sim Time elapsed in seconds : " + modAmtSec);
 			//run simulation
 			drawCount++;									//needed to stop draw update so that pausing sim retains animation positions	
-			for(int i =1; i<numDispWins; ++i){if((isShowingWindow(i)) && (dispWinFrames[i].getFlags(myDispWindow.isRunnable))){dispWinFrames[i].simulate();}}
+			for(int i =1; i<numDispWins; ++i){if((isShowingWindow(i)) && (dispWinFrames[i].getFlags(myDispWindow.isRunnable))){dispWinFrames[i].simulate(modAmtSec);}}
 			if(flags[singleStep]){flags[runSim]=false;}
 			simCycles++;
 		}		//play in current window
@@ -440,7 +441,7 @@ public class Boids_2 extends PApplet{
 	public int scrWidth, scrHeight;								//set to be applet.width and applet.height unless otherwise specified below
 	public final int scrWidthMod = 200, 
 			scrHeightMod = 0;
-	public final float frate = 60;								//frame rate - # of playback updates per second
+	public final float frate = 60.0f;								//frame rate - # of playback updates per second
 	
 	public int sceneIDX;			//which idx in the 2d arrays of focus vals and glbl center vals to use, based on state
 	public myVector[] sceneFcsVals = new myVector[]{						//set these values to be different targets of focus

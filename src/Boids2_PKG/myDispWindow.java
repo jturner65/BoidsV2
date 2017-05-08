@@ -600,8 +600,8 @@ public abstract class myDispWindow {
 		pa.popStyle();pa.popMatrix();	
 	}
 	
-	public void simulate(){
-		simMe();
+	public void simulate(float modAmtSec){
+		simMe(modAmtSec);
 	}//
 	
 //	public void draw(myPoint trans){
@@ -1016,7 +1016,7 @@ public abstract class myDispWindow {
 	protected abstract void resizeMe(float scale);	
 	protected abstract void showMe();
 	protected abstract void closeMe();	
-	protected abstract void simMe();
+	protected abstract void simMe(float modAmtSec);
 	protected abstract void stopMe();
 	protected abstract void drawMe(float animTimeMod);	
 	
@@ -1389,7 +1389,7 @@ class mySideBarMenu extends myDispWindow{
 	@Override
 	protected void resizeMe(float scale) {}	
 	@Override
-	protected void simMe() {}
+	protected void simMe(float modAmtSec) {}
 	@Override
 	protected void stopMe() {}
 	@Override
