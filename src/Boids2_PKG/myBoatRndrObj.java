@@ -4,39 +4,54 @@ import processing.core.*;
 
 //build a registered pre-rendered instantiatable object for each objRep - speeds up display by orders of magnitude
 public class myBoatRndrObj extends myRenderObj {
+	//all boid obj types need this
+	//if overall geometry has been made or not
+	private static boolean made;
 	//precalc consts
 	private static final int numOars = 5, numAnimFrm = 90;
 	//objRep geometry/construction variables
 	private final static myPointf[][] boatVerts = new myPointf[5][12];						//seed points to build object 	
 	private static myPointf[][] boatRndr;													//points of hull
 	private static myPointf[] pts3, pts5, pts7;	
-	
-	//all boid types need this
-	//if overall geometry has been made or not
-	private static boolean made;
-	
+		
 	//extra pshapes for this object
 	private PShape[] oars;										//1 array for each type of objRep, 1 element for each animation frame of oar motion
 	private static myPointf[] uvAra;
 	
 	private PImage sailTexture;
-	//color defined for this particular flock
-	public myRndrObjClr flockColor;
 	
-	public myBoatRndrObj(Boids_2 _p, myBoids3DWin _win, int _type) {
-		super(_p, _win, _type);
-
-	}//ctor
+	//colors for boat reps of boids
+	//primary object color (same across all types of boids); individual type colors defined in instance class
+	private static myRndrObjClr mainColor;	
+	//color defined for this particular flock
+	private myRndrObjClr flockColor;
+	//base IDX - this is main color for all boats
+	private static final int baseBoatIDX = 0;
+	//divisors for stroke color from fill color
+	private static float[] clrStrkDiv = new float[]{.8f,5.0f,.75f,4.0f,.3f};
+	//boat colors - get from load? TODO
+	private static int[][] 
+			boatFillClrs = new int[][]{{110, 65, 30,255},	{30, 30, 30,255},	{130, 22, 10,255},	{22, 230, 10,255},	{22, 10, 130,255}},
+			//boatStrokeClrs = new int[][]{{80, 40, 25,255},	{0, 0, 0, 255},		{40, 0, 0,255},		{0, 80, 0,255},		{40, 0, 80,255}},//overridden to be fraction of fill color
+			boatStrokeClrs = new int[5][4],//overridden to be fraction of fill color
+			boatEmitClrs = new int[][]{boatFillClrs[0],		boatFillClrs[1],	boatFillClrs[2],	boatFillClrs[3],	boatFillClrs[4]};
+	private static final int[] boatSpecClr = new int[]{255,255,255,255};
+	
+	
+	public myBoatRndrObj(Boids_2 _p, myBoids3DWin _win, int _type) {	super(_p, _win, _type);	}//ctor
 
 	//inherited from myRenderObj
 	//colors shared by all instances/flocks of this type of render obj
 	@Override
 	protected void initMainColor(){
+		for(int j=0;j<3;++j){boatStrokeClrs[baseBoatIDX][j] = (int) (boatFillClrs[baseBoatIDX][j]/clrStrkDiv[baseBoatIDX]);	}
+		boatStrokeClrs[baseBoatIDX][3] = 255;			//stroke alpha
+
 		mainColor = new myRndrObjClr(p);
-		mainColor.setClrVal("fill", win.boatFillClrs[win.baseBoatIDX]);
-		mainColor.setClrVal("stroke", win.boatStrokeClrs[win.baseBoatIDX]);
-		mainColor.setClrVal("spec", win.boatSpecClr);
-		mainColor.setClrVal("emit", win.boatEmitClrs[win.baseBoatIDX]);
+		mainColor.setClrVal("fill", boatFillClrs[baseBoatIDX]);
+		mainColor.setClrVal("stroke", boatStrokeClrs[baseBoatIDX]);
+		mainColor.setClrVal("spec", boatSpecClr);
+		mainColor.setClrVal("emit", boatEmitClrs[baseBoatIDX]);
 		//mainColor.setClrVal("amb", _clrs[4]);
 		mainColor.setClrVal("strokeWt", 1.0f);
 		mainColor.setClrVal("shininess", 5.0f);
@@ -50,11 +65,14 @@ public class myBoatRndrObj extends myRenderObj {
 	//set up colors for individual flocks/teams 
 	@Override
 	protected void initFlkColor(){
+		for(int j=0;j<3;++j){boatStrokeClrs[type][j] = (int) (boatFillClrs[type][j]/clrStrkDiv[type]);	}
+		boatStrokeClrs[type][3] = 255;			//stroke alpha
+	
 		flockColor = new myRndrObjClr(p);		
-		flockColor.setClrVal("fill", win.boatFillClrs[type]);
-		flockColor.setClrVal("stroke", win.boatStrokeClrs[type]);
-		flockColor.setClrVal("spec", win.boatSpecClr);
-		flockColor.setClrVal("emit", win.boatEmitClrs[type]);
+		flockColor.setClrVal("fill", boatFillClrs[type]);
+		flockColor.setClrVal("stroke", boatStrokeClrs[type]);
+		flockColor.setClrVal("spec", boatSpecClr);
+		flockColor.setClrVal("emit", boatEmitClrs[type]);
 //		flockColor.setClrVal("amb", _clrs[4]);
 		flockColor.setClrVal("strokeWt", 1.0f);
 		flockColor.setClrVal("shininess", 5.0f);
@@ -191,13 +209,14 @@ public class myBoatRndrObj extends myRenderObj {
 		sh.fill(0xFFFFFFFF);	
 		sh.noStroke();	
 		if(renderSigil){	
-			//textures make things slow!
+			//processing bug with textures which corrupts fill color of boat
 			//sh.texture(sailTexture);
 			for(int i=0;i<pts.length;++i){	sh.vertex(pts[i].x,pts[i].y,pts[i].z,uvAra[i].y,uvAra[i].x);}		
 		}
 		else {						
 			//sh.noTexture();	
-			for(int i=0;i<pts.length;++i){	sh.vertex(pts[i].x,pts[i].y,pts[i].z);}		
+			//for(int i=0;i<pts.length;++i){	sh.vertex(pts[i].x,pts[i].y,pts[i].z);}		
+			for(int i=0;i<pts.length;++i){	sh.vertex(pts[i].x,pts[i].y,pts[i].z,uvAra[i].y,uvAra[i].x);}		
 		}			
 		sh.endShape(PConstants.CLOSE);
 		objRep.addChild(sh);			
@@ -213,7 +232,7 @@ public class myBoatRndrObj extends myRenderObj {
 			sh.beginShape(); 
 			sh.fill(0xFFFFFFFF);	
 			sh.noStroke();	
-			//textures make things slow!
+			//processing bug with textures which corrupts fill color of boat
 			//sh.texture(sailTexture);
 			for(int i=0;i<pts1.length;++i){	sh.vertex(pts1[i].x,pts1[i].y,pts1[i].z,uvAra[i].y,uvAra[i].x);}			
 			sh.endShape(PConstants.CLOSE);

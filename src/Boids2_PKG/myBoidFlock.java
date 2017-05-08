@@ -32,8 +32,8 @@ public class myBoidFlock {
 	
 	public int curFlagState;					//holds current state of first 32 flags from win/UI
 	
-	public final int type, mtFrameSize = 100;	
-	public myRenderObj tmpl;							//template to render boid	
+	public final int type, mtFrameSize = 50;		//mtFrameSize is # of boids per thread
+	public myRenderObj tmpl, sphTmpl;				//template to render boid; simplified sphere template
 	public myBoidFlock preyFlock, predFlock;		//direct reference to flock that is my prey and my predator -- set in main program after init is called
 	
 	public List<Future<Boolean>> callFwdSimFutures, callUpdFutures, callInitFutures, callResetBoidFutures;
@@ -93,10 +93,11 @@ public class myBoidFlock {
 		}
 	}//initFlock - run after each flock has been constructed
 	
-	public void setPredPreyTmpl(int predIDX, int preyIDX, myRenderObj _tmpl){
+	public void setPredPreyTmpl(int predIDX, int preyIDX, myRenderObj _tmpl, myRenderObj _sphrTmpl){
 		predFlock = win.flocks[predIDX];//flock 0 preys on flock 2, is preyed on by flock 1
 		preyFlock = win.flocks[preyIDX];	
 		tmpl = _tmpl;
+		sphTmpl = _sphrTmpl;
 	}//set after init - all flocks should be made
 	
 	//finds valid coordinates if torroidal walls 

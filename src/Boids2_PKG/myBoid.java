@@ -201,9 +201,10 @@ public class myBoid {
 			p.translate(coords.x,coords.y,coords.z);		//move to location
 			if(win.getPrivFlags(win.debugAnimIDX)){drawMyVec(rotVec, Boids_2.gui_Black,4.0f);p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
 			if(win.getPrivFlags(win.showVel)){drawMyVec(velocity, Boids_2.gui_DarkMagenta,.5f);}
-			p.setColorValFill(p.gui_boatBody1 + type);
-			p.noStroke();
-			p.sphere(5);
+//			p.setColorValFill(p.gui_boatBody1 + type);
+//			p.noStroke();
+//			p.sphere(5);
+			f.sphTmpl.drawMe(animCntr);
 		p.popStyle();p.popMatrix();
 		animIncr();
 	}//drawme 

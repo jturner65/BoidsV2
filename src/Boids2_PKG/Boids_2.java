@@ -35,23 +35,16 @@ public class Boids_2 extends PApplet{
 		
 ///////////////
 //CODE STARTS
-///////////////
-
-	
+///////////////	
 	//////////////////////////////////////////////// code
 	public static void main(String[] passedArgs) {
 	    String[] appletArgs = new String[] { "Boids2_PKG.Boids_2" };
-	    if (passedArgs != null) {
-	    	PApplet.main(PApplet.concat(appletArgs, passedArgs));
-	    } else {
-	    	PApplet.main(appletArgs);
-	    }
+	    if (passedArgs != null) {	    	PApplet.main(PApplet.concat(appletArgs, passedArgs));  } else {	    	PApplet.main(appletArgs);	    }
 	}
 	public void settings(){
 		size((int)(displayWidth*.95f), (int)(displayHeight*.9f),P3D);
 		noSmooth();
-	}	
-	
+	}		
 
 	public void setup() {
 		colorMode(RGB, 255, 255, 255, 255);
@@ -68,10 +61,8 @@ public class Boids_2 extends PApplet{
 	}// setup
 	
 	public void setBkgrnd(){
-		background(bground[0],bground[1],bground[2],bground[3]);
-		
-		shape(bgrndSphere);
-		
+		background(bground[0],bground[1],bground[2],bground[3]);		
+		shape(bgrndSphere);		
 	}
 
 	private void initOnce() {
@@ -79,24 +70,18 @@ public class Boids_2 extends PApplet{
 		initVisOnce();						//always first
 		sceneIDX = 1;//(flags[show3D] ? 1 : 0);
 		glblStartSimTime = millis();
-		glblLastSimTime =  millis();
-		
+		glblLastSimTime =  millis();		
 //		numThreadsAvail = Runtime.getRuntime().availableProcessors();
 //		pr("# threads : "+ numThreadsAvail);
 //		th_exec = Executors.newFixedThreadPool(numThreadsAvail);
-		th_exec = Executors.newCachedThreadPool();
-		
-		focusTar = new myVector(sceneFcsVals[sceneIDX]);
-		 
+		th_exec = Executors.newCachedThreadPool();		
+		focusTar = new myVector(sceneFcsVals[sceneIDX]);		 
 		initDispWins();
 		setFlags(showUIMenu, true);					//show input UI menu	
 		setFlags(show3DWin, true);
 		setCamView(); 
 		initProgram();
-		//
-	}
-	
-	
+	}	
 	//called multiple times, whenever re-initing
 	public void initProgram(){
 		initVisProg();				//always first
@@ -390,8 +375,8 @@ public class Boids_2 extends PApplet{
 		winTrajFillClrs = new int []{gui_Black,gui_LightGray,gui_LightGray};		//set to color constants for each window
 		winTrajStrkClrs = new int []{gui_Black,gui_DarkGray,gui_DarkGray};				//set to color constants for each window			
 		
-		String[] winTitles = new String[]{"","Boids ver2.0 3D","Particle Fields 2D"},
-				winDescr = new String[] {"", "Particle Fields 3D Simulation","Particle Fields 2D Simulation"};
+		String[] winTitles = new String[]{"","Boids ver2.0 3D","Boids ver2.0 2D"},
+				winDescr = new String[] {"", "Multi Flock Predator/Prey Boids 3D Simulation","Multi Flock Predator/Prey Boids 2D Simulation"};
 		//			//display window initialization	
 		int wIdx = disp3DResIDX , fIdx = show3DWin;
 		dispWinFrames[wIdx] = new myBoids3DWin(this, winTitles[wIdx], fIdx,winFillClrs[wIdx], winStrkClrs[wIdx], winRectDimOpen[wIdx], winRectDimClose[wIdx], winDescr[wIdx],canDrawInWin[wIdx]);
@@ -998,6 +983,9 @@ public class Boids_2 extends PApplet{
 		return new int[]{(int)(255*(t[0]-cubeBnds[0][0])/cubeBnds[1][0]),(int)(255*(t[1]-cubeBnds[0][1])/cubeBnds[1][1]),(int)(255*(t[2]-cubeBnds[0][2])/cubeBnds[1][2]),255};
 	}
 	
+	//return a string holding the hex format of a passed value
+	public String intToHexStr(int val){return  String.format("0x%08X", val);}
+
 	
 	//random location within coords[0] and coords[1] extremal corners of a cube - bnds is to give a margin of possible random values
 	public myVectorf getRandPosInCube(float[][] coords, float bnds){

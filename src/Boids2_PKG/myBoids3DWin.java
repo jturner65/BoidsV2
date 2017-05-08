@@ -1,6 +1,8 @@
 package Boids2_PKG;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListMap;
+
 import processing.core.PImage;
 
 public class myBoids3DWin extends myDispWindow {
@@ -62,19 +64,12 @@ public class myBoids3DWin extends myDispWindow {
 			freebooter 	= 4;
 	public final int MaxNumFlocks = flkNames.length;			//max # of flocks we'll support 
 	//array of template objects to render
-	public myRenderObj[] rndrTmpl;
+	//need individual array for each type of object, sphere (simplified) render object
+	public myRenderObj[] rndrTmpl,//set depending on UI choice for complex rndr obj 
+		boatRndrTmpl,
+		//add more rendr obj arrays here
+		sphrRndrTmpl;//simplified rndr obj (sphere)
 	
-	//colors for boat reps of boids
-	public static final int baseBoatIDX = 0;
-	//divisors for stroke color from fill color
-	public static float[] clrStrkDiv = new float[]{.8f,5.0f,.75f,4.0f,.3f};
-	public static int[][] 
-			boatFillClrs = new int[][]{{110, 65, 30,255},	{30, 30, 30,255},	{130, 22, 10,255},	{22, 230, 10,255},	{22, 10, 130,255}},
-			//boatStrokeClrs = new int[][]{{80, 40, 25,255},	{0, 0, 0, 255},		{40, 0, 0,255},		{0, 80, 0,255},		{40, 0, 80,255}},//overridden to be fraction of fill color
-			boatStrokeClrs = new int[5][4],//overridden to be fraction of fill color
-			boatEmitClrs = new int[][]{boatFillClrs[0],		boatFillClrs[1],	boatFillClrs[2],	boatFillClrs[3],	boatFillClrs[4]}
-			;
-	public static final int[] boatSpecClr = new int[]{255,255,255,255};
 	//current values
 	public int numFlocks = 1;						
 	public myBoidFlock[] flocks;
@@ -133,6 +128,7 @@ public class myBoids3DWin extends myDispWindow {
 		clrList = new int[]{pa.gui_DarkGreen, pa.gui_DarkCyan, pa.gui_DarkRed, pa.gui_DarkBlue, pa.gui_DarkMagenta};
 		initPrivFlags(numPrivFlags);
 		//TODO set this to be determined by UI input (?)
+		initSimpleBoids();
 		initBoatBoids();
 	
 		setPrivFlags(drawBoids, true);
@@ -147,18 +143,20 @@ public class myBoids3DWin extends myDispWindow {
 		flkMenuOffset = uiClkCoords[1] + uiClkCoords[3] - y45Off;	//495
 	}//initMe
 	
-	//initialize all instances of boat boid models
-	public void initBoatBoids(){
+	//simple render objects - spheres
+	private void initSimpleBoids(){
+		sphrRndrTmpl = new mySphereRndrObj[MaxNumFlocks];
+		for(int i=0; i<MaxNumFlocks; ++i){		sphrRndrTmpl[i] = new mySphereRndrObj(pa, this, i);	}
+	}
+	
+	//initialize all instances of boat boid models - called 1 time
+	private void initBoatBoids(){
 		flkSails = new PImage[MaxNumFlocks];
-		rndrTmpl = new myBoatRndrObj[MaxNumFlocks];
+		boatRndrTmpl = new myBoatRndrObj[MaxNumFlocks];
 		for(int i=0; i<MaxNumFlocks; ++i){	
-			for(int j=0;j<3;++j){
-				boatStrokeClrs[i][j] = (int) (boatFillClrs[i][j]/clrStrkDiv[i]);
-			}
-			boatStrokeClrs[i][3] = 255;			//stroke alpha
 			flkSails[i] = pa.loadImage(flkNames[i]+".jpg");
-			//build render object for each individual flock type
-			rndrTmpl[i] = new myBoatRndrObj(pa, this, i);
+			//build boat render object for each individual flock type
+			boatRndrTmpl[i] = new myBoatRndrObj(pa, this, i);
 		}
 	}
 	
@@ -184,6 +182,11 @@ public class myBoids3DWin extends myDispWindow {
 		setPrivFlags(flkSpawn, val);		
 	}//setHunting
 	
+	//TODO return appropriate complex render object array based on UI input input
+	private myRenderObj[] getCurRndrObjAra(){
+		return  boatRndrTmpl;		
+	}
+	
 	//set up current flock configuration, based on ui selections
 	private void initFlocks(){
 		setHunting(numFlocks > 1);
@@ -195,7 +198,9 @@ public class myBoids3DWin extends myDispWindow {
 		for(int i =0; i<flocks.length; ++i){
 			flocks[i] = (new myBoidFlock(pa,this,flkNames[i],initNumBoids,i));flocks[i].initFlock();
 		}
-		for(int i =0; i<flocks.length; ++i){flocks[i].setPredPreyTmpl((((i+flocks.length)+1)%flocks.length), (((i+flocks.length)-1)%flocks.length), rndrTmpl[i]);}	
+
+		rndrTmpl = getCurRndrObjAra();
+		for(int i =0; i<flocks.length; ++i){flocks[i].setPredPreyTmpl((((i+flocks.length)+1)%flocks.length), (((i+flocks.length)-1)%flocks.length), rndrTmpl[i], sphrRndrTmpl[i]);}	
 	}
 
 	public int getFlkFlagsInt(){		return privFlags[0];} //get first 32 flag settings
