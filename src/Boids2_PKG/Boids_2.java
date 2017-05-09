@@ -51,10 +51,11 @@ public class Boids_2 extends PApplet{
 		frameRate(frate);
 		initOnce();
 		PImage bgrndTex = loadImage("bkgrndTex.jpg");
+		//PImage bgrndTex = loadImage("sky_1.jpg");
 		sphereDetail(100);
 		bgrndSphere = createShape(SPHERE, 10000);
 		bgrndSphere.setTexture(bgrndTex);
-		bgrndSphere.rotate(HALF_PI,1,0,0);
+		bgrndSphere.rotate(HALF_PI,-1,0,0);
 		bgrndSphere.setStroke(false);
 		setBkgrnd();
 		sphereDetail(10);
@@ -71,8 +72,8 @@ public class Boids_2 extends PApplet{
 		sceneIDX = 1;//(flags[show3D] ? 1 : 0);
 		glblStartSimTime = millis();
 		glblLastSimTime =  millis();		
-//		numThreadsAvail = Runtime.getRuntime().availableProcessors();
-//		pr("# threads : "+ numThreadsAvail);
+		numThreadsAvail = Runtime.getRuntime().availableProcessors();
+		pr("# threads : "+ numThreadsAvail);
 //		th_exec = Executors.newFixedThreadPool(numThreadsAvail);
 		th_exec = Executors.newCachedThreadPool();		
 		focusTar = new myVector(sceneFcsVals[sceneIDX]);		 
@@ -485,15 +486,16 @@ public class Boids_2 extends PApplet{
 	public final int runSim				= 8;			//run simulation
 	public final int singleStep			= 9;			//run single sim step
 	public final int rideBoid			= 10;
+	public final int modDelT			= 11;			//modify delta t to be scaled by frame rate - slower frame rate yields higher delta t
 	//window control
-	public final int showUIMenu 		= 11;			//whether or not to show sidebar menu
-	public final int show3DWin			= 12;			//whether to show 3D window
-	public final int show2DWin			= 13;			//whether to show 2D window
+	public final int showUIMenu 		= 12;			//whether or not to show sidebar menu
+	public final int show3DWin			= 13;			//whether to show 3D window
+	public final int show2DWin			= 14;			//whether to show 2D window
 	
-	public final int flipDrawnTraj  	= 14;			//whether or not to flip the direction of the drawn trajectory
-	public final int clearBKG			= 15;			//whether or not to clear background
+	public final int flipDrawnTraj  	= 15;			//whether or not to flip the direction of the drawn trajectory
+	public final int clearBKG			= 16;			//whether or not to clear background
 	
-	public final int numFlags = 16;
+	public final int numFlags = 17;
 	
 	//flags to actually display in menu as clickable text labels - order does matter
 	public List<Integer> flagsToShow = Arrays.asList( 
@@ -501,7 +503,8 @@ public class Boids_2 extends PApplet{
 		saveAnim,
 		runSim,
 		singleStep,
-		rideBoid
+		rideBoid,
+		modDelT
 		);
 	
 	public final int numFlagsToShow = flagsToShow.size();
@@ -691,6 +694,7 @@ public class Boids_2 extends PApplet{
 			//case useDrawnVels 		: {for(int i =1; i<dispWinFrames.length;++i){dispWinFrames[i].rebuildAllDrawnTrajs();}break;}
 			case clearBKG		: {break;}//anything special for clearBKG	
 			case rideBoid		: {break;}
+			case modDelT		: {break;}
 			default : {break;}
 		}
 	}//setFlags  

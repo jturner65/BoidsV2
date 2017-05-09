@@ -102,12 +102,12 @@ public class myFlkVars {
 
 	//handles all modification of flock values from ui - wIdx is manufactured based on location in ui click area
 	public void modFlkVal(int wIdx, float mod){
-		p.outStr2Scr("Attempt to modify flock : " + flock.name + " value : " + wIdx + " by " + mod);
+		//p.outStr2Scr("Attempt to modify flock : " + flock.name + " value : " + wIdx + " by " + mod);
 		if(wIdx==-1){return;}
 		switch(wIdx){
 		//hierarchy - if neighbor then col and vel, if col then 
 			case 0  : {
-				p.outStr2Scr("nghbrRad : " + nghbrRad + " max : " + nghbrRadMax + " mod : " + mod);
+				//p.outStr2Scr("nghbrRad : " + nghbrRad + " max : " + nghbrRadMax + " mod : " + mod);
 				nghbrRad = modVal(nghbrRad, nghbrRadMax, .1f*nghbrRadMax, mod);
 				fixNCVRads(true, true);				
 				break;}			//flck radius

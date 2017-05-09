@@ -360,12 +360,12 @@ public abstract class myDispWindow {
 	protected void buildGUIObjs(String[] guiObjNames, double[] guiStVals, double[][] guiMinMaxModVals, boolean[][] guiBoolVals, double[] off){
 		//myGUIObj tmp; 
 //		if(getFlags(uiObjsAreVert]){		//vertical stack of UI components - clickable region x is unchanged, y changes with # of objects
-			float stClkY = uiClkCoords[1];
+			float stClkY = uiClkCoords[1] - (.5f*yOff);
 			for(int i =0; i< guiObjs.length; ++i){
 				guiObjs[i] = buildGUIObj(i,guiObjNames[i],guiStVals[i], guiMinMaxModVals[i], guiBoolVals[i], new double[]{uiClkCoords[0], stClkY, uiClkCoords[2], stClkY+yOff},off);
 				stClkY += yOff;
 			}
-			uiClkCoords[3] = stClkY;	
+			uiClkCoords[3] = stClkY - (.5f*yOff);	
 //		} else {			//horizontal row of UI components - clickable region y is unchanged, x changes with # of objects
 //			double stClkX = uiClkCoords[0];
 //			double UICompWidth;
@@ -790,8 +790,8 @@ public abstract class myDispWindow {
 			for(int j=0; j<guiObjs.length; ++j){
 				if(guiObjs[j].checkIn(mouseX, mouseY)){	
 					if(pa.flags[pa.shiftKeyPressed]){//allows for click-mod
-						int mult = mseBtn * -2 + 1;	//+1 for left, -1 for right btn						
-						guiObjs[j].modVal(mult * pa.clickValModMult());
+						int mult = mseBtn * -2 + 1;	//+1 for left, -1 for right btn	
+						guiObjs[j].clkModVal(mult * pa.clickValModMult());
 						setFlags(uiObjMod,true);
 					} else {										//has drag mod
 						msClkObj=j;
@@ -1044,6 +1044,7 @@ class mySideBarMenu extends myDispWindow{
 			"Stop Simulation",
 			"Single Step",
 			"View From Boid",
+			"Mod DelT By Frame Rate",
 			"Displaying UI Menu",
 			"Reverse Drawn Trajectory"
 			};
@@ -1060,6 +1061,7 @@ class mySideBarMenu extends myDispWindow{
 			"Run Simulation",
 			"Single Step",
 			"View With Global Cam",
+			"Keep DelT Fixed",
 			"Displaying UI Menu",
 			"Reverse Drawn Trajectory"
 			};

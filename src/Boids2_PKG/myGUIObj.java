@@ -74,7 +74,8 @@ public class myGUIObj {
 		val = ((_newVal >= minVal)&&(_newVal<=maxVal)) ? _newVal : (_newVal < minVal) ? minVal : maxVal;		
 		return val;
 	}	
-	
+	//make shift-click on lists move by mod value regardless of modMultSetting
+	public double clkModVal(double mod){return modVal (mod/modMult);}
 	public double modVal(double mod){
 		val += (mod*modMult);
 		if(getFlags(treatAsIntIDX)){val = Math.round(val);}
@@ -99,10 +100,7 @@ public class myGUIObj {
 			p.popStyle();p.popMatrix();
 			if(!getFlags(treatAsIntIDX)){		p.text(dispText + String.format("%.5f",val), 0,0);}
 			else{
-				String resStr = String.format("%.0f",val);
-				if(getFlags(hasListValsIDX)){					
-					resStr = win.getUIListValStr(winID, (int)val);
-				}
+				String resStr = getFlags(hasListValsIDX) ?  win.getUIListValStr(winID, (int)val) : String.format("%.0f",val);
 				p.text(dispText + resStr, 0,0);
 			}
 		p.popStyle();p.popMatrix();

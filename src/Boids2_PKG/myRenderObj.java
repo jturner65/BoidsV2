@@ -10,6 +10,8 @@ public abstract class myRenderObj {
 	//individual objRep-type pshapes	
 	protected PShape objRep;										//1 shape for each type of objRep
 	protected int type;												//type of flock this objRep represents
+	//color defined for this particular boid-type - also query for menu color
+	protected myRndrObjClr flockColor;
 	
 	//class to allow for prebuilding complex rendered representations of boids as pshapes
 	public myRenderObj(Boids_2 _p, myBoids3DWin _win, int _type) {
@@ -19,8 +21,7 @@ public abstract class myRenderObj {
 	
 	//initialize base and flock/team colors for this object
 	protected abstract void initMainColor();
-	protected abstract void initFlkColor();
-	
+	protected abstract void initFlkColor();	
 	//build geometry of object
 	protected abstract void initGeometry();
 	//builds geometry for object to be instanced - only perform once per object type 
@@ -38,7 +39,11 @@ public abstract class myRenderObj {
 		sh.translate(tx,ty,tz);		
 		return sh;
 	}//makeShape
-
+	
+	//set background for menu color, darkening a bit so that bright colors are still visible on white background
+	public void setMenuColor(){
+		flockColor.fillMenu(.9f);
+	}
 	
 	//instance a pshape and draw it
 	public void drawMe(float animCntr){

@@ -5,8 +5,6 @@ import processing.core.PConstants;
 public class mySphereRndrObj extends myRenderObj {
 	//if overall geometry has been made or not
 	private static boolean made;
-	//color defined for this particular flock
-	private myRndrObjClr flockColor;
 	//divisors for stroke color from fill color
 	private static float[] clrStrkDiv = new float[]{.8f,5.0f,.75f,4.0f,.3f};
 	//boat colors - get from load? TODO
@@ -17,15 +15,12 @@ public class mySphereRndrObj extends myRenderObj {
 	private static final int[] specClr = new int[]{255,255,255,255};
 
 	public mySphereRndrObj(Boids_2 _p, myBoids3DWin _win, int _type) {	super(_p, _win, _type);	}
-
 	@Override
 	protected void initMainColor() {/**no shared colors across all spheres**/}
-
 	@Override
 	protected void initFlkColor() {
 		for(int j=0;j<3;++j){sphrStrkClrs[type][j] = (int) (sphrFillClrs[type][j]/clrStrkDiv[type]);	}
-		sphrStrkClrs[type][3] = 255;			//stroke alpha
-	
+		sphrStrkClrs[type][3] = 255;			//stroke alpha	
 		flockColor = new myRndrObjClr(p);		
 		flockColor.setClrVal("fill", sphrFillClrs[type]);
 		flockColor.setClrVal("stroke", sphrStrkClrs[type]);
@@ -47,15 +42,14 @@ public class mySphereRndrObj extends myRenderObj {
 	protected void initGeometry(){
 		//global setup for this object type
 		if(!made){				initObjGeometry();}//if not made yet initialize geometry to build this object
-		//individual per-flock-type setup - need to not be static since window can change
+		//individual per-flock-type instancing - need to not be static since window can change (can call same type of flock in different myDispWindows)
 		initInstObjGeometry();		
 	}
 
 	@Override
-	protected void initObjGeometry() {
-		
+	protected void initObjGeometry() {		
 		//base colors for all spheres, if any exist
-		initMainColor();
+		//initMainColor();
 		made = true;
 	}
 
@@ -64,15 +58,15 @@ public class mySphereRndrObj extends myRenderObj {
 		p.sphereDetail(5);
 		objRep = p.createShape(PConstants.SPHERE, 5.0f); 
 		initFlkColor();
+		//call shSetPaintColors since we need to use set<type> style functions of Pshape when outside beginShape-endShape
 		flockColor.shSetPaintColors(objRep);
 	}
 
 	//no need for specific object-building function for spheres
 	@Override
 	protected void buildObj() {	}
-
-	//nothing special for sphere render object
+	//nothing special (per-frame) for sphere render object
 	@Override
 	protected void drawMeIndiv(float animCntr) {}
 
-}
+}//class mySphereRndrObj

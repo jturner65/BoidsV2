@@ -111,33 +111,40 @@ public class myBoid {
 		for(Float dist : neighbors.keySet()){
 			if (dist > spawnRadSq){return;}//returns in increasing order - can return once we're past spawn Rad Threshold
 			myBoid b = neighbors.get(dist);
-			if((b.gender==0)&&(b.canSpawn())){				
-				ptnWife.put(dist, b);
-			}
+			if((b.gender==0)&&(b.canSpawn())){	ptnWife.put(dist, b);}
 		}
 	}//copySubSetBoidsMate
 	public void haveChild(myPointf _bl, myVectorf _bVel, myVectorf _bFrc){bd_flags[hadChild]=true; birthLoc=_bl;birthVel=_bVel;birthForce=_bFrc;}
-	public boolean hadAChild(myPointf[] _bl, myVectorf[] _bVelFrc){if(bd_flags[hadChild]){bd_flags[hadChild]=false;_bl[0].set(birthLoc);_bVelFrc[0].set(birthVel);_bVelFrc[1].set(birthForce);return true;} else {return false;}}	
+	public boolean hadAChild(myPointf[] _bl, myVectorf[] _bVelFrc){//if baby is born then set values of arrays and return
+		if(bd_flags[hadChild]){
+			bd_flags[hadChild]=false;
+			_bl[0].set(birthLoc);
+			_bVelFrc[0].set(birthVel);
+			_bVelFrc[1].set(birthForce);
+			return true;} 
+		else {return false;}
+	}	
 	public int resetCntrs(int cntrBseVal, float mod){return (int)(cntrBseVal*(1+mod));}
 	//only reset spawn counters once boid has spawned
 	public void hasSpawned(){spawnCntr = resetCntrs(f.flv.spawnFreq,ThreadLocalRandom.current().nextFloat()); bd_flags[canSpawn] = false;}
 	public boolean canSpawn(){return bd_flags[canSpawn];}
+	//update spawn counters
+	public void updateSpawnCntr(){
+		--spawnCntr;
+		bd_flags[canSpawn]=(spawnCntr<=0);
+	}//updateBoidCounters	
+	
+	//update hunger counters
+	public void updateHungerCntr(){
+		--starveCntr;
+		if (starveCntr<=0){killMe("Starvation");}//if can get hungry then can starve to death
+		bd_flags[isHungry] = (bd_flags[isHungry] || (p.random(f.flv.eatFreq)>=starveCntr)); //once he's hungry he stays hungry unless he eats (hungry set to false elsewhere)
+	}	
 	public void eat(float tarMass){	starveCntr = resetCntrs(f.flv.eatFreq,tarMass);bd_flags[isHungry]=false;}
 	public boolean canSprint(){return (starveCntr > .25f*f.flv.eatFreq);}
 	public boolean isHungry(){return bd_flags[isHungry];}
 	//init bd_flags state machine
 	public void initbd_flags(){bd_flags = new boolean[numbd_flags];for(int i=0;i<numbd_flags;++i){bd_flags[i]=false;}}
-	//update hunger counters
-	public void updateHungerCntr(){
-		starveCntr--;
-		if (starveCntr<=0){killMe("Starvation");}//if can get hungry then can starve to death
-		bd_flags[isHungry] = (bd_flags[isHungry] || (p.random(f.flv.eatFreq)>=starveCntr)); //once he's hungry he stays hungry unless he eats (hungry set to false elsewhere)
-	}
-	//update spawn counters
-	public void updateSpawnCntr(){
-		spawnCntr--;
-		bd_flags[canSpawn]=(spawnCntr<=0);
-	}//updateBoidCounters	
 	
 	//initialize newborn velocity, forces, and orientation
 	public void initNewborn(myVectorf[] bVelFrc){

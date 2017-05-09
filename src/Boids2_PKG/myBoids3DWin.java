@@ -81,7 +81,7 @@ public class myBoids3DWin extends myDispWindow {
 	public ArrayList<Float[]> flkVarClkRes;
 	//idxs of flock and boid to assign camera to if we are watching from "on deck"
 	public int flockToWatch, boidToWatch;
-	private float y45Off = 4.5f*yOff, flkMenuOffset;
+	private float y45Off = 5.5f*yOff, flkMenuOffset;
 	
 	//idx of zone in currently modified flkVars value during drag - set to -1 on click release
 	private int flkVarIDX, flkVarObjIDX;
@@ -260,7 +260,7 @@ public class myBoids3DWin extends myDispWindow {
 		guiMinMaxModVals = new double [][]{
 			{0,1.0f,.0001f},					//timestep           		gIDX_TimeStep 	
 			{1,MaxNumFlocks,1.0f},
-			{0,numFlocks-1,1.0f},
+			{0,numFlocks-1,.1f},
 			{0,initNumBoids-1,1.0f}
 		};		//min max mod values for each modifiable UI comp	
 
@@ -358,13 +358,14 @@ public class myBoids3DWin extends myDispWindow {
 	
 	@Override
 	protected void simMe(float modAmtSec) {//run simulation
-		//scale timestep to account for lag of rendering
-		timeStepMult = modAmtSec * 30.0f;
+		//scale timestep to account for lag of rendering if set in booleans		
+		timeStepMult = pa.flags[pa.modDelT] ?  modAmtSec * 30.0f : 1.0f;
 		for(int i =0; i<flocks.length; ++i){flocks[i].clearOutBoids();}			//clear boid accumulators of neighbors, preds and prey  initAllMaps
 		for(int i =0; i<flocks.length; ++i){flocks[i].initAllMaps();}
 		if(getFlags(useOrigDistFuncs)){for(int i =0; i<flocks.length; ++i){flocks[i].moveBoidsOrigMultTH();}} 
 		else {					for(int i =0; i<flocks.length; ++i){flocks[i].moveBoidsLinMultTH();}}
-		for(int i =0; i<flocks.length; ++i){flocks[i].updateBoidMovement();setMaxUIBoidToWatch(i);}	
+		for(int i =0; i<flocks.length; ++i){flocks[i].updateBoidMovement();}//setMaxUIBoidToWatch(i);}	
+		for(int i =0; i<flocks.length; ++i){flocks[i].finalizeBoids();setMaxUIBoidToWatch(i);}	
 	}
 	@Override
 	protected void stopMe() {	}	

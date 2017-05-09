@@ -23,8 +23,6 @@ public class myBoatRndrObj extends myRenderObj {
 	//colors for boat reps of boids
 	//primary object color (same across all types of boids); individual type colors defined in instance class
 	private static myRndrObjClr mainColor;	
-	//color defined for this particular flock
-	private myRndrObjClr flockColor;
 	//base IDX - this is main color for all boats
 	private static final int baseBoatIDX = 0;
 	//divisors for stroke color from fill color
@@ -32,7 +30,6 @@ public class myBoatRndrObj extends myRenderObj {
 	//boat colors - get from load? TODO
 	private static int[][] 
 			boatFillClrs = new int[][]{{110, 65, 30,255},	{30, 30, 30,255},	{130, 22, 10,255},	{22, 230, 10,255},	{22, 10, 130,255}},
-			//boatStrokeClrs = new int[][]{{80, 40, 25,255},	{0, 0, 0, 255},		{40, 0, 0,255},		{0, 80, 0,255},		{40, 0, 80,255}},//overridden to be fraction of fill color
 			boatStrokeClrs = new int[5][4],//overridden to be fraction of fill color
 			boatEmitClrs = new int[][]{boatFillClrs[0],		boatFillClrs[1],	boatFillClrs[2],	boatFillClrs[3],	boatFillClrs[4]};
 	private static final int[] boatSpecClr = new int[]{255,255,255,255};

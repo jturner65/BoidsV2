@@ -120,6 +120,10 @@ public class myRndrObjClr{
 		if(getFlags(ambIDX)){p.ambient(ambColor[0],ambColor[1],ambColor[2]);}
 		if(getFlags(shnIDX)){p.shininess(shininess);}
 	}
+	//apply this color's fill color to papplet
+	public void fillMenu(float mult){
+		p.fill(mult*fillColor[0],mult*fillColor[1],mult*fillColor[2],255);
+	}
 	
 	public void setFlags(int idx, boolean val){setPrivFlag(flags, idx, val);}
 	public boolean getFlags(int idx){return getPrivFlag(flags, idx);}
