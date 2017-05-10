@@ -9,11 +9,13 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class myBoid {
 	public Boids_2 p;
-	public myBoids3DWin win;
+	//public myBoids3DWin win;
 	public myBoidFlock f;
 	
 	public int ID;
 	public static int IDcount = 0;
+	//# of animation frames to be used to cycle 1 motion by render objects
+	public static final int numAnimFrames = 90;
 	
 	public int starveCntr, spawnCntr;
 	public float[] O_axisAngle,															//axis angle orientation of this boid
@@ -38,9 +40,13 @@ public class myBoid {
 	//location to put new child
 	public myPointf birthLoc;
 	//animation controlling variables
-	public float animCntr;
+	private float animCntr;
+	public float animPhase;
+	//
+	public int animAraIDX;//index in numAnimFrames-sized array of current animation state
+	
 	public static final float maxAnimCntr = 1000.0f, baseAnimSpd = 1.0f;
-	public final float preCalcAnimSpd;
+	//public final float preCalcAnimSpd;
 	//boat construction variables
 	public final int type,gender;//,bodyColor;													//for spawning gender = 0 == female, 1 == male;
 	public static final int O_FWD = 0, O_RHT = 1,  O_UP = 2;
@@ -55,19 +61,21 @@ public class myBoid {
 										preyFlkLoc;						//boid mapped to location used for distance calc
 			
 	public myBoid(Boids_2 _p, myBoids3DWin _win, myBoidFlock _f,  myPointf _coords, int _type){
-		ID = IDcount++;		p = _p;		f = _f; win = _win;
+		ID = IDcount++;		p = _p;		f = _f; type=_type; //win = _win;		
 		initbd_flags();
 		rotVec = myVectorf.RIGHT.cloneMe(); 			//initial setup
 		orientation = new myVectorf[3];
 		orientation[O_FWD] = myVectorf.FORWARD.cloneMe();
 		orientation[O_RHT] = myVectorf.RIGHT.cloneMe();
 		orientation[O_UP] = myVectorf.UP.cloneMe();
-		preCalcAnimSpd = (float) ThreadLocalRandom.current().nextDouble(.5f,2.0);		
-		animCntr = (float) ThreadLocalRandom.current().nextDouble(.000001f ,maxAnimCntr );
+		//preCalcAnimSpd = (float) ThreadLocalRandom.current().nextDouble(.5f,2.0);		
+		animPhase = (float) ThreadLocalRandom.current().nextDouble(.25f, .75f ) ;//keep initial phase between .25 and .75 so that cyclic-force boids start moving right away
+		animCntr = animPhase * maxAnimCntr;
+		animAraIDX = (int)(animPhase * numAnimFrames);	
+		
 		coords = new myPointf(_coords);	//new myPointf[2]; 
 		velocity = new myVectorf();
 		forces  = new myVectorf();//= new myVectorf[2];
-		type=_type;
 		setInitState();
 		O_axisAngle=new float[]{0,1,0,0};
 		oldRotAngle = 0;
@@ -156,7 +164,7 @@ public class myBoid {
 		rotVec.set(O_axisAngle[1],O_axisAngle[2],O_axisAngle[3]);
 		//TODO change f.delT to get value from win UI input
 		float rotAngle = (float) (oldRotAngle + ((O_axisAngle[0]-oldRotAngle) * f.delT));
-		p.rotate(rotAngle,O_axisAngle[1],O_axisAngle[2],O_axisAngle[3]);
+		p.rotate(rotAngle,rotVec.x, rotVec.y, rotVec.z);
 		oldRotAngle = rotAngle;
 	}//alignBoid	
 	//kill this boid
@@ -186,34 +194,64 @@ public class myBoid {
 	public void drawMe(){
 		p.pushMatrix();p.pushStyle();
 			p.translate(coords.x,coords.y,coords.z);		//move to location
-			if(win.getPrivFlags(win.debugAnimIDX)){drawMyVec(rotVec, Boids_2.gui_Black,4.0f);p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
-			if(win.getPrivFlags(win.showVel)){drawMyVec(velocity, Boids_2.gui_DarkMagenta,.5f);}
+//			if(win.getPrivFlags(win.debugAnimIDX)){drawMyVec(rotVec, Boids_2.gui_Black,4.0f);p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
+//			if(win.getPrivFlags(win.showVel)){drawMyVec(velocity, Boids_2.gui_DarkMagenta,.5f);}
 			alignBoid();
 			p.rotate(p.PI/2.0f,1,0,0);
 			p.rotate(p.PI/2.0f,0,1,0);
 			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
 			p.pushStyle();
-			f.tmpl.drawMe(animCntr);
-
-			p.popStyle();
-			
+			f.tmpl.drawMe(animAraIDX, ID);
+			p.popStyle();			
 		p.popStyle();p.popMatrix();
 		animIncr();
 	}//drawme	
 	
+	public void drawMeDbgFrame(){
+		p.pushMatrix();p.pushStyle();
+			p.translate(coords.x,coords.y,coords.z);		//move to location
+			drawMyVec(rotVec, Boids_2.gui_Black,4.0f);p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);
+			alignBoid();
+			p.rotate(p.PI/2.0f,1,0,0);
+			p.rotate(p.PI/2.0f,0,1,0);
+			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
+			p.pushStyle();
+			f.tmpl.drawMe(animAraIDX, ID);	
+			p.popStyle();			
+		p.popStyle();p.popMatrix();
+		animIncr();		
+	}
+	
+	public void drawMeAndVel(){
+		p.pushMatrix();p.pushStyle();
+			p.translate(coords.x,coords.y,coords.z);		//move to location
+			drawMyVec(velocity, Boids_2.gui_Magenta,.5f);
+			alignBoid();
+			p.rotate(p.PI/2.0f,1,0,0);
+			p.rotate(p.PI/2.0f,0,1,0);
+			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
+			p.pushStyle();
+			f.tmpl.drawMe(animAraIDX, ID);	
+			p.popStyle();			
+		p.popStyle();p.popMatrix();
+		animIncr();		
+	}
+	
 	//draw this boid as a ball - replace with sphere render obj 
-	public void drawMeBall(){
+	public void drawMeBall(boolean debugAnim, boolean showVel){
 		p.pushMatrix();p.pushStyle();
 			//p.strokeWeight(1.0f);
 			p.translate(coords.x,coords.y,coords.z);		//move to location
-			if(win.getPrivFlags(win.debugAnimIDX)){drawMyVec(rotVec, Boids_2.gui_Black,4.0f);p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
-			if(win.getPrivFlags(win.showVel)){drawMyVec(velocity, Boids_2.gui_DarkMagenta,.5f);}
+//			if(win.getPrivFlags(win.debugAnimIDX)){drawMyVec(rotVec, Boids_2.gui_Black,4.0f);p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
+//			if(win.getPrivFlags(win.showVel)){drawMyVec(velocity, Boids_2.gui_DarkMagenta,.5f);}
+			if(debugAnim){drawMyVec(rotVec, Boids_2.gui_Black,4.0f);p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
+			if(showVel){drawMyVec(velocity, Boids_2.gui_DarkMagenta,.5f);}
 //			p.setColorValFill(p.gui_boatBody1 + type);
 //			p.noStroke();
 //			p.sphere(5);
-			f.sphTmpl.drawMe(animCntr);
+			f.sphTmpl.drawMe(animAraIDX, ID);
 		p.popStyle();p.popMatrix();
-		animIncr();
+		//animIncr();
 	}//drawme 
 	
 	public void drawClosestPrey(){
@@ -256,27 +294,26 @@ public class myBoid {
 	}
 	
 	private void animIncr(){
-		animCntr = (animCntr + (baseAnimSpd + (velocity.magn*.1f))*preCalcAnimSpd) % maxAnimCntr;						//set animMod based on velocity -> 1 + mag of velocity		
-//		if((animCntr>maxAnimCntr)||(animCntr<0)){
-//			animCntr =0;
-//		}
+		animCntr += (baseAnimSpd + (velocity.magn *.1f));//*preCalcAnimSpd;						//set animMod based on velocity -> 1 + mag of velocity	
+		animPhase = ((animCntr % maxAnimCntr)/maxAnimCntr);									//phase of animation cycle
+		animAraIDX = (int)(animPhase * numAnimFrames);	
 	}//animIncr		
 	
 	public String toString(){
-		String result = "ID : " + ID + " Type : "+win.flkNames[f.type]+" | Mass : " + mass + " | Spawn CD "+spawnCntr + " | Starve CD " + starveCntr+"\n";
+		String result = "ID : " + ID + " Type : "+f.win.flkNames[type]+" | Mass : " + mass + " | Spawn CD "+spawnCntr + " | Starve CD " + starveCntr+"\n";
 		result+=" | location : " + coords + " | velocity : " + velocity + " | forces : " + forces +"\n" ;
 		//if(p.flags[p.debugMode]){result +="\nOrientation : UP : "+orientation[O_UP] + " | FWD : "+orientation[O_FWD] + " | RIGHT : "+orientation[O_RHT] + "\n";}
 		int num =neighbors.size();
 		result += "# neighbors : "+ num + (num==0 ? "\n" : " | Neighbor IDs : \n");
-		if(win.getPrivFlags(win.showFlkMbrs)){	for(Float bd_K : neighbors.keySet()){result+="\tNeigh ID : "+neighbors.get(bd_K).ID + " dist from me : " + bd_K+"\n";}}
+		if(f.win.getPrivFlags(f.win.showFlkMbrs)){	for(Float bd_K : neighbors.keySet()){result+="\tNeigh ID : "+neighbors.get(bd_K).ID + " dist from me : " + bd_K+"\n";}}
 		num = colliderLoc.size();
 		result += "# too-close neighbors : "+ num + (num==0 ? "\n" : " | Colliders IDs : \n");
-		if(win.getPrivFlags(win.showFlkMbrs)){for(Float bd_K : colliderLoc.keySet()){result+="\tDist from me : " + bd_K+"\n";}}
+		if(f.win.getPrivFlags(f.win.showFlkMbrs)){for(Float bd_K : colliderLoc.keySet()){result+="\tDist from me : " + bd_K+"\n";}}
 		result += "# predators : "+ num + (num==0 ? "\n" : " | Predator IDs : \n");
-		if(win.getPrivFlags(win.showFlkMbrs)){for(Float bd_K : predFlkLoc.keySet()){result+="\tDist from me : " + bd_K+"\n";}}
+		if(f.win.getPrivFlags(f.win.showFlkMbrs)){for(Float bd_K : predFlkLoc.keySet()){result+="\tDist from me : " + bd_K+"\n";}}
 		num = preyFlk.size();
 		result += "# prey : "+ num + (num==0 ? "\n" : " | Prey IDs : \n");
-		if(win.getPrivFlags(win.showFlkMbrs)){for(Float bd_K : preyFlk.keySet()){result+="\tPrey ID : "+preyFlk.get(bd_K).ID + " dist from me : " + bd_K+"\n";}}
+		if(f.win.getPrivFlags(f.win.showFlkMbrs)){for(Float bd_K : preyFlk.keySet()){result+="\tPrey ID : "+preyFlk.get(bd_K).ID + " dist from me : " + bd_K+"\n";}}
 		return result;
 	}	
 }//myBoid class

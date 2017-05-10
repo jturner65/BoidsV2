@@ -21,8 +21,7 @@ public class myUpdateStencil implements Callable<Boolean> {
 	public static final int[] stFlagIDXs = new int[]{
 		myBoids3DWin.flkHunt,
 		myBoids3DWin.flkHunger,
-		myBoids3DWin.flkSpawn};
-	
+		myBoids3DWin.flkSpawn};	
 	
 	myUpdateStencil(Boids_2 _p, myBoidFlock _f, int _flagInt,  List<myBoid> _bAra){
 		p=_p; f=_f; bAra=_bAra;
@@ -86,7 +85,7 @@ public class myUpdateStencil implements Callable<Boolean> {
 		myVectorf tmp = new myVectorf(rzuy, uxfz, fyrx);
 		s = tmp.magn;
 		if (s < p.epsValCalc){ s=1; }
-		tmp._scale(s);
+		tmp._scale(s);//changes mag to s
 			// prevent divide by zero, should not happen if matrix is orthogonal -- should be caught by singularity test above
 		angle = (float) -Math.acos(( b.orientation[O_FWD].x + b.orientation[O_RHT].y + b.orientation[O_UP].z - 1)/2.0);
 	   return new float[]{angle,tmp.x,tmp.y,tmp.z};
@@ -133,23 +132,27 @@ public class myUpdateStencil implements Callable<Boolean> {
 			if(chance < killPct){b.eat(dinner.mass);dinner.killMe("Eaten by predator : "+b.ID);return;}//kill him next update by setting dead flag
 		}
 	}//kill
-	
-	
+
 	
 	public void run(){	
 		for(myBoid b : bAra){
-			if(b.bd_flags[myBoid.isDead]){
+			if((b.bd_flags[myBoid.isDead]) ){
 				//System.out.println("Dead boid in bAra in myUpdateStencil integrate : ID : " + b.ID);
 				continue;
 			}
-			b.velocity.set(integrate(myVectorf._mult(b.forces, (1.0f/b.mass)), b.velocity));			//myVectorf._add(velocity[0], myVectorf._mult(forces[1], p.delT/(1.0f * mass)));	divide by  mass, multiply by delta t
-			if(b.velocity.magn > f.flv.maxVelMag){b.velocity._scale(f.flv.maxVelMag);}
-			if(b.velocity.magn < f.flv.minVelMag){b.velocity._scale(f.flv.minVelMag);}
+			//sclMult = (p.sin(a * radAmt) * .25f) +1.0f;
+			// 1.0f/(sclMult * sclMult)
+			if (b.forces.magn >.00001f) {
+				b.velocity.set(integrate(myVectorf._mult(b.forces, (1.0f/b.mass)), b.velocity));			//myVectorf._add(velocity[0], myVectorf._mult(forces[1], p.delT/(1.0f * mass)));	divide by  mass, multiply by delta t
+				if(b.velocity.magn > f.flv.maxVelMag){b.velocity._scale(f.flv.maxVelMag);}
+				if(b.velocity.magn < f.flv.minVelMag){b.velocity._scale(f.flv.minVelMag);}
+			}
 			b.coords.set(integrate(b.velocity, b.coords));												// myVectorf._add(coords[0], myVectorf._mult(velocity[1], p.delT));	
 			setValWrapCoordsForDraw(b.coords);
 			setOrientation(b);
 			//b.setOrientation();
-		}
+		}		
+
 		if (stFlags[flkSpawn]) {
 			for(myBoid b : bAra){//check every boid to reproduce
 				if(b.bd_flags[myBoid.isDead]){

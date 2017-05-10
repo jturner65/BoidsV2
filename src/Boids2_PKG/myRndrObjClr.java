@@ -34,11 +34,8 @@ public class myRndrObjClr{
 		emitColor = new int[3];cpyClr(tmpInit, emitColor);
 		specColor = new int[3];cpyClr(tmpInit, specColor);
 		ambColor = new int[3];cpyClr(tmpInit, ambColor);
-		//init all flags as false
+		//init all flags as true
 		initFlags();
-		//enable fill and stroke by default
-		enableFill();
-		enableStroke();
 	}
 	
 
@@ -142,7 +139,7 @@ public class myRndrObjClr{
 	public void disableAmbient(){setPrivFlag(flags, ambIDX, false);}
 	public void disableShine(){setPrivFlag(flags, shnIDX, false);}
 	
-	private void initFlags(){flags = new int[1 + numFlags/32];for(int i =0; i<numFlags;++i){setFlags(i,false);}}
+	private void initFlags(){flags = new int[1 + numFlags/32];for(int i =0; i<numFlags;++i){setFlags(i,true);}}
 	//class-wide boolean flag accessor methods - static for size concerns
 	protected static void setPrivFlag(int[] flags, int idx, boolean val){
 		int flIDX = idx/32, mask = 1<<(idx%32);

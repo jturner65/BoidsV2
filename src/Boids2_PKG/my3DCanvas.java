@@ -97,9 +97,7 @@ public class my3DCanvas {
 	}//buildCanvas()
 	
 	//return a unit vector from the screen location of the mouse pointer in the world to the reticle location in the world - for ray casting onto objects the mouse is over
-	public myVector getMse2DtoMse3DinWorld(myPoint glbTrans){
-		return p.U(pick(p.mouseX, p.mouseY,-.00001f),getMseLoc(glbTrans) );		
-	}
+	public myVector getMse2DtoMse3DinWorld(myPoint glbTrans){	return p.U(pick(p.mouseX, p.mouseY,-.00001f),getMseLoc(glbTrans) );	}
 	//gets a unit vector that is up in the world relative to eye position and view direction
 	public myVector getUScrUpInWorld(){	
 //		myPoint upInWorld = pick(viewDimW/2, 0,-.00001f);
@@ -136,9 +134,12 @@ public class my3DCanvas {
 		p.intersectPl(pt, unitT, canvas3D[0],canvas3D[1],canvas3D[2],  dctr);//find point where mouse ray intersects canvas
 		return dctr;		
 	}//getPlInterSect	
-	public myPoint getMseLoc(){return p.P(dfCtr);	}
+	public myPoint getMseLoc(){return new myPoint(dfCtr);	}
 	public myPoint getEyeLoc(){return pick(viewDimW/2, viewDimH/2,-.00001f);	}
-	public myPoint getOldMseLoc(){return p.P(oldMseLoc);	}
+	public myPoint getOldMseLoc(){return new myPoint(oldMseLoc);	}
+	
+	public myVector getMseDragVec(){return new myVector(oldMseLoc,dfCtr);}
+	
 	//relative to passed origin
 	public myPoint getMseLoc(myPoint glbTrans){return myPoint._sub(dfCtr, glbTrans);	}
 	//move by passed translation
@@ -181,10 +182,7 @@ public class my3DCanvas {
 		return pickLoc;
 	}		
 	//hold depth when clicked
-//	public void holdMsDepth(){curDepth = getDepth(p.mouseX,p.mouseY);}
-//	public void clearMsDepth(){curDepth = -1;}
 	public myPoint MouseScr(float depth) {return pick(p.mouseX,p.mouseY,depth);} 	
-//	public myPoint MouseScr() {return MouseScr(curDepth);} 	
 	
 	public void drawMseEdge(){//draw mouse sphere and edge normal to cam eye through mouse sphere 
 		p.pushMatrix();	p.pushStyle();

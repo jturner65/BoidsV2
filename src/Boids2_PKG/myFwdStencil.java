@@ -24,7 +24,8 @@ public abstract class myFwdStencil implements Callable<Boolean> {
         flkWander		= 3,
         flkAvoidPred 	= 4,
         flkHunt			= 5,
-        attractMode 	= 6;
+        attractMode 	= 6,
+        flkCyclesFrc = 7;
 	
 	public static final int[] stFlagIDXs = new int[]{
 		myBoids3DWin.flkCenter,
@@ -33,7 +34,8 @@ public abstract class myFwdStencil implements Callable<Boolean> {
 		myBoids3DWin.flkWander,
 		myBoids3DWin.flkAvoidPred,
 		myBoids3DWin.flkHunt,
-		myBoids3DWin.attractMode};
+		myBoids3DWin.attractMode,
+		myBoids3DWin.flkCyclesFrc};
 	
 	private boolean addFrc;
 
@@ -76,45 +78,47 @@ public abstract class myFwdStencil implements Callable<Boolean> {
 	
 	
 	//all inheriting classes use the same run
+	
+	
 	public void run(){
 		//if((p.flags[p.mouseClicked] ) && (!p.flags[p.shiftKeyPressed])){//add click force : overwhelms all forces - is not scaled
 		if (addFrc){
 			for(myBoid b : bAra){b.forces._add(p.mouseForceAtLoc(b.coords, stFlags[attractMode]));}
 		}
 		//if(!stFlags[singleFlock]){
-			if (stFlags[flkHunt]) {//go to closest prey
-				if (stFlags[flkAvoidPred]){//avoid predators
-					for(myBoid b : bAra){
-						if (b.predFlkLoc.size() !=0){//avoid predators if they are nearby
-							//b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlk, b.predFlkLoc, predRadSq), fv.wts, fv.maxFrcs,fv.wFrcAvdPred));	//flee from predators
-							b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlkLoc, predRadSq), fv.wts, fv.maxFrcs,fv.wFrcAvdPred));	//flee from predators
-							if(b.canSprint()){ 
-								//add greater force if within collision radius
-								//b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlk, b.predFlkLoc,  colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvdPred));
-								b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlkLoc,  colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvdPred));
-								//expensive to sprint, hunger increases
-								--b.starveCntr;
-							}//last gasp, only a brief period for sprint allowed, and can starve prey
-						}					
-					}
-				}			
+		if (stFlags[flkHunt]) {//go to closest prey
+			if (stFlags[flkAvoidPred]){//avoid predators
 				for(myBoid b : bAra){
+					if (b.predFlkLoc.size() !=0){//avoid predators if they are nearby
+						//b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlk, b.predFlkLoc, predRadSq), fv.wts, fv.maxFrcs,fv.wFrcAvdPred));	//flee from predators
+						b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlkLoc, predRadSq), fv.wts, fv.maxFrcs,fv.wFrcAvdPred));	//flee from predators
+						if(b.canSprint()){ 
+							//add greater force if within collision radius
+							//b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlk, b.predFlkLoc,  colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvdPred));
+							b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlkLoc,  colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvdPred));
+							//expensive to sprint, hunger increases
+							--b.starveCntr;
+						}//last gasp, only a brief period for sprint allowed, and can starve prey
+					}					
+				}
+			}			
+			for(myBoid b : bAra){
 //					if ((b.preyFlkLoc.size() !=0) || (b.predFlkLoc.size() !=0)){//if prey exists
 //						System.out.println("Flock : " + f.name+" ID : " + b.ID + " preyFlock size : " + b.preyFlkLoc.size()+ " pred flk size : " + b.predFlkLoc.size());
 //					}										
-					if (b.preyFlkLoc.size() !=0){//if prey exists
-						myPointf tar = b.preyFlkLoc.firstEntry().getValue(); 
-						//add force at single boid target
-						float mult = (fv.eatFreq/(b.starveCntr + 1.0f));
-						myVectorf chase = setFrcVal(myVectorf._mult(myVectorf._sub(tar, b.coords),  mult),fv.wts, fv.maxFrcs,fv.wFrcChsPrey); 
+				if (b.preyFlkLoc.size() !=0){//if prey exists
+					myPointf tar = b.preyFlkLoc.firstEntry().getValue(); 
+					//add force at single boid target
+					float mult = (fv.eatFreq/(b.starveCntr + 1.0f));
+					myVectorf chase = setFrcVal(myVectorf._mult(myVectorf._sub(tar, b.coords),  mult),fv.wts, fv.maxFrcs,fv.wFrcChsPrey); 
 //						if(b.ID % 100 == 0){
 //							System.out.println("Flock : " + f.name+" ID : " + b.ID + " Chase force : " + chase.toString() + " mult : " + mult + " starve : " + b.starveCntr);
 //							
 //						}						
-						b.forces._add(chase);						
-					}
+					b.forces._add(chase);						
 				}
-			}		
+			}
+		}		
 //		}//if ! single flock
 		
 		if(stFlags[flkAvoidCol]){//find avoidance forces, if appropriate within f.colRad
@@ -139,15 +143,37 @@ public abstract class myFwdStencil implements Callable<Boolean> {
 		}		
 		if(stFlags[flkWander]){//brownian motion
 			for(myBoid b : bAra){	b.forces._add(setFrcVal(frcWander(b),fv.wts, fv.maxFrcs,fv.wFrcWnd));}
-		}	
-		//damp velocity
+		}
+		//for(myBoid b : bAra){b.forces.set(getForceAtLocation(b));}
+		if(stFlags[flkCyclesFrc]){//if cyclic forces - turn off when jellyfish boid is "contracting"
+			for(myBoid b : bAra){
+				float sclAmt = (p.cos(b.animPhase) + .5f);
+				sclAmt = (sclAmt <= 0 ? 0.00001f : sclAmt);
+				b.forces._scale(b.forces.magn * sclAmt);								
+				dampFrc.set(b.velocity);
+				dampFrc._mult(-.5f);
+				b.forces._add(dampFrc);		
+//
+//				if((b.animPhase <= .25f) || (b.animPhase >= .75f)){	
+//					//b.forces.set(0,0,0);//extra damping
+//					dampFrc.set(b.velocity);
+//					dampFrc._mult(-.95f);
+//					b.forces.set(dampFrc);		
+//				} 
+//				else {
+//					float sclAmt = p.cos(b.animPhase);
+//					b.forces._scale(b.forces.magn * 1.5f*sclAmt);								
+//				}
+			}			
+		} 
+		//damp velocity only if no cycling of force
 		for(myBoid b : bAra){	
-			//dampFrc.set(b.velocity[0]);
 			dampFrc.set(b.velocity);
 			dampFrc._mult(-fv.dampConst);
 			b.forces._add(dampFrc);		
 		}
-		//for(myBoid b : bAra){b.forces.set(getForceAtLocation(b));}
+
+		
 	}//run
 	
 	@Override

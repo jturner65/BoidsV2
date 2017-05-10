@@ -50,6 +50,7 @@ public class Boids_2 extends PApplet{
 		colorMode(RGB, 255, 255, 255, 255);
 		frameRate(frate);
 		initOnce();
+		//TODO move to window to set up specific background for each different "scene" type
 		PImage bgrndTex = loadImage("bkgrndTex.jpg");
 		//PImage bgrndTex = loadImage("sky_1.jpg");
 		sphereDetail(100);
@@ -118,8 +119,8 @@ public class Boids_2 extends PApplet{
 			draw3D_solve3D();
 			c.buildCanvas();
 			if(flags[clearBKG]) {
-				if(canShow3DBox[this.curFocusWin]){drawBoxBnds();}
-				if(!flags[rideBoid]){			c.drawMseEdge();	}
+				if(canShow3DBox[curFocusWin]){drawBoxBnds();}
+				if(dispWinFrames[curFocusWin].chkDrawMseRet()){			c.drawMseEdge();	}
 			}
 			popStyle();popMatrix(); 
 		} else {	
@@ -287,7 +288,7 @@ public class Boids_2 extends PApplet{
 		}
 	}
 	private void mouseDragged(int mseBtn){
-		for(int i =0; i<numDispWins; ++i){if (dispWinFrames[i].handleMouseDrag(mouseX, mouseY, pmouseX, pmouseY,c.getMseLoc(sceneCtrVals[sceneIDX]),new myVector(c.getOldMseLoc(),c.getMseLoc()),mseBtn)) {return;}}		
+		for(int i =0; i<numDispWins; ++i){if (dispWinFrames[i].handleMouseDrag(mouseX, mouseY, pmouseX, pmouseY,c.getMseLoc(sceneCtrVals[sceneIDX]),c.getMseDragVec(),mseBtn)) {return;}}		
 	}
 	
 	public void mouseReleased(){
@@ -485,26 +486,22 @@ public class Boids_2 extends PApplet{
 	//simulation
 	public final int runSim				= 8;			//run simulation
 	public final int singleStep			= 9;			//run single sim step
-	public final int rideBoid			= 10;
-	public final int modDelT			= 11;			//modify delta t to be scaled by frame rate - slower frame rate yields higher delta t
 	//window control
-	public final int showUIMenu 		= 12;			//whether or not to show sidebar menu
-	public final int show3DWin			= 13;			//whether to show 3D window
-	public final int show2DWin			= 14;			//whether to show 2D window
+	public final int showUIMenu 		= 10;			//whether or not to show sidebar menu
+	public final int show3DWin			= 11;			//whether to show 3D window
+	public final int show2DWin			= 12;			//whether to show 2D window
 	
-	public final int flipDrawnTraj  	= 15;			//whether or not to flip the direction of the drawn trajectory
-	public final int clearBKG			= 16;			//whether or not to clear background
+	public final int flipDrawnTraj  	= 13;			//whether or not to flip the direction of the drawn trajectory
+	public final int clearBKG			= 14;			//whether or not to clear background
 	
-	public final int numFlags = 17;
+	public final int numFlags = 15;
 	
 	//flags to actually display in menu as clickable text labels - order does matter
 	public List<Integer> flagsToShow = Arrays.asList( 
 		debugMode, 			
 		saveAnim,
 		runSim,
-		singleStep,
-		rideBoid,
-		modDelT
+		singleStep
 		);
 	
 	public final int numFlagsToShow = flagsToShow.size();
@@ -693,8 +690,6 @@ public class Boids_2 extends PApplet{
 			//case showPopUpWinUI 		: {dispWinFrames[disp2DResIDX].setShow(val);handleShowWin(disp2DResIDX-1 ,(val ? 1 : 0),false); setWinsHeight(); break;}	//show InstEdit window
 			//case useDrawnVels 		: {for(int i =1; i<dispWinFrames.length;++i){dispWinFrames[i].rebuildAllDrawnTrajs();}break;}
 			case clearBKG		: {break;}//anything special for clearBKG	
-			case rideBoid		: {break;}
-			case modDelT		: {break;}
 			default : {break;}
 		}
 	}//setFlags  
@@ -764,15 +759,17 @@ public class Boids_2 extends PApplet{
 	//drawsInitial setup for each draw
 	public void drawSetup(){
 		perspective(PI/3.0f, (1.0f*width)/(1.0f*height), .5f, camVals[2]*100.0f);
-		if(flags[rideBoid]){ 
-			((myBoids3DWin) dispWinFrames[disp3DResIDX]).setBoidCam(rx,ry,dz);
-		} else {
-			camera(camVals[0],camVals[1],camVals[2],camVals[3],camVals[4],camVals[5],camVals[6],camVals[7],camVals[8]);      
-			//if(this.flags[this.debugMode]){outStr2Scr("rx :  " + rx + " ry : " + ry + " dz : " + dz);}
-			// puts origin of all drawn objects at screen center and moves forward/away by dz
-			translate(camVals[0],camVals[1],(float)dz); 
-		    setCamOrient();
-		}
+		dispWinFrames[disp3DResIDX].setCamera(camVals, rx,ry,dz);
+		
+//		if(flags[rideBoid]){ 
+//			((myBoids3DWin) dispWinFrames[disp3DResIDX]).setBoidCam(rx,ry,dz);
+//		} else {
+//			camera(camVals[0],camVals[1],camVals[2],camVals[3],camVals[4],camVals[5],camVals[6],camVals[7],camVals[8]);      
+//			//if(this.flags[this.debugMode]){outStr2Scr("rx :  " + rx + " ry : " + ry + " dz : " + dz);}
+//			// puts origin of all drawn objects at screen center and moves forward/away by dz
+//			translate(camVals[0],camVals[1],(float)dz); 
+//		    setCamOrient();
+//		}
 	    turnOnLights();
 	}//drawSetup	
 	//turn on lights for this sketch

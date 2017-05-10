@@ -40,9 +40,11 @@ public abstract class myDispWindow {
 				procMouseMove 		= 12,
 				mouseSnapMove		= 13,			//mouse locations for this window are discrete multiples - if so implement inherited function to calculate mouse snap location
 				uiObjMod			= 14,			//a ui object in this window has been modified
-				useRndBtnClrs		= 15;
+				useRndBtnClrs		= 15,	
+				useCustCam			= 16,			//whether or not to use a custom camera for this window
+				drawMseEdge			= 17;			//whether or not to draw the mouse location/edge from eye/projection onto box
 				
-	public static final int numDispFlags = 16;
+	public static final int numDispFlags = 18;
 	
 	//private window-specific flags and UI components (buttons)
 	public int[] privFlags;
@@ -233,6 +235,8 @@ public abstract class myDispWindow {
 			case mouseSnapMove		: {	break;}	
 			case uiObjMod			: {	break;}			
 			case useRndBtnClrs		: { break;}
+			case useCustCam			: { break;}
+			case drawMseEdge		: { break;}
 		}				
 	}//setFlags
 	//get baseclass flag
@@ -253,14 +257,15 @@ public abstract class myDispWindow {
 		setFlags(canDrawTraj, _canDrawTraj);
 		setFlags(trajPointsAreFlat, _trajIsFlat);
 		setFlags(closeable, true);
+		setFlags(drawMseEdge,true);
 		if(!_isMenu){
 			initUIBox();				//set up ui click region to be in sidebar menu below menu's entries - do not do here for sidebar
 		}
 		curTrajAraIDX = 0;		
 		setupGUIObjsAras();
-		initMe();
 		//record final y value for UI Objects
 		initAllPrivBtns();
+		initMe();
 		setClosedBox();
 		mseClickCrnr = new float[2];		//this is offset for click to check buttons in x and y - since buttons for all menus will be in menubar, this should be the upper left corner of menubar - upper left corner of rect 
 		mseClickCrnr[0] = 0;
@@ -360,12 +365,13 @@ public abstract class myDispWindow {
 	protected void buildGUIObjs(String[] guiObjNames, double[] guiStVals, double[][] guiMinMaxModVals, boolean[][] guiBoolVals, double[] off){
 		//myGUIObj tmp; 
 //		if(getFlags(uiObjsAreVert]){		//vertical stack of UI components - clickable region x is unchanged, y changes with # of objects
-			float stClkY = uiClkCoords[1] - (.5f*yOff);
-			for(int i =0; i< guiObjs.length; ++i){
-				guiObjs[i] = buildGUIObj(i,guiObjNames[i],guiStVals[i], guiMinMaxModVals[i], guiBoolVals[i], new double[]{uiClkCoords[0], stClkY, uiClkCoords[2], stClkY+yOff},off);
-				stClkY += yOff;
-			}
-			uiClkCoords[3] = stClkY - (.5f*yOff);	
+		//uiClkCoords[1] -= (.5f*yOff);
+		float stClkY = uiClkCoords[1];
+		for(int i =0; i< guiObjs.length; ++i){
+			guiObjs[i] = buildGUIObj(i,guiObjNames[i],guiStVals[i], guiMinMaxModVals[i], guiBoolVals[i], new double[]{uiClkCoords[0], stClkY, uiClkCoords[2], stClkY+yOff},off);
+			stClkY += yOff;
+		}
+		uiClkCoords[3] = stClkY;// - (.5f*yOff);	
 //		} else {			//horizontal row of UI components - clickable region y is unchanged, x changes with # of objects
 //			double stClkX = uiClkCoords[0];
 //			double UICompWidth;
@@ -502,7 +508,9 @@ public abstract class myDispWindow {
 		pa.text(""+txt,loc[0] + (txt.length() * .3f),loc[1]+loc[3]*.75f);
 		//pa.translate(width, 0);
 	}
-
+	
+	//whether or not to draw the mouse reticle/rgb(xyz) projection/edge to eye
+	public boolean chkDrawMseRet(){		return getFlags(drawMseEdge);	}
 	
 	protected void drawTraj(float animTimeMod){
 		pa.pushMatrix();pa.pushStyle();	
@@ -612,6 +620,18 @@ public abstract class myDispWindow {
 //		if(getFlags(is3DWin)){	draw3D(trans,animTimeMod);	} else {	draw2D(trans,animTimeMod);	}
 //		//pa.outStr2Scr("ID:" + ID +" animTime mod : " + animTimeMod + " stAnimTime : " + stAnimTime+ " lastAnimTime : " + lastAnimTime);
 //	}
+
+	public void setCamera(float[] camVals, float rx, float ry, float dz){
+		if(getFlags(useCustCam)){setCameraIndiv (camVals, rx, ry, dz);}//individual window camera handling
+		else {
+			pa.camera(camVals[0],camVals[1],camVals[2],camVals[3],camVals[4],camVals[5],camVals[6],camVals[7],camVals[8]);      
+			//if(this.flags[this.debugMode]){outStr2Scr("rx :  " + rx + " ry : " + ry + " dz : " + dz);}
+			// puts origin of all drawn objects at screen center and moves forward/away by dz
+			pa.translate(camVals[0],camVals[1],(float)dz); 
+		    pa.setCamOrient();	
+		}
+	}
+
 	
 	public void draw3D(myPoint trans){
 		if(!getFlags(showIDX)){return;}
@@ -765,13 +785,8 @@ public abstract class myDispWindow {
 		return mod;
 	}//checkUIButtons	
 	
-	protected myPoint getMsePoint(myPoint pt){
-		return getFlags(myDispWindow.is3DWin) ? getMouseLoc3D((int)pt.x, (int)pt.y) : pt;
-	}
-
-	protected myPoint getMsePoint(int mouseX, int mouseY){
-		return getFlags(myDispWindow.is3DWin) ? getMouseLoc3D(mouseX, mouseY) : pa.P(mouseX,mouseY,0);
-	}
+	protected myPoint getMsePoint(myPoint pt){return getFlags(myDispWindow.is3DWin) ? getMouseLoc3D((int)pt.x, (int)pt.y) : pt;}
+	protected myPoint getMsePoint(int mouseX, int mouseY){return getFlags(myDispWindow.is3DWin) ? getMouseLoc3D(mouseX, mouseY) : pa.P(mouseX,mouseY,0);}
 	public boolean handleMouseMove(int mouseX, int mouseY, myPoint mouseClickIn3D){
 		if(!getFlags(showIDX)){return false;}
 		if((getFlags(showIDX))&& (msePtInUIRect(mouseX, mouseY))){//in clickable region for UI interaction
@@ -850,8 +865,8 @@ public abstract class myDispWindow {
 		hndlMouseRelIndiv();//specific instancing window implementation stuff
 		this.tmpDrawnTraj = null;
 	}//handleMouseRelease	
-
 	
+	//release shift/control/alt keys
 	public void endShiftKey(){
 		if(!getFlags(showIDX)){return;}
 		//
@@ -869,8 +884,7 @@ public abstract class myDispWindow {
 		//
 		endCntlKeyI();
 	}	
-		
-	
+			
 	//drawn trajectory stuff	
 	public void startBuildDrawObj(){
 		pa.flags[pa.drawing] = true;
@@ -1018,7 +1032,9 @@ public abstract class myDispWindow {
 	protected abstract void closeMe();	
 	protected abstract void simMe(float modAmtSec);
 	protected abstract void stopMe();
+	protected abstract void setCameraIndiv(float[] camVals, float rx, float ry, float dz);
 	protected abstract void drawMe(float animTimeMod);	
+	
 	
 	public String toString(){
 		String res = "Window : "+name+" ID: "+ID+" Fill :("+fillClr[0]+","+fillClr[1]+","+fillClr[2]+","+fillClr[3]+
@@ -1043,8 +1059,6 @@ class mySideBarMenu extends myDispWindow{
 			"Changing View",	
 			"Stop Simulation",
 			"Single Step",
-			"View From Boid",
-			"Mod DelT By Frame Rate",
 			"Displaying UI Menu",
 			"Reverse Drawn Trajectory"
 			};
@@ -1060,8 +1074,6 @@ class mySideBarMenu extends myDispWindow{
 			"Changing View",	 	
 			"Run Simulation",
 			"Single Step",
-			"View With Global Cam",
-			"Keep DelT Fixed",
 			"Displaying UI Menu",
 			"Reverse Drawn Trajectory"
 			};
@@ -1368,10 +1380,11 @@ class mySideBarMenu extends myDispWindow{
 			pa.popStyle();	pa.popMatrix();	
 		}
 	}
-	
+	//no custom camera handling for menu
+	@Override
+	protected void setCameraIndiv(float[] camVals, float rx, float ry, float dz){}
 	@Override
 	public void drawClickableBooleans() {	}//this is only for non-sidebar menu windows, to display their own personal buttons
-	
 	@Override
 	public void clickDebug(int btnNum){}	
 	@Override

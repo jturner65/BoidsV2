@@ -11,13 +11,15 @@ public class myBoids3DWin extends myDispWindow {
 	public final static int
 		gIDX_TimeStep 		= 0,
 		gIDX_NumFlocks		= 1,
-		gIDX_FlockToObs		= 2,
-		gIDX_BoidToObs		= 3;
+		gIDX_BoidType		= 2,
+		gIDX_FlockToObs		= 3,
+		gIDX_BoidToObs		= 4;
 
 	//initial values - need one per object
 	public float[] uiVals = new float[]{
 			.1f,	
 			1.0f,
+			0,
 			0,
 			0
 	};			//values of 8 ui-controlled quantities
@@ -45,9 +47,13 @@ public class myBoids3DWin extends myDispWindow {
 			flkHunger			= 12,			//can get hungry	
 			flkSpawn			= 13,			//allow breeding
 			useOrigDistFuncs 	= 14,
-			useTorroid			= 15;
+			useTorroid			= 15,	
+			flkCyclesFrc		= 16,			//the force these boids exert cycles with motion
 			//end must stay within first 32
-	public static final int numPrivFlags = 16;
+			modDelT				= 17,			//whether to modify delT based on frame rate or keep it fixed (to fight lag)
+			viewFromBoid		= 18;			//whether viewpoint is from a boid's perspective or global
+	
+	public static final int numPrivFlags = 19;
 
 	public final int MaxNumBoids = 15000;		//max # of boids per flock
 	public final int initNumBoids = 500;		//initial # of boids per flock
@@ -57,31 +63,31 @@ public class myBoids3DWin extends myDispWindow {
 	public String[] flkNames = new String[]{"Privateers", "Pirates", "Corsairs", "Marauders", "Freebooters"};
 	public float[] flkRadMults = {1.0f, 0.5f, 0.25f, 0.75f, 0.66f, 0.33f};
 	public PImage[] flkSails;						//image sigils for sails
-	public PImage blankSail;
-	public final static int 
-			privateer 	= 0,		
-			pirate 		= 1,				
-			corsair 	= 2,			
-			marauder 	= 3,
-			freebooter 	= 4;
-	public final int MaxNumFlocks = flkNames.length;			//max # of flocks we'll support 
+	
+	public String[] boidTypeNames = new String[]{"Pirate Boats", "Jellyfish"};
+	//whether this boid exhibits cyclic motion
+	public boolean[] boidCyclesFrc = new boolean[]{false, true};
+	
+	public final int MaxNumFlocks = flkNames.length, numBoidTypes = boidTypeNames.length;			//max # of flocks we'll support, # of different kinds of boid species
 	//array of template objects to render
 	//need individual array for each type of object, sphere (simplified) render object
-	public myRenderObj[] rndrTmpl,//set depending on UI choice for complex rndr obj 
+	private myRenderObj[] rndrTmpl,//set depending on UI choice for complex rndr obj 
 		boatRndrTmpl,
+		jellyFishRndrTmpl,
 		//add more rendr obj arrays here
 		sphrRndrTmpl;//simplified rndr obj (sphere)
+	
+	private ConcurrentSkipListMap<String, myRenderObj[]> cmplxRndrTmpls;
 	
 	//current values
 	public int numFlocks = 1;						
 	public myBoidFlock[] flocks;
 	public int curFlock = 0;
-	//To print out flock vars values
-	public int[] clrList;
 	public ArrayList<Float[]> flkVarClkRes;
 	//idxs of flock and boid to assign camera to if we are watching from "on deck"
 	public int flockToWatch, boidToWatch;
-	private float y45Off = 5.5f*yOff, flkMenuOffset;
+	//offset to bottom of custom window menu 
+	private float custMenuOffset;
 	
 	//idx of zone in currently modified flkVars value during drag - set to -1 on click release
 	private int flkVarIDX, flkVarObjIDX;
@@ -102,21 +108,24 @@ public class myBoids3DWin extends myDispWindow {
 				"Mouse Click Attracts", 
 				"Ctr Force ON", "Vel Match ON", "Col Avoid ON", "Wander ON",
 				"Pred Avoid ON", "Hunting ON", "Hunger ON","Spawning ON",
-				"Orig Funcs ON", "Tor Bnds ON"
+				"Orig Funcs ON", "Tor Bnds ON",
+				"Mod DelT By FRate", "Boid-eye View"				
 		};
 		falsePrivFlagNames = new String[]{			//needs to be in order of flags
 				"Enable Debug","Drawing Spheres", "Hiding Boid Path", "Hiding Vel Vectors", "DBG : Hide Flk Mmbrs", 
 				"Mouse Click Repels",
 				"Ctr Force OFF", "Vel Match OFF", "Col Avoid OFF", "Wander OFF",
 				"Pred Avoid OFF", "Hunting OFF", "Hunger OFF","Spawning OFF",
-				"Orig Funcs OFF", "Tor Bnds OFF"
+				"Orig Funcs OFF", "Tor Bnds OFF",
+				"Fixed DelT", "Global View"			
 		};
 		privModFlgIdxs = new int[]{
 				debugAnimIDX, drawBoids, clearPath, showVel, showFlkMbrs, 
 				attractMode,
 				flkCenter, flkVelMatch, flkAvoidCol,  flkWander,  
-				flkAvoidPred, flkHunt, flkHunger, flkSpawn, 
-				useOrigDistFuncs, useTorroid
+				flkAvoidPred, flkHunt, flkHunger, flkSpawn, 				
+				useOrigDistFuncs, useTorroid,
+				modDelT, viewFromBoid	
 		};
 		numClickBools = privModFlgIdxs.length;	
 		initPrivBtnRects(0,numClickBools);
@@ -125,24 +134,24 @@ public class myBoids3DWin extends myDispWindow {
 	@Override
 	protected void initMe() {
 		//called once
-		blankSail = pa.loadImage("BlankSail.jpg");
-
-		clrList = new int[]{pa.gui_DarkGreen, pa.gui_DarkCyan, pa.gui_DarkRed, pa.gui_DarkBlue, pa.gui_DarkMagenta};
 		initPrivFlags(numPrivFlags);
 		//TODO set this to be determined by UI input (?)
 		initSimpleBoids();
-		initBoatBoids();
+		initBoidRndrObjs();
 	
 		setPrivFlags(drawBoids, true);
 		setPrivFlags(attractMode, true);
 		setPrivFlags(useTorroid, true);
 		//this window is runnable
 		setFlags(isRunnable, true);
+		//this window uses a customizable camera
+		setFlags(useCustCam, true);
 		
 		setFlockingOn();
 		
 		initFlocks();	
-		flkMenuOffset = uiClkCoords[1] + uiClkCoords[3] - y45Off;	//495
+		//flkMenuOffset = uiClkCoords[1] + uiClkCoords[3] - y45Off;	//495
+		custMenuOffset = uiClkCoords[3];	//495
 	}//initMe
 	
 	//simple render objects - spheres
@@ -152,14 +161,20 @@ public class myBoids3DWin extends myDispWindow {
 	}
 	
 	//initialize all instances of boat boid models - called 1 time
-	private void initBoatBoids(){
+	private void initBoidRndrObjs(){
+		cmplxRndrTmpls = new ConcurrentSkipListMap<String, myRenderObj[]> (); 
 		flkSails = new PImage[MaxNumFlocks];
 		boatRndrTmpl = new myBoatRndrObj[MaxNumFlocks];
+		jellyFishRndrTmpl = new myJFishRndrObj[MaxNumFlocks];
 		for(int i=0; i<MaxNumFlocks; ++i){	
 			flkSails[i] = pa.loadImage(flkNames[i]+".jpg");
 			//build boat render object for each individual flock type
-			boatRndrTmpl[i] = new myBoatRndrObj(pa, this, i);
+			boatRndrTmpl[i] = new myBoatRndrObj(pa, this, i);			
+			jellyFishRndrTmpl[i] = new myJFishRndrObj(pa, this, i);
 		}
+		cmplxRndrTmpls.put(boidTypeNames[0], boatRndrTmpl);
+		cmplxRndrTmpls.put(boidTypeNames[1], jellyFishRndrTmpl);
+		rndrTmpl = cmplxRndrTmpls.get(boidTypeNames[0]);//start by rendering boats
 	}
 	
 	//turn on/off all flocking control boolean variables
@@ -183,11 +198,7 @@ public class myBoids3DWin extends myDispWindow {
 		setPrivFlags(flkHunger, val);
 		setPrivFlags(flkSpawn, val);		
 	}//setHunting
-	
-	//TODO return appropriate complex render object array based on UI input input
-	private myRenderObj[] getCurRndrObjAra(){
-		return  boatRndrTmpl;		
-	}
+
 	
 	//set up current flock configuration, based on ui selections
 	private void initFlocks(){
@@ -201,7 +212,7 @@ public class myBoids3DWin extends myDispWindow {
 			flocks[i] = (new myBoidFlock(pa,this,flkNames[i],initNumBoids,i));flocks[i].initFlock();
 		}
 
-		rndrTmpl = getCurRndrObjAra();
+		//rndrTmpl = getCurRndrObjAra();
 		for(int i =0; i<flocks.length; ++i){flocks[i].setPredPreyTmpl((((i+flocks.length)+1)%flocks.length), (((i+flocks.length)-1)%flocks.length), rndrTmpl[i], sphrRndrTmpl[i]);}	
 	}
 
@@ -210,7 +221,7 @@ public class myBoids3DWin extends myDispWindow {
 	public void drawCustMenuObjs(){
 		pa.pushMatrix();				pa.pushStyle();		
 		//all flock menu drawing within push mat call
-		pa.translate(5,flkMenuOffset+yOff);
+		pa.translate(5,custMenuOffset+yOff);
 		for(int i =0; i<flocks.length; ++i){
 			flocks[i].drawFlockMenu(i);
 		}		
@@ -244,6 +255,11 @@ public class myBoids3DWin extends myDispWindow {
 			case flkHunt			    : {break;}//pa.outStr2Scr("flkHunt		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
 			case flkHunger			    : {break;}//pa.outStr2Scr("flkHunger		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
 			case flkSpawn			    : {break;}//pa.outStr2Scr("flkSpawn		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
+			case modDelT	 			: {break;}	//whether to keep delT fixed or to modify it based on frame rate (to fight lag)
+			case flkCyclesFrc			: {break;}//whether or not current species scales force output cyclically with animation (pumping motion)
+			case viewFromBoid		    : {
+				super.setFlags(drawMseEdge,!val);//if viewing from boid, then don't show mse edge, and vice versa
+				break;}	//whether viewpoint is from a boid's perspective or global
 			case useOrigDistFuncs 	    : {//pa.outStr2Scr("useOrigDistFuncs " + val + " : " + getPrivFlags(idx) + "|"+ mask);
 				if(flocks == null){break;}
 				for(int i =0; i<flocks.length; ++i){
@@ -260,6 +276,7 @@ public class myBoids3DWin extends myDispWindow {
 		guiMinMaxModVals = new double [][]{
 			{0,1.0f,.0001f},					//timestep           		gIDX_TimeStep 	
 			{1,MaxNumFlocks,1.0f},
+			{0,numBoidTypes-1,.1f},
 			{0,numFlocks-1,.1f},
 			{0,initNumBoids-1,1.0f}
 		};		//min max mod values for each modifiable UI comp	
@@ -267,6 +284,7 @@ public class myBoids3DWin extends myDispWindow {
 		guiStVals = new double[]{
 			uiVals[gIDX_TimeStep],		//timestep           		gIDX_TimeStep 	
 			uiVals[gIDX_NumFlocks],
+			uiVals[gIDX_BoidType],	
 			uiVals[gIDX_FlockToObs],	
 			uiVals[gIDX_BoidToObs]	
 		};								//starting value
@@ -274,6 +292,7 @@ public class myBoids3DWin extends myDispWindow {
 		guiObjNames = new String[]{
 				"Time Step",
 				"# of Flocks",
+				"Flock Species",
 				"Flock To Watch",
 				"Boid To Board"
 		};								//name/label of component	
@@ -282,6 +301,7 @@ public class myBoids3DWin extends myDispWindow {
 		guiBoolVals = new boolean [][]{
 			{false, false, true},	//timestep           		gIDX_TimeStep 	
 			{true, false, true},
+			{true, true, true},
 			{true, true, true},
 			{true, false, true}
 		};						//per-object  list of boolean flags
@@ -306,6 +326,15 @@ public class myBoids3DWin extends myDispWindow {
 		case gIDX_NumFlocks			:{
 			if(val != uiVals[UIidx]){uiVals[UIidx] = val; numFlocks = (int)val; initFlocks(); }
 			break;}
+		case gIDX_BoidType:{
+			if(val != uiVals[UIidx]){
+				uiVals[UIidx] = val; 
+				int bIdx = (int)val;
+				rndrTmpl = cmplxRndrTmpls.get(boidTypeNames[bIdx]);
+				setPrivFlags( flkCyclesFrc, boidCyclesFrc[bIdx]);//set whether this flock cycles animation/force output
+				initFlocks(); 
+			}
+			break;}
 		case gIDX_FlockToObs 			:{
 			if(val != uiVals[UIidx]){uiVals[UIidx] = val; flockToWatch = (int)val; setMaxUIBoidToWatch(flockToWatch);}
 			break;}
@@ -321,6 +350,7 @@ public class myBoids3DWin extends myDispWindow {
 	@Override
 	protected String getUIListValStr(int UIidx, int validx) {
 		switch(UIidx){
+			case gIDX_BoidType: {return boidTypeNames[(validx % boidTypeNames.length)]; }
 			case gIDX_FlockToObs : {return flkNames[(validx % flkNames.length)]; }
 			default : {break;}
 		}
@@ -342,9 +372,19 @@ public class myBoids3DWin extends myDispWindow {
 	
 	//overrides function in base class mseClkDisp
 	@Override
-	public void drawTraj3D(float animTimeMod,myPoint trans){
-		
-	}//drawTraj3D
+	public void drawTraj3D(float animTimeMod,myPoint trans){}//drawTraj3D	
+	//set camera to either be global or from pov of one of the boids
+	@Override
+	protected void setCameraIndiv(float[] camVals, float rx, float ry, float dz){
+		if (getPrivFlags(viewFromBoid)){	setBoidCam(rx,ry,dz);		}
+		else {	
+			pa.camera(camVals[0],camVals[1],camVals[2],camVals[3],camVals[4],camVals[5],camVals[6],camVals[7],camVals[8]);      
+			// puts origin of all drawn objects at screen center and moves forward/away by dz
+			pa.translate(camVals[0],camVals[1],(float)dz); 
+		    pa.setCamOrient();	
+		}
+	}
+	
 	@Override
 	protected void drawMe(float animTimeMod) {
 //		curMseLookVec = pa.c.getMse2DtoMse3DinWorld(pa.sceneCtrVals[pa.sceneIDX]);			//need to be here
@@ -359,7 +399,7 @@ public class myBoids3DWin extends myDispWindow {
 	@Override
 	protected void simMe(float modAmtSec) {//run simulation
 		//scale timestep to account for lag of rendering if set in booleans		
-		timeStepMult = pa.flags[pa.modDelT] ?  modAmtSec * 30.0f : 1.0f;
+		timeStepMult = getPrivFlags(modDelT) ?  modAmtSec * 30.0f : 1.0f;
 		for(int i =0; i<flocks.length; ++i){flocks[i].clearOutBoids();}			//clear boid accumulators of neighbors, preds and prey  initAllMaps
 		for(int i =0; i<flocks.length; ++i){flocks[i].initAllMaps();}
 		if(getFlags(useOrigDistFuncs)){for(int i =0; i<flocks.length; ++i){flocks[i].moveBoidsOrigMultTH();}} 
@@ -368,8 +408,7 @@ public class myBoids3DWin extends myDispWindow {
 		for(int i =0; i<flocks.length; ++i){flocks[i].finalizeBoids();setMaxUIBoidToWatch(i);}	
 	}
 	@Override
-	protected void stopMe() {	}	
-	
+	protected void stopMe() {	}		
 	//debug function
 	public void dbgFunc0(){
 	}	
@@ -418,8 +457,8 @@ public class myBoids3DWin extends myDispWindow {
 	protected boolean hndlMouseClickIndiv(int mouseX, int mouseY, myPoint mseClckInWorld, int mseBtn) {
 		boolean res = checkUIButtons(mouseX, mouseY);
 		if(!res){//not in ui buttons, check if in flk vars region
-			if((mouseX < uiClkCoords[2]) && (mouseY >= flkMenuOffset)){
-				float relY = mouseY - flkMenuOffset;
+			if((mouseX < uiClkCoords[2]) && (mouseY >= custMenuOffset)){
+				float relY = mouseY - custMenuOffset;
 				flkVarIDX = Math.round(relY) / 100;
 				//pa.outStr2Scr("ui drag in UI coords : [" + mouseX + "," + mouseY + "; rel Y : " +relY + " ] flkIDX : " + flkIDX);
 				if(flkVarIDX < numFlocks){	
@@ -437,11 +476,6 @@ public class myBoids3DWin extends myDispWindow {
 		if(!res){//not in ui buttons, check if in flk vars region
 			if ((flkVarIDX != -1 ) && (flkVarObjIDX != -1)) {	res = flocks[flkVarIDX].handleFlkMenuDrag(flkVarObjIDX, mouseX, mouseY, pmouseX, pmouseY, mseBtn);		}
 		}					 
-		//pa.outStr2Scr("hndlMouseDragIndiv sphere ui drag in world mouseClickIn3D : " + mouseClickIn3D.toStrBrf() + " mseDragInWorld : " + mseDragInWorld.toStrBrf());
-//		if((privFlags[sphereSelIDX]) && (curSelSphere!="")){//pass drag through to selected sphere
-//			//pa.outStr2Scr("sphere ui drag in world mouseClickIn3D : " + mouseClickIn3D.toStrBrf() + " mseDragInWorld : " + mseDragInWorld.toStrBrf());
-//			res = sphereCntls.get(curSelSphere).hndlMouseDragIndiv(mouseX, mouseY, pmouseX, pmouseY, mouseClickIn3D,curMseLookVec, mseDragInWorld);
-//		}
 		return res;
 	}
 	

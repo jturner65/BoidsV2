@@ -13,46 +13,27 @@ public class mySphereRndrObj extends myRenderObj {
 			sphrStrkClrs = new int[5][4],//overridden to be fraction of fill color
 			sphrEmitClrs = new int[][]{sphrFillClrs[0],		sphrFillClrs[1],	sphrFillClrs[2],	sphrFillClrs[3],	sphrFillClrs[4]};
 	private static final int[] specClr = new int[]{255,255,255,255};
+	private static final float strkWt = 1.0f;
+	private static final float shn = 5.0f;
 
-	public mySphereRndrObj(Boids_2 _p, myBoids3DWin _win, int _type) {	super(_p, _win, _type);	}
+	public mySphereRndrObj(Boids_2 _p, myBoids3DWin _win, int _type) {	
+		super(_p, _win, _type);	 
+		made = initGeometry(made);
+	}//ctor
+	
 	@Override
 	protected void initMainColor() {/**no shared colors across all spheres**/}
 	@Override
 	protected void initFlkColor() {
-		for(int j=0;j<3;++j){sphrStrkClrs[type][j] = (int) (sphrFillClrs[type][j]/clrStrkDiv[type]);	}
-		sphrStrkClrs[type][3] = 255;			//stroke alpha	
-		flockColor = new myRndrObjClr(p);		
-		flockColor.setClrVal("fill", sphrFillClrs[type]);
-		flockColor.setClrVal("stroke", sphrStrkClrs[type]);
-		flockColor.setClrVal("spec", specClr);
-		flockColor.setClrVal("emit", sphrEmitClrs[type]);
-//		flockColor.setClrVal("amb", _clrs[4]);
-		flockColor.setClrVal("strokeWt", 1.0f);
-		flockColor.setClrVal("shininess", 5.0f);
-		flockColor.enableFill();
-		flockColor.disableStroke();//flockColor.enableStroke();//
-		flockColor.enableEmissive();
-		flockColor.enableSpecular();
-		//flockColor.enableAmbient();
-		flockColor.enableShine();	
+		flockColor = makeColor(sphrFillClrs[type], sphrStrkClrs[type], sphrEmitClrs[type], new int[]{0,0,0,0}, specClr,clrStrkDiv[type], strkWt, shn);
+		flockColor.disableAmbient();
+		flockColor.disableStroke();
 	}
-
-	//build geometry of object
+	
+	//no custom geometry for sphere
 	@Override
-	protected void initGeometry(){
-		//global setup for this object type
-		if(!made){				initObjGeometry();}//if not made yet initialize geometry to build this object
-		//individual per-flock-type instancing - need to not be static since window can change (can call same type of flock in different myDispWindows)
-		initInstObjGeometry();		
-	}
-
-	@Override
-	protected void initObjGeometry() {		
-		//base colors for all spheres, if any exist
-		//initMainColor();
-		made = true;
-	}
-
+	protected void initObjGeometry() {	}
+	//since this is a sphere, override default to create a different object type (instead of group)
 	@Override
 	protected void initInstObjGeometry() {
 		p.sphereDetail(5);
@@ -61,12 +42,15 @@ public class mySphereRndrObj extends myRenderObj {
 		//call shSetPaintColors since we need to use set<type> style functions of Pshape when outside beginShape-endShape
 		flockColor.shSetPaintColors(objRep);
 	}
+	
+	@Override
+	protected void initInstObjGeometryIndiv(){}
 
 	//no need for specific object-building function for spheres
 	@Override
 	protected void buildObj() {	}
 	//nothing special (per-frame) for sphere render object
 	@Override
-	protected void drawMeIndiv(float animCntr) {}
+	protected void drawMeIndiv(int idx) {}
 
 }//class mySphereRndrObj

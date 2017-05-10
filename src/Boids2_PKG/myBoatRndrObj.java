@@ -8,7 +8,7 @@ public class myBoatRndrObj extends myRenderObj {
 	//if overall geometry has been made or not
 	private static boolean made;
 	//precalc consts
-	private static final int numOars = 5, numAnimFrm = 90;
+	private static final int numOars = 5;
 	//objRep geometry/construction variables
 	private final static myPointf[][] boatVerts = new myPointf[5][12];						//seed points to build object 	
 	private static myPointf[][] boatRndr;													//points of hull
@@ -33,62 +33,27 @@ public class myBoatRndrObj extends myRenderObj {
 			boatStrokeClrs = new int[5][4],//overridden to be fraction of fill color
 			boatEmitClrs = new int[][]{boatFillClrs[0],		boatFillClrs[1],	boatFillClrs[2],	boatFillClrs[3],	boatFillClrs[4]};
 	private static final int[] boatSpecClr = new int[]{255,255,255,255};
+	private static final float strkWt = 1.0f;
+	private static final float shn = 5.0f;
 	
 	
-	public myBoatRndrObj(Boids_2 _p, myBoids3DWin _win, int _type) {	super(_p, _win, _type);	}//ctor
+	public myBoatRndrObj(Boids_2 _p, myBoids3DWin _win, int _type) {	
+		super(_p, _win, _type);	 
+		made = initGeometry(made);
+	}//ctor
 
 	//inherited from myRenderObj
 	//colors shared by all instances/flocks of this type of render obj
 	@Override
 	protected void initMainColor(){
-		for(int j=0;j<3;++j){boatStrokeClrs[baseBoatIDX][j] = (int) (boatFillClrs[baseBoatIDX][j]/clrStrkDiv[baseBoatIDX]);	}
-		boatStrokeClrs[baseBoatIDX][3] = 255;			//stroke alpha
-
-		mainColor = new myRndrObjClr(p);
-		mainColor.setClrVal("fill", boatFillClrs[baseBoatIDX]);
-		mainColor.setClrVal("stroke", boatStrokeClrs[baseBoatIDX]);
-		mainColor.setClrVal("spec", boatSpecClr);
-		mainColor.setClrVal("emit", boatEmitClrs[baseBoatIDX]);
-		//mainColor.setClrVal("amb", _clrs[4]);
-		mainColor.setClrVal("strokeWt", 1.0f);
-		mainColor.setClrVal("shininess", 5.0f);
-		mainColor.enableFill();
-		mainColor.enableStroke();
-		mainColor.enableEmissive();
-		mainColor.enableSpecular();
-		//mainColor.enableAmbient();
-		mainColor.enableShine();	
+		mainColor = makeColor(boatFillClrs[baseBoatIDX], boatStrokeClrs[baseBoatIDX], boatEmitClrs[baseBoatIDX], new int[]{0,0,0,0}, boatSpecClr, clrStrkDiv[baseBoatIDX], strkWt, shn);
+		mainColor.disableAmbient();
 	}			
 	//set up colors for individual flocks/teams 
 	@Override
-	protected void initFlkColor(){
-		for(int j=0;j<3;++j){boatStrokeClrs[type][j] = (int) (boatFillClrs[type][j]/clrStrkDiv[type]);	}
-		boatStrokeClrs[type][3] = 255;			//stroke alpha
-	
-		flockColor = new myRndrObjClr(p);		
-		flockColor.setClrVal("fill", boatFillClrs[type]);
-		flockColor.setClrVal("stroke", boatStrokeClrs[type]);
-		flockColor.setClrVal("spec", boatSpecClr);
-		flockColor.setClrVal("emit", boatEmitClrs[type]);
-//		flockColor.setClrVal("amb", _clrs[4]);
-		flockColor.setClrVal("strokeWt", 1.0f);
-		flockColor.setClrVal("shininess", 5.0f);
-		flockColor.enableFill();
-		flockColor.enableStroke();
-		flockColor.enableEmissive();
-		flockColor.enableSpecular();
-		//flockColor.enableAmbient();
-		flockColor.enableShine();	
-		
-	}
-	
-	//build geometry of object
-	@Override
-	protected void initGeometry(){
-		//global setup for this object type
-		if(!made){				initObjGeometry();}//if not made yet initialize geometry to build this object
-		//individual per-flock-type setup - need to not be static since window can change
-		initInstObjGeometry();		
+	protected void initFlkColor(){	
+		flockColor = makeColor(boatFillClrs[type], boatStrokeClrs[type], boatEmitClrs[type], new int[]{0,0,0,0}, boatSpecClr,clrStrkDiv[type], strkWt, shn);
+		flockColor.disableAmbient();
 	}
 	
 	//builds geometry for object to be instanced - only perform once per object type 
@@ -114,33 +79,48 @@ public class myBoatRndrObj extends myRenderObj {
 				new myPointf(.375f,.9f,0),new myPointf(.75f,.9f,0),
 				new myPointf(1,1,0),new myPointf(1,0,0),
 				new myPointf(.75f,.1f,1.5f),new myPointf(.375f,.1f,1.5f)};
-		
-		//base colors for all ships
-		initMainColor();
-		made = true;
+			
 	}//initObjGeometry()	
 	
-	//builds flock specific instance of boid render rep, including colors, textures, etc.
+	//set values for flock-type specific instance of boid render rep, (rep is built in base class call)
 	@Override
-	protected void initInstObjGeometry(){
-		objRep = p.createShape(PConstants.GROUP); 
-		oars = new PShape[numAnimFrm];
-		for(int a=0; a<numAnimFrm; ++a){
+	protected void initInstObjGeometryIndiv(){ 
+		//create all shapes for individual oar pshape groups, for each frame of animation
+		oars = new PShape[myBoid.numAnimFrames];
+		for(int a=0; a<myBoid.numAnimFrames; ++a){
 			oars[a] = p.createShape(PConstants.GROUP); 		
 		}	
+
 		sailTexture = win.flkSails[type];
-		initFlkColor();		
-		initBoatMasts();
-		buildObj();
 	}//initInstObjGeometry
 
 	@Override //representation-specific drawing code (i.e. oars settings for boats)
-	protected void drawMeIndiv(float animCntr){
-		//which oars array instance of oars to show - oars move relative to speed of boid
-		int idx = (int)((animCntr/(1.0f*myBoid.maxAnimCntr)) * numAnimFrm);			//determine which in the array of oars, corresponding to particular orientations, we should draw
-		p.shape(oars[idx]);
+	protected void drawMeIndiv(int animIDX){//which oars array instance of oars to show - oars move relative to speed of boid
+		p.shape(oars[animIDX]);
 	}//drawMe
-
+	
+	@Override
+	protected void buildObj(){
+		//send color to use for masts and oars
+		initBoatMasts(mainColor);
+		int numZ = boatVerts[0].length-1, numX = boatVerts.length;
+		int btPt = 0;
+		float[] tmpAra = new float[]{0,1,0}, tmpAra2 = new float[]{0,1.5f,0};
+		for(int j = 0; j < numZ; ++j){
+			btPt = buildQuadShape(tmpAra, numX, btPt, boatRndr);
+		}//for j
+		for(int i = 0; i < numX; ++i){	
+			buildBodyBottom(boatVerts,i, numZ, numX);	
+		}//for i	
+		for(int j = 0; j < numZ; ++j){
+			btPt = buildQuadShape( tmpAra, 1, btPt, boatRndr);
+			btPt = buildQuadShape( tmpAra, 1, btPt, boatRndr);		
+		}//for j		
+		//draw rear and front castle
+		for(int j = 0; j < 27; ++j){
+			btPt = buildQuadShape( tmpAra2, 1, btPt, boatRndr);
+		}		
+	}//buildShape
 	//end inherited from myRenderObj
 	
 	private myPointf[] buildSailPtAra(float len){
@@ -151,7 +131,7 @@ public class myBoatRndrObj extends myRenderObj {
 		return res;
 	}
 	//build masts and oars(multiple orientations in a list to just show specific frames)
-	private void initBoatMasts(){	
+	private void initBoatMasts(myRndrObjClr clr){	
 		myVectorf[] trans1Ara = new myVectorf[]{new myVectorf(0, 3.5f, -3),new myVectorf(0, 1.25f, 1),new myVectorf(0, 2.2f, 5),new myVectorf(0, 2.3f, 7)},
 				scale1Ara = new myVectorf[]{new myVectorf(.95f,.85f,1),new myVectorf(1.3f,1.2f,1),new myVectorf(1f,.9f,1),new myVectorf(1,1,1)};
 		
@@ -159,28 +139,27 @@ public class myBoatRndrObj extends myRenderObj {
 		int idx = 0;
 		for(int rep = 0; rep < 3; rep++){buildSail( false, pts7,pts5, (type%2==1), trans1Ara[idx],  scale1Ara[idx]);idx++; }
 		buildSail(true, pts3,pts3, true, trans1Ara[idx],  scale1Ara[idx]);   //
-		
-		for(int j = 0; j<trans1Ara.length; ++j){
+				
+		for(int j = 0; j<trans1Ara.length; ++j){//mainColor,
 			if(j==3){//front sail
-				objRep.addChild(buildPole(0,.1f, 7, false, trans1Ara[j],  scale1Ara[j], rot1Ara[j], new myVectorf(0,0,0), new float[]{0,0,0,0},new myVectorf(0,0,0), new float[]{0,0,0,0}));
-				objRep.addChild(buildPole(4,.05f, 3,  true, trans1Ara[j],  scale1Ara[j], rot1Ara[j], new myVectorf(0, 5f, 0), new float[]{PConstants.HALF_PI, 0,0,1},new myVectorf(1,-1.5f,0), new float[]{0,0,0,0}));
+				objRep.addChild(buildPole(0, clr, .1f, 7, false, trans1Ara[j],  scale1Ara[j], rot1Ara[j], new myVectorf(0,0,0), new float[]{0,0,0,0},new myVectorf(0,0,0), new float[]{0,0,0,0}));
+				objRep.addChild(buildPole(4, clr, .05f, 3,  true, trans1Ara[j],  scale1Ara[j], rot1Ara[j], new myVectorf(0, 5f, 0), new float[]{PConstants.HALF_PI, 0,0,1},new myVectorf(1,-1.5f,0), new float[]{0,0,0,0}));
 			}
 			else{
-				objRep.addChild(buildPole(1,.1f, 10, false,trans1Ara[j],  scale1Ara[j], rot1Ara[j], new myVectorf(0,0,0), new float[]{0,0,0,0}, new myVectorf(0,0,0), new float[]{0,0,0,0}));
-				objRep.addChild(buildPole(2,.05f, 7, true, trans1Ara[j],  scale1Ara[j], rot1Ara[j], new myVectorf(0, 4.5f, 0), new float[]{PConstants.HALF_PI, 0,0,1},new myVectorf(0,-3.5f,0), new float[]{0,0,0,0}));
-				objRep.addChild(buildPole(3,.05f, 5, true, trans1Ara[j],  scale1Ara[j], rot1Ara[j], new myVectorf(0, 4.5f, 0), new float[]{PConstants.HALF_PI, 0,0,1},new myVectorf(4.5f,-2.5f,0), new float[]{0,0,0,0}));
+				objRep.addChild(buildPole(1,clr, .1f, 10, false,trans1Ara[j],  scale1Ara[j], rot1Ara[j], new myVectorf(0,0,0), new float[]{0,0,0,0}, new myVectorf(0,0,0), new float[]{0,0,0,0}));
+				objRep.addChild(buildPole(2,clr, .05f, 7, true, trans1Ara[j],  scale1Ara[j], rot1Ara[j], new myVectorf(0, 4.5f, 0), new float[]{PConstants.HALF_PI, 0,0,1},new myVectorf(0,-3.5f,0), new float[]{0,0,0,0}));
+				objRep.addChild(buildPole(3,clr, .05f, 5, true, trans1Ara[j],  scale1Ara[j], rot1Ara[j], new myVectorf(0, 4.5f, 0), new float[]{PConstants.HALF_PI, 0,0,1},new myVectorf(4.5f,-2.5f,0), new float[]{0,0,0,0}));
 			}					
 		}
-		for(int j = 0; j < numAnimFrm; ++j){
-			float animCntr = (j* myBoid.maxAnimCntr/(1.0f*numAnimFrm)) ;
-			buildOars(j, animCntr, 1, new myVectorf(0, 0.3f, 3));
-			buildOars(j, animCntr, -1, new myVectorf(0, 0.3f, 3));
+		for(int j = 0; j < myBoid.numAnimFrames; ++j){
+			float animCntr = (j* myBoid.maxAnimCntr/(1.0f*myBoid.numAnimFrames)) ;
+			buildOars(j, clr, animCntr, 1, new myVectorf(0, 0.3f, 3));
+			buildOars(j, clr, animCntr, -1, new myVectorf(0, 0.3f, 3));
 		}
 	}//initBoatMasts	
 
-
 	//build oars to orient in appropriate position for animIdx frame of animation - want all numAnimFrm of animation to cycle
-	public void buildOars(int animIdx, float animCntr, float dirMult, myVectorf transVec){
+	private void buildOars(int animIdx, myRndrObjClr clr, float animCntr, float dirMult, myVectorf transVec){
 		float[] rotAra1 = new float[]{PConstants.HALF_PI, 1, 0, 0},
 				rotAra2, rotAra3;
 		myVectorf transVec1 = new myVectorf(0,0,0);
@@ -190,7 +169,7 @@ public class myBoatRndrObj extends myRenderObj {
 			transVec1.set((transVec.x)+dirMult*1.5f, transVec.y, (transVec.z)+ d+disp);//sh.translate((transVec.x)+dirMult*1.5f, transVec.y, (transVec.z)+ d+disp);
 			rotAra2 = new float[]{ca, 0,0,dirMult};
 			rotAra3 = new float[]{sa*.5f, 1,0, 0};			
-			oars[animIdx].addChild(buildPole(1,.1f, 6, false, transVec1, new myVectorf(1,1,1), rotAra1, new myVectorf(0,0,0), rotAra2, new myVectorf(0,0,0), rotAra3));			
+			oars[animIdx].addChild(buildPole(1,clr,.1f, 6, false, transVec1, new myVectorf(1,1,1), rotAra1, new myVectorf(0,0,0), rotAra2, new myVectorf(0,0,0), rotAra3));			
 			disp+=distMod;
 		}			
 	}//buildOars
@@ -219,7 +198,7 @@ public class myBoatRndrObj extends myRenderObj {
 		objRep.addChild(sh);			
 	}
 	
-	public void buildSail(boolean frontMast, myPointf[] pts1, myPointf[] pts2, boolean renderSigil, myVectorf transVec, myVectorf scaleVec){
+	private void buildSail(boolean frontMast, myPointf[] pts1, myPointf[] pts2, boolean renderSigil, myVectorf transVec, myVectorf scaleVec){
 		if(frontMast){
 			PShape sh = makeShape(0, 2.3f, 7);
 			sh.rotate(pi3rds, 1, 0,0);
@@ -229,7 +208,7 @@ public class myBoatRndrObj extends myRenderObj {
 			sh.beginShape(); 
 			sh.fill(0xFFFFFFFF);	
 			sh.noStroke();	
-			//processing bug with textures which corrupts fill color of boat
+			//processing bug with textures which corrupts fill color of boat - fixed in proc 3.3.3 but orientations are all messed up in 3.3.3
 			//sh.texture(sailTexture);
 			for(int i=0;i<pts1.length;++i){	sh.vertex(pts1[i].x,pts1[i].y,pts1[i].z,uvAra[i].y,uvAra[i].x);}			
 			sh.endShape(PConstants.CLOSE);
@@ -241,103 +220,12 @@ public class myBoatRndrObj extends myRenderObj {
 		}
 	}//drawSail
 	
-	private PShape setRotVals(myVectorf transVec, myVectorf scaleVec, float[] rotAra, myVectorf trans2Vec, float[] rotAra2, myVectorf trans3Vec, float[] rotAra3){	
-		//sets up initial translation/scale/rotations for poles used as masts or oars
-		PShape sh = makeShape(transVec.x, transVec.y, transVec.z);			
-		sh.scale(scaleVec.x,scaleVec.y,scaleVec.z);
-		sh.rotate(rotAra[0],rotAra[1],rotAra[2],rotAra[3]);
-		sh.translate(trans2Vec.x, trans2Vec.y, trans2Vec.z);
-		sh.rotate(rotAra2[0],rotAra2[1],rotAra2[2],rotAra2[3]);
-		sh.translate(trans3Vec.x, trans3Vec.y, trans3Vec.z);
-		sh.rotate(rotAra3[0],rotAra3[1],rotAra3[2],rotAra3[3]);		
-		return sh;
-	}
-
-	public PShape buildPole(int poleNum, float rad, float height, boolean drawBottom, myVectorf transVec, myVectorf scaleVec, float[] rotAra, myVectorf trans2Vec, float[] rotAra2, myVectorf trans3Vec, float[] rotAra3){
-		float theta, theta2, rsThet, rcThet, rsThet2, rcThet2;
-		float numTurns = 6.0f;
-		PShape shRes = p.createShape(PConstants.GROUP), sh;
-		for(int i = 0; i <numTurns; ++i){
-			theta = (i/numTurns) * PConstants.TWO_PI;
-			theta2 = (((i+1)%numTurns)/numTurns) * PConstants.TWO_PI;
-			rsThet = rad*PApplet.sin(theta);
-			rcThet = rad*PApplet.cos(theta);
-			rsThet2 = rad*PApplet.sin(theta2);
-			rcThet2 = rad*PApplet.cos(theta2);
-
-			sh = setRotVals(transVec, scaleVec, rotAra, trans2Vec, rotAra2, trans3Vec, rotAra3);
-			sh.beginShape(PConstants.QUAD);				      
-				mainColor.shPaintColors(sh);
-				shgl_vertexf(sh,rsThet, 0, rcThet );
-				shgl_vertexf(sh,rsThet, height,rcThet);
-				shgl_vertexf(sh,rsThet2, height,rcThet2);
-				shgl_vertexf(sh,rsThet2, 0, rcThet2);
-			sh.endShape(PConstants.CLOSE);	
-			shRes.addChild(sh);
-
-			sh = setRotVals(transVec, scaleVec, rotAra, trans2Vec, rotAra2, trans3Vec, rotAra3);
-			sh.beginShape(PConstants.TRIANGLE);				      
-				mainColor.shPaintColors(sh);
-				shgl_vertexf(sh,rsThet, height, rcThet );
-				shgl_vertexf(sh,0, height, 0 );
-				shgl_vertexf(sh,rsThet2, height, rcThet2 );
-			sh.endShape(PConstants.CLOSE);
-			shRes.addChild(sh);
-			
-			if(drawBottom){
-				sh = setRotVals(transVec, scaleVec, rotAra, trans2Vec, rotAra2, trans3Vec, rotAra3);				
-				sh.beginShape(PConstants.TRIANGLE);
-					mainColor.shPaintColors(sh);
-					shgl_vertexf(sh,rsThet, 0, rcThet );
-					shgl_vertexf(sh,0, 0, 0 );
-					shgl_vertexf(sh,rsThet2, 0, rcThet2);
-				sh.endShape(PConstants.CLOSE);
-				shRes.addChild(sh);
-			}
-		}//for i
-		return shRes;
-	}//drawPole
 	
-	public int buildQuadShape(float[] transVal, int numX, int btPt){
-		PShape sh = makeShape(transVal[0],transVal[1],transVal[2]);
-		sh.beginShape(PConstants.QUAD);
-			flockColor.shPaintColors(sh);
-			for(int i = 0; i < numX; ++i){
-				shgl_vertex(sh,boatRndr[btPt][0]);shgl_vertex(sh,boatRndr[btPt][1]);shgl_vertex(sh,boatRndr[btPt][2]);shgl_vertex(sh,boatRndr[btPt][3]);btPt++;
-			}//for i				
-		sh.endShape(PConstants.CLOSE);
-		objRep.addChild(sh);		
-		return btPt;
-	}
-
-
-	@Override
-	protected void buildObj(){
-		int numZ = boatVerts[0].length, numX = boatVerts.length;
-		int btPt = 0;
-		float[] tmpAra = new float[]{0,1,0}, tmpAra2 = new float[]{0,1.5f,0};
-		for(int j = 0; j < numZ-1; ++j){
-			btPt = buildQuadShape(tmpAra, numX, btPt);
-		}//for j
-		for(int i = 0; i < numX; ++i){	
-			buildBodyBottom(boatVerts,i, numZ, numX);	
-		}//for i	
-		for(int j = 0; j < numZ-1; ++j){
-			btPt = buildQuadShape( tmpAra, 1, btPt);
-			btPt = buildQuadShape( tmpAra, 1, btPt);		
-		}//for j		
-		//draw rear and front castle
-		for(int j = 0; j < 27; ++j){
-			btPt = buildQuadShape( tmpAra2, 1, btPt);
-		}
-		
-	}//buildShape
-	
-	private void buildBodyBottom(myPointf[][] boatVerts, int i, int numZ, int numX){
+	private void buildBodyBottom(myPointf[][] boatVerts, int i, int lastIDX, int numX){
 		PShape sh = makeShape(0,1,0);		
 		sh.beginShape(PConstants.TRIANGLE);			
 			flockColor.shPaintColors(sh);
-			sh.vertex(boatVerts[i][numZ-1].x, boatVerts[i][numZ-1].y, 	boatVerts[i][numZ-1].z);	sh.vertex(0, 1, numZ-2);	sh.vertex(boatVerts[(i+1)%numX][numZ-1].x, boatVerts[(i+1)%numX][numZ-1].y, 	boatVerts[(i+1)%numX][numZ-1].z);	
+			sh.vertex(boatVerts[i][lastIDX].x, boatVerts[i][lastIDX].y, 	boatVerts[i][lastIDX].z);	sh.vertex(0, 1, lastIDX-1);	sh.vertex(boatVerts[(i+1)%numX][lastIDX].x, boatVerts[(i+1)%numX][lastIDX].y, 	boatVerts[(i+1)%numX][lastIDX].z);	
 		sh.endShape(PConstants.CLOSE);
 		objRep.addChild(sh);			
 

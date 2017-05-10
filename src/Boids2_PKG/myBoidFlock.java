@@ -141,10 +141,13 @@ public class myBoidFlock {
 	//move creatures to random start positions
 	public void scatterBoids() {for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).coords.set(randBoidStLoc());}}//	randInit
 	public void drawBoids(){
-		if(win.getPrivFlags(win.drawBoids)){
-	  		for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMe();}			
+		boolean debugAnim = win.getPrivFlags(win.debugAnimIDX), showVel = win.getPrivFlags(win.showVel);
+		if(win.getPrivFlags(win.drawBoids)){//broken apart to minimize if checks - only potentially 2 per flock per frame instead of thousands
+			if(debugAnim){		for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeDbgFrame();}}
+			else if (showVel){	for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeAndVel();}}
+			else {				for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMe();}}	  					
 		} else {
-			for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeBall();  }
+			for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeBall(debugAnim,showVel);  }
 			if(win.getPrivFlags(win.showFlkMbrs)){
 				for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawClosestPrey();  }
 				for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawClosestPredator();  }
