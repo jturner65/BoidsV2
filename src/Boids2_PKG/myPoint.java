@@ -35,7 +35,7 @@ public class myPoint {
 	
 	public void _sub(double _x, double _y, double _z){ this.x -= _x; this.y -= _y; this.z -= _z;  }                                                                   //_sub 3 args
 	public void _sub(myPoint v){ this.x -= v.x; this.y -= v.y; this.z -= v.z;  }                                                                           //_sub 1 arg 
-	public static myPoint _sub(myPoint p, myPoint q){ myPoint result = new myPoint(p.x - q.x, p.y - q.y, p.z - q.z); return result; }       //2 pt src 	
+	public static myPoint _sub(myPoint p, myPoint q){ myPoint result = new myPoint(p.x - q.x, p.y - q.y, p.z - q.z); return result; }
 	public static void _sub(myPoint p, myPoint q, myPoint r){ myPoint result = new myPoint(p.x - q.x, p.y - q.y, p.z - q.z); r.set(result);}       //2 pt src, 1 pt dest  	
 
 	public myPoint cloneMe(){myPoint retVal = new myPoint(this.x, this.y, this.z); return retVal;}  
@@ -111,7 +111,7 @@ class myPointf {
 	
 	public void _sub(float _x, float _y, float _z){ this.x -= _x; this.y -= _y; this.z -= _z;  }                                                                   //_sub 3 args
 	public void _sub(myPointf v){ this.x -= v.x; this.y -= v.y; this.z -= v.z;  }                                                                           //_sub 1 arg 
-	public static myPointf _sub(myPointf p, myPointf q){ myPointf result = new myPointf(p.x - q.x, p.y - q.y, p.z - q.z); return result; }       //2 pt src 	
+	public static myPointf _sub(myPointf p, myPointf q){ myPointf result = new myPointf(p.x - q.x, p.y - q.y, p.z - q.z); return result; }
 	public static void _sub(myPointf p, myPointf q, myPointf r){ myPointf result = new myPointf(p.x - q.x, p.y - q.y, p.z - q.z); r.set(result);}       //2 pt src, 1 pt dest  	
 
 	public myPointf cloneMe(){myPointf retVal = new myPointf(this.x, this.y, this.z); return retVal;}  

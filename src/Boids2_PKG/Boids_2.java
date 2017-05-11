@@ -63,6 +63,7 @@ public class Boids_2 extends PApplet{
 	}// setup
 	
 	public void setBkgrnd(){
+		//TODO move to myDispWindow
 		background(bground[0],bground[1],bground[2],bground[3]);		
 		shape(bgrndSphere);		
 	}
@@ -94,7 +95,6 @@ public class Boids_2 extends PApplet{
 		animCntr = (animCntr + (baseAnimSpd )*animModMult) % maxAnimCntr;						//set animcntr - used only to animate visuals		
 		//cyclModCmp = (drawCount % ((mySideBarMenu)dispWinFrames[dispMenuIDX]).guiObjs[((mySideBarMenu)dispWinFrames[dispMenuIDX]).gIDX_cycModDraw].valAsInt() == 0);
 		//if ((!cyclModCmp) || (flags[runSim])) {drawCount++;}						//needed to stop draw update so that pausing sim retains animation positions			
-
 		//simulation section
 		glblStartSimTime = millis();
 		float modAmtSec = (glblStartSimTime - glblLastSimTime)/1000.0f;
@@ -110,8 +110,7 @@ public class Boids_2 extends PApplet{
 
 		//drawing section
 		pushMatrix();pushStyle();
-		drawSetup();																//initialize camera, lights and scene orientation and set up eye movement
-		
+		drawSetup();																//initialize camera, lights and scene orientation and set up eye movement		
 		translate(focusTar.x,focusTar.y,focusTar.z);								//focus location center of screen					
 		if((curFocusWin == -1) || (dispWinIs3D[curFocusWin])){	//allow for single window to have focus, but display multiple windows	
 			//if refreshing screen, this clears screen, sets background
@@ -123,7 +122,7 @@ public class Boids_2 extends PApplet{
 				if(dispWinFrames[curFocusWin].chkDrawMseRet()){			c.drawMseEdge();	}
 			}
 			popStyle();popMatrix(); 
-		} else {	
+		} else {	//either/or 2d window
 			//2d windows paint window box so background is always cleared
 			c.buildCanvas();
 			c.drawMseEdge();
@@ -759,7 +758,7 @@ public class Boids_2 extends PApplet{
 	//drawsInitial setup for each draw
 	public void drawSetup(){
 		perspective(PI/3.0f, (1.0f*width)/(1.0f*height), .5f, camVals[2]*100.0f);
-		dispWinFrames[disp3DResIDX].setCamera(camVals, rx,ry,dz);
+		dispWinFrames[curFocusWin].setCamera(camVals, rx,ry,dz);
 		
 //		if(flags[rideBoid]){ 
 //			((myBoids3DWin) dispWinFrames[disp3DResIDX]).setBoidCam(rx,ry,dz);

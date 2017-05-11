@@ -365,13 +365,12 @@ public abstract class myDispWindow {
 	protected void buildGUIObjs(String[] guiObjNames, double[] guiStVals, double[][] guiMinMaxModVals, boolean[][] guiBoolVals, double[] off){
 		//myGUIObj tmp; 
 //		if(getFlags(uiObjsAreVert]){		//vertical stack of UI components - clickable region x is unchanged, y changes with # of objects
-		//uiClkCoords[1] -= (.5f*yOff);
 		float stClkY = uiClkCoords[1];
 		for(int i =0; i< guiObjs.length; ++i){
 			guiObjs[i] = buildGUIObj(i,guiObjNames[i],guiStVals[i], guiMinMaxModVals[i], guiBoolVals[i], new double[]{uiClkCoords[0], stClkY, uiClkCoords[2], stClkY+yOff},off);
 			stClkY += yOff;
 		}
-		uiClkCoords[3] = stClkY;// - (.5f*yOff);	
+		uiClkCoords[3] = stClkY;	
 //		} else {			//horizontal row of UI components - clickable region y is unchanged, x changes with # of objects
 //			double stClkX = uiClkCoords[0];
 //			double UICompWidth;
@@ -1035,7 +1034,6 @@ public abstract class myDispWindow {
 	protected abstract void setCameraIndiv(float[] camVals, float rx, float ry, float dz);
 	protected abstract void drawMe(float animTimeMod);	
 	
-	
 	public String toString(){
 		String res = "Window : "+name+" ID: "+ID+" Fill :("+fillClr[0]+","+fillClr[1]+","+fillClr[2]+","+fillClr[3]+
 				") | Stroke :("+fillClr[0]+","+fillClr[1]+","+fillClr[2]+","+fillClr[3]+") | Rect : ("+
@@ -1273,18 +1271,6 @@ class mySideBarMenu extends myDispWindow{
 		}			
 	}//setUIWinVals
 	@Override
-	public void hndlFileLoadIndiv(String[] vals, int[] stIdx) {
-		
-	}
-
-	@Override
-	public List<String> hndlFileSaveIndiv() {
-		List<String> res = new ArrayList<String>();
-
-		return res;
-	}
-	
-	@Override
 	protected boolean hndlMouseMoveIndiv(int mouseX, int mouseY, myPoint mseClckInWorld){		return false;	}
 	@Override
 	protected boolean hndlMouseClickIndiv(int mouseX, int mouseY, myPoint mseClckInWorld, int mseBtn) {	
@@ -1322,7 +1308,7 @@ class mySideBarMenu extends myDispWindow{
 		for(int idx =0; idx<pa.numStFlagsToShow; ++idx){
 			dispBoolStFlag(StateBoolNames[idx],stBoolFlagColors[idx], pa.flags[pa.stateFlagsToShow.get(idx)],StrWdMult[idx]);			
 			pa.translate(xTrans,0);
-		}			
+		}
 	}
 	
 	//draw UI buttons
@@ -1369,6 +1355,7 @@ class mySideBarMenu extends myDispWindow{
 			drawWindowGuiObjs();		
 		pa.popStyle();	pa.popMatrix();			
 	}
+	@Override
 	public void drawCustMenuObjs(){}
 	
 	private void drawWindowGuiObjs(){
@@ -1383,6 +1370,16 @@ class mySideBarMenu extends myDispWindow{
 	//no custom camera handling for menu
 	@Override
 	protected void setCameraIndiv(float[] camVals, float rx, float ry, float dz){}
+	@Override
+	public void hndlFileLoadIndiv(String[] vals, int[] stIdx) {
+		
+	}
+	@Override
+	public List<String> hndlFileSaveIndiv() {
+		List<String> res = new ArrayList<String>();
+
+		return res;
+	}
 	@Override
 	public void drawClickableBooleans() {	}//this is only for non-sidebar menu windows, to display their own personal buttons
 	@Override
@@ -1426,7 +1423,6 @@ class mySideBarMenu extends myDispWindow{
 		return res;
 	}
 }//mySideBarMenu
-
 //class holds trajctory and 4 macro cntl points, and handling for them
 class myDrawnSmplTraj {
 	public Boids_2 pa;
