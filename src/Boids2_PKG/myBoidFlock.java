@@ -16,7 +16,8 @@ public class myBoidFlock {
 	public String name;
 	public int numBoids;
 	public ArrayList<myBoid> boidFlock;
-	private ArrayList<List<myBoid>> boidThrdFrames;			//structure to hold views of boidFlock for each thread operation
+	//private ArrayList<List<myBoid>> boidThrdFrames;			//structure to hold views of boidFlock for each thread operation
+	private List<myBoid>[] boidThrdFrames;			//structure to hold views of boidFlock for each thread operation
 	
 	public float delT;
 	//specific flock vars for this flock TODO
@@ -49,7 +50,8 @@ public class myBoidFlock {
 	private float bdgSizeX = 20, bdgSizeY = 15;			//badge size
 	private myPointf[] mnBdgBox;
 	private static final myPointf[] mnUVBox = new myPointf[]{new myPointf(0,0,0),new myPointf(1,0,0),new myPointf(1,1,0),new myPointf(0,1,0)};
-
+	
+	private int numThrds;
 	//flock-specific data
 	//private int flkMenuClr;//color of menu	
 	
@@ -57,6 +59,8 @@ public class myBoidFlock {
 		p = _p; win=_win;	name = _name; 
 		//fv = new flkVrs(p, win, win.MaxNumFlocks);	
 		type = _type;
+		numThrds = (p.numThreadsAvail - 2);
+		
 		flv = new myFlkVars(p, win, this, win.flkRadMults[type]);
 		//Boids_2 _p, myBoids3DWin _win, myBoidFlock _flock, int _bodyClr, int numSpc, float _nRadMult
 		delT = win.getTimeStep();
@@ -92,7 +96,7 @@ public class myBoidFlock {
 	//public void initbflk_flags(boolean initVal){bflk_flags = new boolean[numbflk_flags];for(int i=0;i<numbflk_flags;++i){bflk_flags[i]=initVal;}}
 	public void initFlock(){
 		boidFlock = new ArrayList<myBoid>(numBoids);
-		boidThrdFrames = new ArrayList<List<myBoid>>();
+		boidThrdFrames = new List[p.numThreadsAvail - 2];//new ArrayList<List<myBoid>>();
 		//System.out.println("make flock of size : "+ numBoids);
 		for(int c = 0; c < numBoids; ++c){
 			boidFlock.add(c, new myBoid(p, win,this,randBoidStLoc(), type));
@@ -213,20 +217,23 @@ public class myBoidFlock {
 	
 	//clear out all data for each boid
 	public void clearOutBoids(){
-		boidThrdFrames.clear();
+		//build set of boids per thread frame
+		//boidThrdFrames.clear();
 		curFlagState = win.getFlkFlagsInt();
 		//sets current time step from UI
-		int numBoids = boidFlock.size(),numThrds = (p.numThreadsAvail - 2);
-		int frSize = (numBoids > numThrds ? numBoids /numThrds : numThrds);
+		int numBoids = boidFlock.size();
+		int frSize =(numBoids > numThrds ?  1 + (numBoids - 1)/numThrds : numThrds);//best balance
 		delT = win.getTimeStep();
 		callResetBoidCalcs.clear();
 //		for(int c = 0; c < numBoids; c+=mtFrameSize){//set up each thread's view window of the flock
 //			int finalLen = (c+mtFrameSize < numBoids ? mtFrameSize : boidFlock.size() - c);
 //			boidThrdFrames.add(boidFlock.subList(c, c+finalLen));
 //		}							//find next turn's motion for every creature by finding total force to act on creature
+		int idx=0;
 		for(int c = 0; c < numBoids; c+=frSize){//set up each thread's view window of the flock
 			int finalLen = (c+frSize < numBoids ? frSize : numBoids - c);
-			boidThrdFrames.add(boidFlock.subList(c, c+finalLen));
+			//boidThrdFrames.add(boidFlock.subList(c, c+finalLen));
+			boidThrdFrames[idx++]=boidFlock.subList(c, c+finalLen);
 		}							//find next turn's motion for every creature by finding total force to act on creature
 		for(List<myBoid> subL : boidThrdFrames){
 			callResetBoidCalcs.add(new myResetBoidStencil(p, this, preyFlock, curFlagState, subL));

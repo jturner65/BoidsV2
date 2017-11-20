@@ -1,7 +1,6 @@
 package Boids2_PKG;
 
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentSkipListMap;
 
