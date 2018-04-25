@@ -27,7 +27,7 @@ public class myJFishRndrObj extends myRenderObj {
 	private static final float strkWt = .1f;
 	private static final float shn = 5.0f;
 
-	public myJFishRndrObj(Boids_2 _p, myBoids3DWin _win, int _type)  {	
+	public myJFishRndrObj(Boids_2 _p, myDispWindow _win, int _type)  {	
 		super(_p, _win, _type);	 
 		emitMod = .85f;
 		made = initGeometry(made);

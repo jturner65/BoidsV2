@@ -6,7 +6,7 @@ import processing.core.PShape;
 
 public abstract class myRenderObj {
 	protected static Boids_2 p;	
-	protected myBoids3DWin win;
+	protected myDispWindow win;
 	protected static final float pi4thrds = 4*PConstants.PI/3.0f, pi100th = .01f*PConstants.PI, pi6ths = PConstants.PI/6.0f, pi3rds = PConstants.PI/3.0f;
 	//individual objRep-type pshapes	
 	protected PShape objRep;										//1 shape for each type of objRep
@@ -15,7 +15,7 @@ public abstract class myRenderObj {
 	protected myRndrObjClr flockColor;
 	protected float emitMod = 1.0f;
 	//class to allow for prebuilding complex rendered representations of boids as pshapes
-	public myRenderObj(Boids_2 _p, myBoids3DWin _win, int _type) {
+	public myRenderObj(Boids_2 _p, myDispWindow _win, int _type) {
 		p=_p; win=_win; type = _type;
 	}
 	

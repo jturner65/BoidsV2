@@ -16,7 +16,7 @@ public class mySphereRndrObj extends myRenderObj {
 	private static final float strkWt = 1.0f;
 	private static final float shn = 5.0f;
 
-	public mySphereRndrObj(Boids_2 _p, myBoids3DWin _win, int _type) {	
+	public mySphereRndrObj(Boids_2 _p, myDispWindow _win, int _type) {	
 		super(_p, _win, _type);	 
 		made = initGeometry(made);
 	}//ctor

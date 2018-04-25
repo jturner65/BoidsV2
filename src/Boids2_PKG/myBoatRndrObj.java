@@ -91,7 +91,7 @@ public class myBoatRndrObj extends myRenderObj {
 			oars[a] = p.createShape(PConstants.GROUP); 		
 		}	
 
-		sailTexture = win.flkSails[type];
+		sailTexture = ((myBoids3DWin)win).flkSails[type];
 	}//initInstObjGeometry
 
 	@Override //representation-specific drawing code (i.e. oars settings for boats)
