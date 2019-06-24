@@ -4,13 +4,25 @@ package Boids2_PKG;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 
+import Boids2_PKG.boids.myBoid;
+import Boids2_PKG.renderedObjs.myRenderObj;
+import Boids2_PKG.threadedSolvers.forceSolvers.myLinForceSolver;
+import Boids2_PKG.threadedSolvers.forceSolvers.myOrigForceSolver;
+import Boids2_PKG.threadedSolvers.forceSolvers.base.myFwdForceSolver;
+import Boids2_PKG.threadedSolvers.initializers.myInitPredPreyMaps;
+import Boids2_PKG.threadedSolvers.initializers.myBoidValsResetter;
+import Boids2_PKG.threadedSolvers.updaters.myBoidUpdater;
+import base_UI_Objects.my_procApplet;
+import base_Utils_Objects.vectorObjs.myPointf;
+import base_Utils_Objects.vectorObjs.myVectorf;
 import processing.core.PImage;
 
 public class myBoidFlock {
-	public Boids_2 p;	
+	public my_procApplet p;	
 	public myBoids3DWin win;
 
 	public String name;
@@ -39,10 +51,10 @@ public class myBoidFlock {
 	public myBoidFlock preyFlock, predFlock;		//direct reference to flock that is my prey and my predator -- set in main program after init is called
 	
 	public List<Future<Boolean>> callFwdSimFutures, callUpdFutures, callInitFutures, callResetBoidFutures;
-	public List<myFwdStencil> callFwdBoidCalcs;
-	public List<myUpdateStencil> callUbdBoidCalcs;	
+	public List<myFwdForceSolver> callFwdBoidCalcs;
+	public List<myBoidUpdater> callUbdBoidCalcs;	
 	public List<myInitPredPreyMaps> callInitBoidCalcs;
-	public List<myResetBoidStencil> callResetBoidCalcs;
+	public List<myBoidValsResetter> callResetBoidCalcs;
 	///////////
 	//graphical constructs for boids of this flock
 	///////////
@@ -51,15 +63,18 @@ public class myBoidFlock {
 	private myPointf[] mnBdgBox;
 	private static final myPointf[] mnUVBox = new myPointf[]{new myPointf(0,0,0),new myPointf(1,0,0),new myPointf(1,1,0),new myPointf(0,1,0)};
 	
-	private int numThrds;
+	private final int numThrds, numThrdsAvail;
+	protected ExecutorService th_exec;	//to access multithreading - instance from calling program
 	//flock-specific data
 	//private int flkMenuClr;//color of menu	
 	
-	public myBoidFlock(Boids_2 _p, myBoids3DWin _win, String _name, int _numBoids, int _type){
+	public myBoidFlock(my_procApplet _p, myBoids3DWin _win, String _name, int _numBoids, int _type){
 		p = _p; win=_win;	name = _name; 
 		//fv = new flkVrs(p, win, win.MaxNumFlocks);	
 		type = _type;
-		numThrds = (p.numThreadsAvail - 2);
+		th_exec = win.getTh_Exec();
+		numThrdsAvail =p.getNumThreadsAvailable();
+		numThrds = (numThrdsAvail - 2);
 		
 		flv = new myFlkVars(p, win, this, win.flkRadMults[type]);
 		//Boids_2 _p, myBoids3DWin _win, myBoidFlock _flock, int _bodyClr, int numSpc, float _nRadMult
@@ -76,16 +91,16 @@ public class myBoidFlock {
 		mnBdgBox = new myPointf[]{new myPointf(0,0,0),new myPointf(0,bdgSizeY,0),new myPointf(bdgSizeX,bdgSizeY,0),new myPointf(bdgSizeX,0,0)};
 		flv = new myFlkVars(p,win,this,(float)ThreadLocalRandom.current().nextDouble(0.65, 1.0));
 		
-		callFwdBoidCalcs= new ArrayList<myFwdStencil>();
+		callFwdBoidCalcs= new ArrayList<myFwdForceSolver>();
 		callFwdSimFutures = new ArrayList<Future<Boolean>>(); 
 
-		callUbdBoidCalcs = new ArrayList<myUpdateStencil>();
+		callUbdBoidCalcs = new ArrayList<myBoidUpdater>();
 		callUpdFutures = new ArrayList<Future<Boolean>>(); 
 		
 		callInitBoidCalcs = new ArrayList<myInitPredPreyMaps>();
 		callInitFutures = new ArrayList<Future<Boolean>>(); 
 		
-		callResetBoidCalcs = new ArrayList<myResetBoidStencil>();
+		callResetBoidCalcs = new ArrayList<myBoidValsResetter>();
 		callResetBoidFutures = new ArrayList<Future<Boolean>>(); 	
 		
 		curFlagState = win.getFlkFlagsInt();
@@ -96,7 +111,7 @@ public class myBoidFlock {
 	//public void initbflk_flags(boolean initVal){bflk_flags = new boolean[numbflk_flags];for(int i=0;i<numbflk_flags;++i){bflk_flags[i]=initVal;}}
 	public void initFlock(){
 		boidFlock = new ArrayList<myBoid>(numBoids);
-		boidThrdFrames = new List[p.numThreadsAvail - 2];//new ArrayList<List<myBoid>>();
+		boidThrdFrames = new List[numThrds];//new ArrayList<List<myBoid>>();
 		//System.out.println("make flock of size : "+ numBoids);
 		for(int c = 0; c < numBoids; ++c){
 			boidFlock.add(c, new myBoid(p, win,this,randBoidStLoc(), type));
@@ -236,9 +251,9 @@ public class myBoidFlock {
 			boidThrdFrames[idx++]=boidFlock.subList(c, c+finalLen);
 		}							//find next turn's motion for every creature by finding total force to act on creature
 		for(List<myBoid> subL : boidThrdFrames){
-			callResetBoidCalcs.add(new myResetBoidStencil(p, this, preyFlock, curFlagState, subL));
+			callResetBoidCalcs.add(new myBoidValsResetter(p, this, preyFlock, curFlagState, subL));
 		}
-		try {callResetBoidFutures = p.th_exec.invokeAll(callResetBoidCalcs);for(Future<Boolean> f: callResetBoidFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }			
+		try {callResetBoidFutures = th_exec.invokeAll(callResetBoidCalcs);for(Future<Boolean> f: callResetBoidFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }			
 	}
 	//build all data structures holding neighbors, pred, prey
 	public void initAllMaps(){
@@ -246,18 +261,18 @@ public class myBoidFlock {
 		for(List<myBoid> subL : boidThrdFrames){
 			callInitBoidCalcs.add(new myInitPredPreyMaps(p, this, preyFlock, predFlock, flv, curFlagState, subL));
 		}
-		try {callInitFutures = p.th_exec.invokeAll(callInitBoidCalcs);for(Future<Boolean> f: callInitFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }			
+		try {callInitFutures = th_exec.invokeAll(callInitBoidCalcs);for(Future<Boolean> f: callInitFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }			
 	}
 	//TODO get this from myDispWindow instead of p
-	private boolean ckAddFrc(){return (p.flags[p.mouseClicked] ) && (!p.flags[p.shiftKeyPressed]);}
+	private boolean ckAddFrc(){return (p.mouseIsClicked()) && (!p.shiftIsPressed());}
 	//build forces using linear distance functions
 	public void moveBoidsLinMultTH(){
 		callFwdBoidCalcs.clear();
 		boolean addFrc = ckAddFrc();
 		for(List<myBoid> subL : boidThrdFrames){
-			callFwdBoidCalcs.add(new myLinForceStencil(p, this, curFlagState, addFrc, subL));
+			callFwdBoidCalcs.add(new myLinForceSolver(p, this, curFlagState, addFrc, subL));
 		}
-		try {callFwdSimFutures = p.th_exec.invokeAll(callFwdBoidCalcs);for(Future<Boolean> f: callFwdSimFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }		
+		try {callFwdSimFutures = th_exec.invokeAll(callFwdBoidCalcs);for(Future<Boolean> f: callFwdSimFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }		
 	}
 	
 	//build forces using original boids-style distance functions
@@ -265,16 +280,16 @@ public class myBoidFlock {
 		callFwdBoidCalcs.clear();
 		boolean addFrc = ckAddFrc();
 		for(List<myBoid> subL : boidThrdFrames){
-			callFwdBoidCalcs.add(new myOrigForceStencil(p, this, curFlagState, addFrc, subL));
+			callFwdBoidCalcs.add(new myOrigForceSolver(p, this, curFlagState, addFrc, subL));
 		}
-		try {callFwdSimFutures = p.th_exec.invokeAll(callFwdBoidCalcs);for(Future<Boolean> f: callFwdSimFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }		
+		try {callFwdSimFutures = th_exec.invokeAll(callFwdBoidCalcs);for(Future<Boolean> f: callFwdSimFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }		
 	}
 	public void updateBoidMovement(){
 		callUbdBoidCalcs.clear();
 		for(List<myBoid> subL : boidThrdFrames){
-			callUbdBoidCalcs.add(new myUpdateStencil(p, this, curFlagState, subL));
+			callUbdBoidCalcs.add(new myBoidUpdater(p, this, curFlagState, subL));
 		}
-		try {callUpdFutures = p.th_exec.invokeAll(callUbdBoidCalcs);for(Future<Boolean> f: callUpdFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }		    	
+		try {callUpdFutures = th_exec.invokeAll(callUbdBoidCalcs);for(Future<Boolean> f: callUpdFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }		    	
 	}//updateBoids	
 	
 	public void finalizeBoids(){

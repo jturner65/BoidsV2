@@ -1,8 +1,20 @@
 package Boids2_PKG;
 
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import Boids2_PKG.renderedObjs.myBoatRndrObj;
+import Boids2_PKG.renderedObjs.myJFishRndrObj;
+import Boids2_PKG.renderedObjs.myRenderObj;
+import Boids2_PKG.renderedObjs.mySphereRndrObj;
+import base_UI_Objects.windowUI.myDispWindow;
+import base_UI_Objects.my_procApplet;
+import base_UI_Objects.windowUI.myGUIObj;
+import base_Utils_Objects.vectorObjs.myPoint;
+import base_Utils_Objects.vectorObjs.myVector;
 import processing.core.PImage;
 
 public class myBoids3DWin extends myDispWindow {
@@ -31,29 +43,30 @@ public class myBoids3DWin extends myDispWindow {
 	//private child-class flags - window specific
 	public static final int 
 			debugAnimIDX 		= 0,						//debug
-			drawBoids			= 1,			//whether to draw boids or draw spheres (renders faster)
-			clearPath			= 2,			//whether to clear each drawn boid, or to show path by keeping past drawn boids
-			showVel			 	= 3,			//display vel values
-			showFlkMbrs 		= 4,			//whether or not to show actual subflock members (i.e. neigbhors,colliders, preds, etc) when debugging
-			attractMode 		= 5,			// whether we are in mouse attractor mode or repel mode
+			isMTCapableIDX 		= 1,			//whether this machine supports multiple threads
+			drawBoids			= 2,			//whether to draw boids or draw spheres (renders faster)
+			clearPath			= 3,			//whether to clear each drawn boid, or to show path by keeping past drawn boids
+			showVel			 	= 4,			//display vel values
+			showFlkMbrs 		= 5,			//whether or not to show actual subflock members (i.e. neigbhors,colliders, preds, etc) when debugging
+			attractMode 		= 6,			// whether we are in mouse attractor mode or repel mode
 			//must stay within first 32 positions(single int) to make flocking control flag int easier (just sent first int)
 			//flocking control flags
-			flkCenter 			= 6,			// on/off : flock-centering
-			flkVelMatch 		= 7,			// on/off : flock velocity matching
-			flkAvoidCol 		= 8,			// on/off : flock collision avoidance	
-			flkWander 			= 9,			// on/off : flock wandering		
-			flkAvoidPred		= 10,			//turn on/off avoiding predators force and chasing prey force
-			flkHunt				= 11,			//whether hunting is enabled
-			flkHunger			= 12,			//can get hungry	
-			flkSpawn			= 13,			//allow breeding
-			useOrigDistFuncs 	= 14,
-			useTorroid			= 15,	
-			flkCyclesFrc		= 16,			//the force these boids exert cycles with motion
+			flkCenter 			= 7,			// on/off : flock-centering
+			flkVelMatch 		= 8,			// on/off : flock velocity matching
+			flkAvoidCol 		= 9,			// on/off : flock collision avoidance	
+			flkWander 			= 10,			// on/off : flock wandering		
+			flkAvoidPred		= 11,			//turn on/off avoiding predators force and chasing prey force
+			flkHunt				= 12,			//whether hunting is enabled
+			flkHunger			= 13,			//can get hungry	
+			flkSpawn			= 14,			//allow breeding
+			useOrigDistFuncs 	= 15,
+			useTorroid			= 16,	
+			flkCyclesFrc		= 17,			//the force these boids exert cycles with motion
 			//end must stay within first 32
-			modDelT				= 17,			//whether to modify delT based on frame rate or keep it fixed (to fight lag)
-			viewFromBoid		= 18;			//whether viewpoint is from a boid's perspective or global
+			modDelT				= 18,			//whether to modify delT based on frame rate or keep it fixed (to fight lag)
+			viewFromBoid		= 19;			//whether viewpoint is from a boid's perspective or global
 	
-	public static final int numPrivFlags = 19;
+	public static final int numPrivFlags = 20;
 
 	public final int MaxNumBoids = 15000;		//max # of boids per flock
 	public final int initNumBoids = 500;		//initial # of boids per flock
@@ -92,13 +105,26 @@ public class myBoids3DWin extends myDispWindow {
 	//idx of zone in currently modified flkVars value during drag - set to -1 on click release
 	private int flkVarIDX, flkVarObjIDX;
 	
-	public myBoids3DWin(Boids_2 _p, String _n, int _flagIdx, int[] fc, int[] sc, float[] rd, float[] rdClosed,String _winTxt, boolean _canDrawTraj) {
+	//threading constructions - allow map manager to own its own threading executor
+	protected ExecutorService th_exec;	//to access multithreading - instance from calling program
+	protected int numUsableThreads;		//# of threads usable by the application
+	
+	public String[][] menuBtnNames = new String[][] {	//each must have literals for every button defined in side bar menu, or ignored
+		{},
+		{"Func 00", "Func 01", "Func 02"},				//row 1
+		{"Func 10", "Func 11", "Func 12", "Func 13"},	//row 2
+		{"Func 10", "Func 11", "Func 12", "Func 13"},	//row 2
+		{"Func 20", "Func 21", "Func 22", "Func 23","Func 24"}	
+	};
+
+	
+	public myBoids3DWin(my_procApplet _p, String _n, int _flagIdx, int[] fc, int[] sc, float[] rd, float[] rdClosed,String _winTxt, boolean _canDrawTraj) {
 		super(_p, _n, _flagIdx, fc, sc, rd, rdClosed, _winTxt, _canDrawTraj);
 		float stY = rectDim[1]+rectDim[3]-4*yOff,stYFlags = stY + 2*yOff;
-		trajFillClrCnst = Boids_2.gui_DarkCyan;		//override this in the ctor of the instancing window class
-		trajStrkClrCnst = Boids_2.gui_Cyan;
 		super.initThisWin(_canDrawTraj, true, false);
 	}
+	
+	public ExecutorService getTh_Exec() {return th_exec;}
 	
 	@Override
 	//initialize all private-flag based UI buttons here - called by base class
@@ -138,6 +164,19 @@ public class myBoids3DWin extends myDispWindow {
 		//TODO set this to be determined by UI input (?)
 		initSimpleBoids();
 		initBoidRndrObjs();
+		//want # of usable background threads.  Leave 2 for primary process (and potential draw loop)
+		numUsableThreads = Runtime.getRuntime().availableProcessors() - 2;
+		//set if this is multi-threaded capable - need more than 1 outside of 2 primary threads (i.e. only perform multithreaded calculations if 4 or more threads are available on host)
+		setPrivFlags(isMTCapableIDX, numUsableThreads>1);
+		
+		//th_exec = Executors.newCachedThreadPool();// Executors.newFixedThreadPool(numUsableThreads);
+		if(getPrivFlags(isMTCapableIDX)) {
+			//th_exec = Executors.newFixedThreadPool(numUsableThreads+1);//fixed is better in that it will not block on the draw - this seems really slow on the prospect mapping
+			th_exec = Executors.newCachedThreadPool();// this is performing much better even though it is using all available threads
+		} else {//setting this just so that it doesn't fail somewhere - won't actually be exec'ed
+			th_exec = Executors.newCachedThreadPool();// Executors.newFixedThreadPool(numUsableThreads);
+		}
+
 	
 		setPrivFlags(drawBoids, true);
 		setPrivFlags(attractMode, true);
@@ -242,7 +281,8 @@ public class myBoids3DWin extends myDispWindow {
 			case debugAnimIDX 			: {break;}//pa.outStr2Scr("debugAnimIDX " + val + " : " + getPrivFlags(idx) + "|"+ mask);  break;}		
 			case drawBoids			    : {break;}//pa.outStr2Scr("drawBoids		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
 			case clearPath			    : {
-				pa.setFlags(pa.clearBKG, !val);//turn on or off background clearing in main window
+				//TODO this needs to change how it works so that initialization doesn't call my_procApplet before it is ready
+				//pa.setClearBackgroundEveryStep( !val);//turn on or off background clearing in main window
 				break;}
 			case showVel			    : {break;}//pa.outStr2Scr("showVel		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
 			case attractMode			: {break;}//pa.outStr2Scr("attractMode	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
@@ -267,6 +307,7 @@ public class myBoids3DWin extends myDispWindow {
 				break;
 			}
 			case useTorroid			    : { break;}		
+			case isMTCapableIDX			: {break;}
 		}		
 	}//setPrivFlags		
 	
@@ -375,13 +416,13 @@ public class myBoids3DWin extends myDispWindow {
 	public void drawTraj3D(float animTimeMod,myPoint trans){}//drawTraj3D	
 	//set camera to either be global or from pov of one of the boids
 	@Override
-	protected void setCameraIndiv(float[] camVals, float rx, float ry, float dz){
+	protected void setCameraIndiv(float[] camVals){
 		if (getPrivFlags(viewFromBoid)){	setBoidCam(rx,ry,dz);		}
 		else {	
 			pa.camera(camVals[0],camVals[1],camVals[2],camVals[3],camVals[4],camVals[5],camVals[6],camVals[7],camVals[8]);      
 			// puts origin of all drawn objects at screen center and moves forward/away by dz
 			pa.translate(camVals[0],camVals[1],(float)dz); 
-		    pa.setCamOrient();	
+		    setCamOrient();	
 		}
 	}
 	
@@ -396,8 +437,21 @@ public class myBoids3DWin extends myDispWindow {
 		pa.popStyle();pa.popMatrix();
 	}//drawMe
 	
+
 	@Override
-	protected void simMe(float modAmtSec) {//run simulation
+	protected void drawRightSideInfoBarPriv(float modAmtMillis) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void drawOnScreenStuffPriv(float modAmtMillis) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	protected boolean simMe(float modAmtSec) {//run simulation
 		//scale timestep to account for lag of rendering if set in booleans		
 		timeStepMult = getPrivFlags(modDelT) ?  modAmtSec * 30.0f : 1.0f;
 		for(int i =0; i<flocks.length; ++i){flocks[i].clearOutBoids();}			//clear boid accumulators of neighbors, preds and prey  initAllMaps
@@ -406,47 +460,11 @@ public class myBoids3DWin extends myDispWindow {
 		else {					for(int i =0; i<flocks.length; ++i){flocks[i].moveBoidsLinMultTH();}}
 		for(int i =0; i<flocks.length; ++i){flocks[i].updateBoidMovement();}//setMaxUIBoidToWatch(i);}	
 		for(int i =0; i<flocks.length; ++i){flocks[i].finalizeBoids();setMaxUIBoidToWatch(i);}	
+		return false;
 	}
 	@Override
 	protected void stopMe() {	}		
-	//debug function
-	public void dbgFunc0(){
-	}	
-	public void dbgFunc1(){	
-	}	
-	public void dbgFunc2(){	
-	}	
-	public void dbgFunc3(){	
-	}	
-	public void dbgFunc4(){	
-	}	
-	@Override
-	public void clickDebug(int btnNum){
-		pa.outStr2Scr("click debug in "+name+" : btn : " + btnNum);
-		switch(btnNum){
-			case 0 : {	dbgFunc0();	break;}
-			case 1 : {	dbgFunc1();	break;}
-			case 2 : {	dbgFunc2();	break;}
-			case 3 : {	dbgFunc3();	break;}
-			default : {break;}
-		}		
-	}
-	
-	@Override
-	public void hndlFileLoadIndiv(String[] vals, int[] stIdx) {
-		
-	}
 
-	@Override
-	public List<String> hndlFileSaveIndiv() {
-		List<String> res = new ArrayList<String>();
-
-		return res;
-	}
-	@Override
-	protected void processTrajIndiv(myDrawnSmplTraj drawnNoteTraj){	}
-	@Override
-	protected myPoint getMouseLoc3D(int mouseX, int mouseY){return pa.P(mouseX,mouseY,0);}
 	@Override
 	protected boolean hndlMouseMoveIndiv(int mouseX, int mouseY, myPoint mseClckInWorld){
 		return false;
@@ -510,5 +528,129 @@ public class myBoids3DWin extends myDispWindow {
 	protected void closeMe() {}
 	@Override
 	protected void showMe() {}
+
+	@Override
+	protected void launchMenuBtnHndlr() {
+		int btn = curCustBtn[curCustBtnType];
+		switch(curCustBtnType) {
+		case mySideBarMenu.btnAuxFunc1Idx : {
+			pa.outStr2Scr("Clicked Btn row : Aux Func 1 | Btn : " + btn);
+			switch(btn){
+				case 0 : {						
+					resetButtonState();
+					break;}
+				case 1 : {	
+					resetButtonState();
+					break;}
+				case 2 : {	
+					resetButtonState();
+					break;}
+				default : {
+					break;}
+			}	
+			break;}//row 1 of menu side bar buttons
+		case mySideBarMenu.btnAuxFunc2Idx : {
+			pa.outStr2Scr("Clicked Btn row : Aux Func 2 | Btn : " + btn);
+			switch(btn){
+				case 0 : {	
+					resetButtonState();
+					break;}
+				case 1 : {	
+					resetButtonState();
+					break;}
+				case 2 : {	
+					resetButtonState();
+					break;}
+				case 3 : {	
+					//test cosine function
+					resetButtonState();
+					break;}
+				default : {
+					break;}	
+			}
+			break;}//row 2 of menu side bar buttons
+		case mySideBarMenu.btnAuxFunc3Idx : {
+			pa.outStr2Scr("Clicked Btn row : Aux Func 3 | Btn : " + btn);
+			switch(btn){
+				case 0 : {	
+					resetButtonState();
+					break;}
+				case 1 : {	
+					resetButtonState();
+					break;}
+				case 2 : {	
+					resetButtonState();
+					break;}
+				case 3 : {	
+					//test cosine function
+					resetButtonState();
+					break;}
+				default : {
+					break;}	
+			}
+			break;}//row 2 of menu side bar buttons
+		case mySideBarMenu.btnDBGSelCmpIdx : {
+			pa.outStr2Scr("Clicked Btn row : Debug | Btn : " + btn);
+			switch(btn){
+				case 0 : {	
+					resetButtonState();
+					break;}
+				case 1 : {	
+					resetButtonState();
+					break;}
+				case 2 : {	
+					resetButtonState();
+					break;}
+				case 3 : {	
+					resetButtonState();
+					break;}
+				case 4 : {	
+					//test with cosine
+					resetButtonState();
+					break;}
+				default : {
+					break;}
+			}				
+			break;}//row 3 of menu side bar buttons (debug)			
+		}			}
+
+	@Override
+	protected String[] getSaveFileDirNamesPriv() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected myPoint getMsePtAs3DPt(myPoint mseLoc){return new myPoint(mseLoc.x,mseLoc.y,mseLoc.z);}
+
+	@Override
+	protected void setVisScreenDimsPriv() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void setCustMenuBtnNames() {
+		pa.setAllMenuBtnNames(menuBtnNames);	
+	}
+
+	@Override
+	protected void processTrajIndiv(base_UI_Objects.drawnObjs.myDrawnSmplTraj drawnTraj) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void hndlFileLoad(File file, String[] vals, int[] stIdx) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ArrayList<String> hndlFileSave(File file) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
 

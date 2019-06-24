@@ -2,10 +2,12 @@ package Boids2_PKG;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import base_UI_Objects.my_procApplet;
+
 
 //struct-type class to hold flocking variables
 public class myFlkVars {
-	public Boids_2 p;
+	public my_procApplet p;
 	public myBoids3DWin win;
 	public myBoidFlock flock;
 	
@@ -56,7 +58,7 @@ public class myFlkVars {
 	
 	private String typeName;
 	
-	public myFlkVars(Boids_2 _p, myBoids3DWin _win, myBoidFlock _flock, float _nRadMult) {
+	public myFlkVars(my_procApplet _p, myBoids3DWin _win, myBoidFlock _flock, float _nRadMult) {
 		p=_p; win = _win;
 		flock = _flock;
 		typeName = flock.name;
