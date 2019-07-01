@@ -314,11 +314,20 @@ public class myBoids3DWin extends myDispWindow {
 	//initialize structure to hold modifiable menu regions
 	@Override
 	protected void setupGUIObjsAras(){	
+		//build list select box values
+		//keyed by object idx (uiXXXIDX), entries are lists of values to use for list select ui objects
+		TreeMap<Integer, String[]> tmpListObjVals = new TreeMap<Integer, String[]>();
+		
+		tmpListObjVals.put(gIDX_BoidType, boidTypeNames);
+		tmpListObjVals.put(gIDX_FlockToObs, flkNames);
+		
+		
+		
 		guiMinMaxModVals = new double [][]{
 			{0,1.0f,.0001f},					//timestep           		gIDX_TimeStep 	
 			{1,MaxNumFlocks,1.0f},
-			{0,numBoidTypes-1,.1f},
-			{0,numFlocks-1,.1f},
+			{0,boidTypeNames.length-1,1.1f},
+			{0,flkNames.length-1,1.1f},
 			{0,initNumBoids-1,1.0f}
 		};		//min max mod values for each modifiable UI comp	
 
@@ -350,7 +359,7 @@ public class myBoids3DWin extends myDispWindow {
 		//since horizontal row of UI comps, uiClkCoords[2] will be set in buildGUIObjs		
 		guiObjs = new myGUIObj[numGUIObjs];			//list of modifiable gui objects
 		if(numGUIObjs > 0){
-			buildGUIObjs(guiObjNames,guiStVals,guiMinMaxModVals,guiBoolVals,new double[]{xOff,yOff});			//builds a horizontal list of UI comps
+			buildGUIObjs(guiObjNames,guiStVals,guiMinMaxModVals,guiBoolVals,new double[]{xOff,yOff},tmpListObjVals);			//builds a horizontal list of UI comps
 		}
 	}
 	//when flockToWatch changes, reset maxBoidToWatch value
@@ -385,17 +394,6 @@ public class myBoids3DWin extends myDispWindow {
 
 		default : {break;}
 		}
-	}
-
-	//if any ui values have a string behind them for display
-	@Override
-	protected String getUIListValStr(int UIidx, int validx) {
-		switch(UIidx){
-			case gIDX_BoidType: {return boidTypeNames[(validx % boidTypeNames.length)]; }
-			case gIDX_FlockToObs : {return flkNames[(validx % flkNames.length)]; }
-			default : {break;}
-		}
-		return "";
 	}
 	
 	public float getTimeStep(){
