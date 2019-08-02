@@ -145,6 +145,12 @@ public class Boids_21_Main extends my_procApplet {
 	protected void initProgram_Indiv() {	}
 
 	@Override
+	public String[] getMouseOverSelBtnNames() {
+		// TODO Auto-generated method stub
+		return new String[0];
+	}
+
+	@Override
 	protected String getPrjNmLong() {	return prjNmLong;}
 	@Override
 	protected String getPrjNmShrt() {	return prjNmShrt;}

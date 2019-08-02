@@ -13,6 +13,7 @@ import Boids2_PKG.renderedObjs.mySphereRndrObj;
 import base_UI_Objects.windowUI.myDispWindow;
 import base_UI_Objects.my_procApplet;
 import base_UI_Objects.windowUI.myGUIObj;
+import base_Utils_Objects.io.MsgCodes;
 import base_Utils_Objects.vectorObjs.myPoint;
 import base_Utils_Objects.vectorObjs.myVector;
 import processing.core.PImage;
@@ -528,10 +529,11 @@ public class myBoids3DWin extends myDispWindow {
 	protected void showMe() {}
 
 	@Override
-	protected void launchMenuBtnHndlr() {
-		int btn = curCustBtn[curCustBtnType];
-		switch(curCustBtnType) {
-		case mySideBarMenu.btnAuxFunc1Idx : {
+	protected void launchMenuBtnHndlr(int funcRow, int btn) {
+		msgObj.dispMessage("SOM_AnimWorldWin","launchMenuBtnHndlr","Begin requested action", MsgCodes.info4);
+		
+		switch(funcRow) {
+		case 0 : {
 			pa.outStr2Scr("Clicked Btn row : Aux Func 1 | Btn : " + btn);
 			switch(btn){
 				case 0 : {						
@@ -547,7 +549,7 @@ public class myBoids3DWin extends myDispWindow {
 					break;}
 			}	
 			break;}//row 1 of menu side bar buttons
-		case mySideBarMenu.btnAuxFunc2Idx : {
+		case 1 : {
 			pa.outStr2Scr("Clicked Btn row : Aux Func 2 | Btn : " + btn);
 			switch(btn){
 				case 0 : {	
@@ -567,7 +569,7 @@ public class myBoids3DWin extends myDispWindow {
 					break;}	
 			}
 			break;}//row 2 of menu side bar buttons
-		case mySideBarMenu.btnAuxFunc3Idx : {
+		case 2 : {
 			pa.outStr2Scr("Clicked Btn row : Aux Func 3 | Btn : " + btn);
 			switch(btn){
 				case 0 : {	
@@ -587,8 +589,8 @@ public class myBoids3DWin extends myDispWindow {
 					break;}	
 			}
 			break;}//row 2 of menu side bar buttons
-		case mySideBarMenu.btnDBGSelCmpIdx : {
-			pa.outStr2Scr("Clicked Btn row : Debug | Btn : " + btn);
+		case 3 : {
+			pa.outStr2Scr("Clicked Btn row : Aux Func 4 | Btn : " + btn);
 			switch(btn){
 				case 0 : {	
 					resetButtonState();
@@ -600,17 +602,50 @@ public class myBoids3DWin extends myDispWindow {
 					resetButtonState();
 					break;}
 				case 3 : {	
-					resetButtonState();
-					break;}
-				case 4 : {	
-					//test with cosine
+					//test cosine function
 					resetButtonState();
 					break;}
 				default : {
-					break;}
-			}				
-			break;}//row 3 of menu side bar buttons (debug)			
-		}			}
+					break;}	
+			}
+			break;}//row 2 of menu side bar buttons
+		}			
+	}
+	
+	@Override
+	public final void handleSideMenuMseOvrDispSel(int btn, boolean val) {
+		
+		
+	}
+
+	@Override
+	public final void handleSideMenuDebugSel(int btn, int val) {	
+		msgObj.dispMessage("myBoids3DWin","handleSideMenuDebugSel","Click Debug functionality in "+name+" : btn : " + btn, MsgCodes.info4);
+		//{"All->Bld Map","All Dat To Map", "Func 22", "Func 23", "Prblt Map"},	//row 3
+		switch(btn){
+			case 0 : {	
+				resetButtonState();
+				break;}
+			case 1 : {	
+				resetButtonState();
+				break;}
+			case 2 : {	
+				resetButtonState();
+				break;}
+			case 3 : {//show current mapdat status
+				resetButtonState();
+				break;}
+			case 4 : {						
+				resetButtonState();
+				break;}
+			default : {
+				msgObj.dispMessage("myBoids3DWin","launchMenuBtnHndlr","Unknown Debug btn : "+btn, MsgCodes.warning2);
+				resetButtonState();
+				break;}
+		}	
+		msgObj.dispMessage("SOM_AnimWorldWin","handleSideMenuDebugSel","End Debug functionality selection.", MsgCodes.info4);
+	}
+
 
 	@Override
 	protected String[] getSaveFileDirNamesPriv() {
