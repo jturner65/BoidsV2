@@ -78,7 +78,7 @@ public class myBoidFlock {
 		
 		flv = new myFlkVars(p, win, this, win.flkRadMults[type]);
 		//Boids_2 _p, myBoids3DWin _win, myBoidFlock _flock, int _bodyClr, int numSpc, float _nRadMult
-		delT = win.getTimeStep();
+		delT = (float) win.getTimeStep();
 		setNumBoids(_numBoids);
 		totMaxRad = p.gridDimX + p.gridDimY + p.gridDimZ;
 		
@@ -238,7 +238,7 @@ public class myBoidFlock {
 		//sets current time step from UI
 		int numBoids = boidFlock.size();
 		int frSize =(numBoids > numThrds ?  1 + (numBoids - 1)/numThrds : numThrds);//best balance
-		delT = win.getTimeStep();
+		delT = (float) win.getTimeStep();
 		callResetBoidCalcs.clear();
 //		for(int c = 0; c < numBoids; c+=mtFrameSize){//set up each thread's view window of the flock
 //			int finalLen = (c+mtFrameSize < numBoids ? mtFrameSize : boidFlock.size() - c);

@@ -12,7 +12,6 @@ import Boids2_PKG.renderedObjs.myRenderObj;
 import Boids2_PKG.renderedObjs.mySphereRndrObj;
 import base_UI_Objects.windowUI.myDispWindow;
 import base_UI_Objects.my_procApplet;
-import base_UI_Objects.windowUI.myGUIObj;
 import base_Utils_Objects.io.MsgCodes;
 import base_Utils_Objects.vectorObjs.myPoint;
 import base_Utils_Objects.vectorObjs.myVector;
@@ -28,16 +27,7 @@ public class myBoids3DWin extends myDispWindow {
 		gIDX_FlockToObs		= 3,
 		gIDX_BoidToObs		= 4;
 
-	//initial values - need one per object
-	public float[] uiVals = new float[]{
-			.1f,	
-			1.0f,
-			0,
-			0,
-			0
-	};			//values of 8 ui-controlled quantities
-
-	public final int numGUIObjs = uiVals.length;											//# of gui objects for ui
+	public final int numGUIObjs = 5;											//# of gui objects for ui
 	
 	public float timeStepMult = 1.0f;													//multiplier to modify timestep to make up for lag
 	
@@ -121,7 +111,7 @@ public class myBoids3DWin extends myDispWindow {
 	
 	public myBoids3DWin(my_procApplet _p, String _n, int _flagIdx, int[] fc, int[] sc, float[] rd, float[] rdClosed,String _winTxt, boolean _canDrawTraj) {
 		super(_p, _n, _flagIdx, fc, sc, rd, rdClosed, _winTxt, _canDrawTraj);
-		float stY = rectDim[1]+rectDim[3]-4*yOff,stYFlags = stY + 2*yOff;
+		
 		super.initThisWin(_canDrawTraj, true, false);
 	}
 	
@@ -129,33 +119,27 @@ public class myBoids3DWin extends myDispWindow {
 	
 	@Override
 	//initialize all private-flag based UI buttons here - called by base class
-	public void initAllPrivBtns(){
-		truePrivFlagNames = new String[]{								//needs to be in order of privModFlgIdxs
-				"Debugging", "Drawing Boids", "Showing Boid Path", "Showing Vel Vectors", "DBG : List Flk Mmbrs",
-				"Mouse Click Attracts", 
-				"Ctr Force ON", "Vel Match ON", "Col Avoid ON", "Wander ON",
-				"Pred Avoid ON", "Hunting ON", "Hunger ON","Spawning ON",
-				"Orig Funcs ON", "Tor Bnds ON",
-				"Mod DelT By FRate", "Boid-eye View"				
-		};
-		falsePrivFlagNames = new String[]{			//needs to be in order of flags
-				"Enable Debug","Drawing Spheres", "Hiding Boid Path", "Hiding Vel Vectors", "DBG : Hide Flk Mmbrs", 
-				"Mouse Click Repels",
-				"Ctr Force OFF", "Vel Match OFF", "Col Avoid OFF", "Wander OFF",
-				"Pred Avoid OFF", "Hunting OFF", "Hunger OFF","Spawning OFF",
-				"Orig Funcs OFF", "Tor Bnds OFF",
-				"Fixed DelT", "Global View"			
-		};
-		privModFlgIdxs = new int[]{
-				debugAnimIDX, drawBoids, clearPath, showVel, showFlkMbrs, 
-				attractMode,
-				flkCenter, flkVelMatch, flkAvoidCol,  flkWander,  
-				flkAvoidPred, flkHunt, flkHunger, flkSpawn, 				
-				useOrigDistFuncs, useTorroid,
-				modDelT, viewFromBoid	
-		};
-		numClickBools = privModFlgIdxs.length;	
-		initPrivBtnRects(0,numClickBools);
+	public void initAllPrivBtns(ArrayList<Object[]> tmpBtnNamesArray){
+										//needs to be in order of privModFlgIdxs
+		tmpBtnNamesArray.add(new Object[] {"Debugging", "Enable Debug", debugAnimIDX});
+		tmpBtnNamesArray.add(new Object[] {"Drawing Boids", "Drawing Spheres", drawBoids});
+		tmpBtnNamesArray.add(new Object[] {"Showing Boid Path", "Hiding Boid Path", clearPath});
+		tmpBtnNamesArray.add(new Object[] {"Showing Vel Vectors", "Hiding Vel Vectors", showVel});
+		tmpBtnNamesArray.add(new Object[] {"DBG : List Flk Mmbrs", "DBG : Hide Flk Mmbrs", showFlkMbrs});
+		tmpBtnNamesArray.add(new Object[] {"Mouse Click Attracts", "Mouse Click Repels", attractMode});
+		tmpBtnNamesArray.add(new Object[] {"Ctr Force ON", "Ctr Force OFF", flkCenter});
+		tmpBtnNamesArray.add(new Object[] {"Vel Match ON", "Vel Match OFF", flkVelMatch});
+		tmpBtnNamesArray.add(new Object[] {"Col Avoid ON", "Col Avoid OFF", flkAvoidCol});
+		tmpBtnNamesArray.add(new Object[] {"Wander ON", "Wander OFF", flkWander});
+		tmpBtnNamesArray.add(new Object[] {"Pred Avoid ON", "Pred Avoid OFF", flkAvoidPred});
+		tmpBtnNamesArray.add(new Object[] {"Hunting ON", "Hunting OFF", flkHunt, });
+		tmpBtnNamesArray.add(new Object[] {"Hunger ON", "Hunger OFF", flkHunger});
+		tmpBtnNamesArray.add(new Object[] {"Spawning ON", "Spawning OFF", flkSpawn, 	} );
+		tmpBtnNamesArray.add(new Object[] {"Orig Funcs ON", "Orig Funcs OFF", useOrigDistFuncs});
+		tmpBtnNamesArray.add(new Object[] {"Tor Bnds ON", "Tor Bnds OFF", useTorroid, });
+		tmpBtnNamesArray.add(new Object[] {"Mod DelT By FRate", "Fixed DelT", modDelT});
+		tmpBtnNamesArray.add(new Object[] {"Boid-eye View", "Global View", viewFromBoid});
+	
 	}//initAllPrivBtns
 	
 	@Override
@@ -314,54 +298,25 @@ public class myBoids3DWin extends myDispWindow {
 	
 	//initialize structure to hold modifiable menu regions
 	@Override
-	protected void setupGUIObjsAras(){	
+	protected void setupGUIObjsAras(TreeMap<Integer, Object[]> tmpUIObjArray, TreeMap<Integer, String[]> tmpListObjVals){	
 		//build list select box values
 		//keyed by object idx (uiXXXIDX), entries are lists of values to use for list select ui objects
-		TreeMap<Integer, String[]> tmpListObjVals = new TreeMap<Integer, String[]>();
 		
 		tmpListObjVals.put(gIDX_BoidType, boidTypeNames);
 		tmpListObjVals.put(gIDX_FlockToObs, flkNames);
 		
-		
-		
-		guiMinMaxModVals = new double [][]{
-			{0,1.0f,.0001f},					//timestep           		gIDX_TimeStep 	
-			{1,MaxNumFlocks,1.0f},
-			{0,boidTypeNames.length-1,1.1f},
-			{0,flkNames.length-1,1.1f},
-			{0,initNumBoids-1,1.0f}
-		};		//min max mod values for each modifiable UI comp	
-
-		guiStVals = new double[]{
-			uiVals[gIDX_TimeStep],		//timestep           		gIDX_TimeStep 	
-			uiVals[gIDX_NumFlocks],
-			uiVals[gIDX_BoidType],	
-			uiVals[gIDX_FlockToObs],	
-			uiVals[gIDX_BoidToObs]	
-		};								//starting value
-		
-		guiObjNames = new String[]{
-				"Time Step",
-				"# of Flocks",
-				"Flock Species",
-				"Flock To Watch",
-				"Boid To Board"
-		};								//name/label of component	
-		
-		//idx 0 is treat as int, idx 1 is obj has list vals, idx 2 is object gets sent to windows
-		guiBoolVals = new boolean [][]{
-			{false, false, true},	//timestep           		gIDX_TimeStep 	
-			{true, false, true},
-			{true, true, true},
-			{true, true, true},
-			{true, false, true}
-		};						//per-object  list of boolean flags
-		
-		//since horizontal row of UI comps, uiClkCoords[2] will be set in buildGUIObjs		
-		guiObjs = new myGUIObj[numGUIObjs];			//list of modifiable gui objects
-		if(numGUIObjs > 0){
-			buildGUIObjs(guiObjNames,guiStVals,guiMinMaxModVals,guiBoolVals,new double[]{xOff,yOff},tmpListObjVals);			//builds a horizontal list of UI comps
-		}
+		//tmpBtnNamesArray.add(new Object[]{"Building SOM","Build SOM ",buildSOMExe});
+		//object array of elements of following format  : 
+		//	the first element double array of min/max/mod values
+		//	the 2nd element is starting value
+		//	the 3rd elem is label for object
+		//	the 4th element is boolean array of {treat as int, has list values, value is sent to owning window}
+	
+		tmpUIObjArray.put(gIDX_TimeStep,  new Object[] {new double[]{0,1.0f,.0001f}, .1, "Time Step", new boolean[]{false, false, true}});   				//uiTrainDataFrmtIDX                                                                        
+		tmpUIObjArray.put(gIDX_NumFlocks, new Object[] {new double[]{1,MaxNumFlocks,1.0f}, 1.0, "# of Flocks", new boolean[]{true, false, true}});   				//uiTrainDataFrmtIDX                                                                        
+		tmpUIObjArray.put(gIDX_BoidType,  new Object[] {new double[]{0,boidTypeNames.length-1,1.1f}, 0.0, "Flock Species", new boolean[]{true, true, true}} );   				//uiTrainDataFrmtIDX                                                                        
+		tmpUIObjArray.put(gIDX_FlockToObs,new Object[] {new double[]{0,flkNames.length-1,1.1f}, 0.0, "Flock To Watch", new boolean[]{true, true, true}} );   				//uiTrainDataFrmtIDX                                                                        
+		tmpUIObjArray.put(gIDX_BoidToObs, new Object[] {new double[]{0,initNumBoids-1,1.0f}, 0.0, "Boid To Board", new boolean[]{true, false, true}} );   				//uiTrainDataFrmtIDX                                                                        
 	}
 	//when flockToWatch changes, reset maxBoidToWatch value
 	private void setMaxUIBoidToWatch(int flkIdx){guiObjs[gIDX_BoidToObs].setNewMax(flocks[flkIdx].boidFlock.size()-1);setUIWinVals(gIDX_BoidToObs);}	
@@ -397,7 +352,7 @@ public class myBoids3DWin extends myDispWindow {
 		}
 	}
 	
-	public float getTimeStep(){
+	public double getTimeStep(){
 		return uiVals[gIDX_TimeStep] * timeStepMult;
 	}
 
@@ -472,7 +427,7 @@ public class myBoids3DWin extends myDispWindow {
 	//cntl key pressed handles unfocus of spherey
 	@Override
 	protected boolean hndlMouseClickIndiv(int mouseX, int mouseY, myPoint mseClckInWorld, int mseBtn) {
-		boolean res = checkUIButtons(mouseX, mouseY);
+		boolean res = false;
 		if(!res){//not in ui buttons, check if in flk vars region
 			if((mouseX < uiClkCoords[2]) && (mouseY >= custMenuOffset)){
 				float relY = mouseY - custMenuOffset;
