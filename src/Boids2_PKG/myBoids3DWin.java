@@ -109,10 +109,10 @@ public class myBoids3DWin extends myDispWindow {
 	};
 
 	
-	public myBoids3DWin(my_procApplet _p, String _n, int _flagIdx, int[] fc, int[] sc, float[] rd, float[] rdClosed,String _winTxt, boolean _canDrawTraj) {
-		super(_p, _n, _flagIdx, fc, sc, rd, rdClosed, _winTxt, _canDrawTraj);
+	public myBoids3DWin(my_procApplet _p, String _n, int _flagIdx, int[] fc, int[] sc, float[] rd, float[] rdClosed,String _winTxt) {
+		super(_p, _n, _flagIdx, fc, sc, rd, rdClosed, _winTxt);
 		
-		super.initThisWin(_canDrawTraj, true, false);
+		super.initThisWin(false);
 	}
 	
 	public ExecutorService getTh_Exec() {return th_exec;}
