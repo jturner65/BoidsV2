@@ -42,7 +42,11 @@ public class Boids_21_Main extends my_procApplet {
 	    String[] appletArgs = new String[] { "Boids2_PKG.Boids_21_Main" };
 	    my_procApplet.main(appletArgs, passedArgs);
 	 }
-		
+	
+	@Override
+	protected final void setSmoothing() {		
+		noSmooth();
+	}
 	/**
 	 * This will return the desired dimensions of the application, to be called in setup
 	 * @return int[] { desired application window width, desired application window height}

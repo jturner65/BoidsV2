@@ -11,6 +11,7 @@ import base_UI_Objects.my_procApplet;
 import base_Utils_Objects.MyMathUtils;
 import base_Utils_Objects.vectorObjs.myPointf;
 import base_Utils_Objects.vectorObjs.myVectorf;
+import processing.core.PConstants;
 
 public class myBoidUpdater implements Callable<Boolean> {
 	private my_procApplet p;
@@ -33,14 +34,13 @@ public class myBoidUpdater implements Callable<Boolean> {
 	
 	public myBoidUpdater(my_procApplet _p, myBoidFlock _f, int _flagInt,  List<myBoid> _bAra){
 		p=_p; f=_f; bAra=_bAra;
-		myBoid tmp = bAra.get(0);
 		flagInt = _flagInt;
 		setStFlags();		
-		O_FWD = tmp.O_FWD;
-		O_RHT = tmp.O_RHT;  
-		O_UP = tmp.O_UP;  
+		O_FWD = myBoid.O_FWD;
+		O_RHT = myBoid.O_RHT;  
+		O_UP = myBoid.O_UP;  
 		rt2 = .5f*MyMathUtils.sqrt2_f;//p.fsqrt2; 
-		epsValCalc = p.feps;
+		epsValCalc = MyMathUtils.eps_f;
 		epsValCalcSq = epsValCalc * epsValCalc;
 		spawnPct = f.flv.spawnPct;
 		killPct = f.flv.killPct;
@@ -63,28 +63,28 @@ public class myBoidUpdater implements Callable<Boolean> {
 		}
 	}
 	
-	private float[] toAxisAngle(myBoid b) {
+	private float[] toAxisAngle(myVectorf[] orientation) {
 		float angle,x=rt2,y=rt2,z=rt2,s;
-		float fyrx = -b.orientation[O_FWD].y+b.orientation[O_RHT].x,
-			uxfz = -b.orientation[O_UP].x+b.orientation[O_FWD].z,
-			rzuy = -b.orientation[O_RHT].z+b.orientation[O_UP].y;
+		float fyrx = -orientation[O_FWD].y+orientation[O_RHT].x,
+			uxfz = -orientation[O_UP].x+orientation[O_FWD].z,
+			rzuy = -orientation[O_RHT].z+orientation[O_UP].y;
 			
 		if (((fyrx*fyrx) < epsValCalcSq) && ((uxfz*uxfz) < epsValCalcSq) && ((rzuy*rzuy) < epsValCalcSq)) {			//checking for rotational singularity
 			// angle == 0
-			float fyrx2 = b.orientation[O_FWD].y+b.orientation[O_RHT].x,
-				fzux2 = b.orientation[O_FWD].z+b.orientation[O_UP].x,
-				rzuy2 = b.orientation[O_RHT].z+b.orientation[O_UP].y,
-				fxryuz3 = b.orientation[O_FWD].x+b.orientation[O_RHT].y+b.orientation[O_UP].z-3;
+			float fyrx2 = orientation[O_FWD].y+orientation[O_RHT].x,
+				fzux2 = orientation[O_FWD].z+orientation[O_UP].x,
+				rzuy2 = orientation[O_RHT].z+orientation[O_UP].y,
+				fxryuz3 = orientation[O_FWD].x+orientation[O_RHT].y+orientation[O_UP].z-3;
 			if (((fyrx2*fyrx2) < 1)	&& (fzux2*fzux2 < 1) && ((rzuy2*rzuy2) < 1) && ((fxryuz3*fxryuz3) < 1)) {	return new float[]{0,1,0,0}; }
 			// angle == pi
-			angle = p.PI;
-			float fwd2x = (b.orientation[O_FWD].x+1)/2.0f,rht2y = (b.orientation[O_RHT].y+1)/2.0f,up2z = (b.orientation[O_UP].z+1)/2.0f,
+			angle = PConstants.PI;
+			float fwd2x = (orientation[O_FWD].x+1)/2.0f,rht2y = (orientation[O_RHT].y+1)/2.0f,up2z = (orientation[O_UP].z+1)/2.0f,
 				fwd2y = fyrx2/4.0f, fwd2z = fzux2/4.0f, rht2z = rzuy2/4.0f;
-			if ((fwd2x > rht2y) && (fwd2x > up2z)) { // b.orientation[O_FWD].x is the largest diagonal term
+			if ((fwd2x > rht2y) && (fwd2x > up2z)) { // orientation[O_FWD].x is the largest diagonal term
 				if (fwd2x< MyMathUtils.eps_f) {	x = 0;} else {			x = (float) Math.sqrt(fwd2x);y = fwd2y/x;z = fwd2z/x;} 
-			} else if (rht2y > up2z) { 		// b.orientation[O_RHT].y is the largest diagonal term
+			} else if (rht2y > up2z) { 		// orientation[O_RHT].y is the largest diagonal term
 				if (rht2y< MyMathUtils.eps_f) {	y = 0;} else {			y = (float) Math.sqrt(rht2y);x = fwd2y/y;z = rht2z/y;}
-			} else { // b.orientation[O_UP].z is the largest diagonal term so base result on this
+			} else { // orientation[O_UP].z is the largest diagonal term so base result on this
 				if (up2z< MyMathUtils.eps_f) {	z = 0;} else {			z = (float) Math.sqrt(up2z);	x = fwd2z/z;y = rht2z/z;}
 			}
 			return new float[]{angle,x,y,z}; // return 180 deg rotation
@@ -95,7 +95,7 @@ public class myBoidUpdater implements Callable<Boolean> {
 		if (s < MyMathUtils.eps_f){ s=1; }
 		tmp._scale(s);//changes mag to s
 			// prevent divide by zero, should not happen if matrix is orthogonal -- should be caught by singularity test above
-		angle = (float) -Math.acos(( b.orientation[O_FWD].x + b.orientation[O_RHT].y + b.orientation[O_UP].z - 1)/2.0);
+		angle = (float) -Math.acos(( orientation[O_FWD].x + orientation[O_RHT].y + orientation[O_UP].z - 1)/2.0);
 	   return new float[]{angle,tmp.x,tmp.y,tmp.z};
 	}//toAxisAngle
 	
@@ -129,7 +129,7 @@ public class myBoidUpdater implements Callable<Boolean> {
 			//b.orientation[O_UP].set(b.orientation[O_UP]._normalize());
 			b.orientation[O_RHT]._normalize();
 		}
-		b.O_axisAngle = toAxisAngle(b);
+		b.O_axisAngle = toAxisAngle(b.orientation);
 	}
 
 	//check kill chance, remove boid if succeeds
