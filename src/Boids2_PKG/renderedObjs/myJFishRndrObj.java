@@ -2,7 +2,8 @@ package Boids2_PKG.renderedObjs;
 
 import Boids2_PKG.boids.myBoid;
 import base_UI_Objects.my_procApplet;
-import base_UI_Objects.windowUI.myDispWindow;
+import base_UI_Objects.windowUI.base.myDispWindow;
+import base_Utils_Objects.MyMathUtils;
 import processing.core.*;
 
 //jellyfish pshape, with multiple component shapes that are animated
@@ -71,11 +72,11 @@ public class myJFishRndrObj extends myRenderObj {
 	protected void buildObj() {
 		//build the boid's body geometry here - called at end of initInstObjGeometry
 		float sclMult;		//vary this based on animation frame
-		float radAmt=  (p.TWO_PI/(1.0f*myBoid.numAnimFrames));
+		float radAmt=  (MyMathUtils.twoPi_f/(1.0f*myBoid.numAnimFrames));
 		p.sphereDetail(20);
 		for(int a=0; a<myBoid.numAnimFrames; ++a){//for each frame of animation			
 			PShape indiv = p.createShape(PConstants.SPHERE, 5.0f);
-			sclMult = (p.sin(a * radAmt) * .25f) +1.0f;
+			sclMult = (float) ((Math.sin(a * radAmt) * .25f) +1.0f);
 			indiv.scale(sclMult, sclMult, 1.0f/(sclMult * sclMult));
 			//p.outStr2Scr("a : " + a + " sclMult : " + sclMult);
 			//call shSetPaintColors since we need to use set<type> style functions of Pshape when outside beginShape-endShape

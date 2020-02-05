@@ -10,7 +10,8 @@ import Boids2_PKG.renderedObjs.myBoatRndrObj;
 import Boids2_PKG.renderedObjs.myJFishRndrObj;
 import Boids2_PKG.renderedObjs.myRenderObj;
 import Boids2_PKG.renderedObjs.mySphereRndrObj;
-import base_UI_Objects.windowUI.myDispWindow;
+import base_UI_Objects.windowUI.base.base_UpdateFromUIData;
+import base_UI_Objects.windowUI.base.myDispWindow;
 import base_UI_Objects.my_procApplet;
 import base_Utils_Objects.io.MsgCodes;
 import base_Utils_Objects.vectorObjs.myPoint;
@@ -57,7 +58,7 @@ public class myBoids3DWin extends myDispWindow {
 			modDelT				= 18,			//whether to modify delT based on frame rate or keep it fixed (to fight lag)
 			viewFromBoid		= 19;			//whether viewpoint is from a boid's perspective or global
 	
-	public static final int numPrivFlags = 20;
+	private static final int numPrivFlags = 20;
 
 	public final int MaxNumBoids = 15000;		//max # of boids per flock
 	public final int initNumBoids = 500;		//initial # of boids per flock
@@ -119,7 +120,7 @@ public class myBoids3DWin extends myDispWindow {
 	
 	@Override
 	//initialize all private-flag based UI buttons here - called by base class
-	public void initAllPrivBtns(ArrayList<Object[]> tmpBtnNamesArray){
+	public int initAllPrivBtns(ArrayList<Object[]> tmpBtnNamesArray){
 										//needs to be in order of privModFlgIdxs
 		tmpBtnNamesArray.add(new Object[] {"Debugging", "Enable Debug", debugAnimIDX});
 		tmpBtnNamesArray.add(new Object[] {"Drawing Boids", "Drawing Spheres", drawBoids});
@@ -139,13 +140,15 @@ public class myBoids3DWin extends myDispWindow {
 		tmpBtnNamesArray.add(new Object[] {"Tor Bnds ON", "Tor Bnds OFF", useTorroid, });
 		tmpBtnNamesArray.add(new Object[] {"Mod DelT By FRate", "Fixed DelT", modDelT});
 		tmpBtnNamesArray.add(new Object[] {"Boid-eye View", "Global View", viewFromBoid});
+		
+		return numPrivFlags;
 	
 	}//initAllPrivBtns
 	
 	@Override
 	protected void initMe() {
 		//called once
-		initPrivFlags(numPrivFlags);
+		//initPrivFlags(numPrivFlags);
 		//TODO set this to be determined by UI input (?)
 		initSimpleBoids();
 		initBoidRndrObjs();
@@ -163,13 +166,6 @@ public class myBoids3DWin extends myDispWindow {
 		}
 
 	
-		setPrivFlags(drawBoids, true);
-		setPrivFlags(attractMode, true);
-		setPrivFlags(useTorroid, true);
-		//this window is runnable
-		setFlags(isRunnable, true);
-		//this window uses a customizable camera
-		setFlags(useCustCam, true);
 		
 		setFlockingOn();
 		
@@ -177,6 +173,27 @@ public class myBoids3DWin extends myDispWindow {
 		//flkMenuOffset = uiClkCoords[1] + uiClkCoords[3] - y45Off;	//495
 		custMenuOffset = uiClkCoords[3];	//495
 	}//initMe
+
+	@Override
+	protected int[] getFlagIDXsToInitToTrue() {
+		//this window is runnable
+		setFlags(isRunnable, true);
+		//this window uses a customizable camera
+		setFlags(useCustCam, true);
+		return new int[] {drawBoids, attractMode, useTorroid};
+	}
+	@Override
+	protected base_UpdateFromUIData buildUIDataUpdateObject() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected void buildUIUpdateStruct_Indiv(TreeMap<Integer, Integer> intValues, TreeMap<Integer, Float> floatValues,TreeMap<Integer, Boolean> boolValues) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 	//simple render objects - spheres
 	private void initSimpleBoids(){
@@ -623,7 +640,7 @@ public class myBoids3DWin extends myDispWindow {
 	}
 
 	@Override
-	protected void processTrajIndiv(base_UI_Objects.drawnObjs.myDrawnSmplTraj drawnTraj) {
+	public void processTrajIndiv(base_UI_Objects.drawnObjs.myDrawnSmplTraj drawnTraj) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -639,6 +656,7 @@ public class myBoids3DWin extends myDispWindow {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 
 }
 

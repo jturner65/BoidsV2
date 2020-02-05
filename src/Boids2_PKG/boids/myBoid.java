@@ -6,7 +6,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import Boids2_PKG.Boids_21_Main;
 import Boids2_PKG.myBoidFlock;
 import Boids2_PKG.myBoids3DWin;
+import base_UI_Objects.IRenderInterface;
 import base_UI_Objects.my_procApplet;
+import base_Utils_Objects.MyMathUtils;
 import base_Utils_Objects.vectorObjs.myPoint;
 import base_Utils_Objects.vectorObjs.myPointf;
 import base_Utils_Objects.vectorObjs.myVectorf;
@@ -205,8 +207,8 @@ public class myBoid {
 //			if(win.getPrivFlags(win.debugAnimIDX)){drawMyVec(rotVec, Boids_2.gui_Black,4.0f);p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
 //			if(win.getPrivFlags(win.showVel)){drawMyVec(velocity, Boids_2.gui_DarkMagenta,.5f);}
 			alignBoid();
-			p.rotate(p.PI/2.0f,1,0,0);
-			p.rotate(p.PI/2.0f,0,1,0);
+			p.rotate(MyMathUtils.halfPi_f,1,0,0);
+			p.rotate(MyMathUtils.halfPi_f,0,1,0);
 			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
 			p.pushStyle();
 			f.tmpl.drawMe(animAraIDX, ID);
@@ -218,11 +220,11 @@ public class myBoid {
 	public void drawMeDbgFrame(){
 		p.pushMatrix();p.pushStyle();
 			p.translate(coords.x,coords.y,coords.z);		//move to location
-			drawMyVec(rotVec, p.gui_Black,4.0f);
+			drawMyVec(rotVec, IRenderInterface.gui_Black,4.0f);
 			p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);
 			alignBoid();
-			p.rotate(p.PI/2.0f,1,0,0);
-			p.rotate(p.PI/2.0f,0,1,0);
+			p.rotate(MyMathUtils.halfPi_f,1,0,0);
+			p.rotate(MyMathUtils.halfPi_f,0,1,0);
 			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
 			p.pushStyle();
 			f.tmpl.drawMe(animAraIDX, ID);	
@@ -234,10 +236,10 @@ public class myBoid {
 	public void drawMeAndVel(){
 		p.pushMatrix();p.pushStyle();
 			p.translate(coords.x,coords.y,coords.z);		//move to location
-			drawMyVec(velocity, p.gui_Magenta,.5f);
+			drawMyVec(velocity, IRenderInterface.gui_Magenta,.5f);
 			alignBoid();
-			p.rotate(p.PI/2.0f,1,0,0);
-			p.rotate(p.PI/2.0f,0,1,0);
+			p.rotate(MyMathUtils.halfPi_f,1,0,0);
+			p.rotate(MyMathUtils.halfPi_f,0,1,0);
 			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
 			p.pushStyle();
 			f.tmpl.drawMe(animAraIDX, ID);	
@@ -253,9 +255,9 @@ public class myBoid {
 			p.translate(coords.x,coords.y,coords.z);		//move to location
 //			if(win.getPrivFlags(win.debugAnimIDX)){drawMyVec(rotVec, Boids_2.gui_Black,4.0f);p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
 //			if(win.getPrivFlags(win.showVel)){drawMyVec(velocity, Boids_2.gui_DarkMagenta,.5f);}
-			if(debugAnim){drawMyVec(rotVec, p.gui_Black,4.0f);
+			if(debugAnim){drawMyVec(rotVec, IRenderInterface.gui_Black,4.0f);
 			p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
-			if(showVel){drawMyVec(velocity, p.gui_DarkMagenta,.5f);}
+			if(showVel){drawMyVec(velocity, IRenderInterface.gui_DarkMagenta,.5f);}
 //			p.setColorValFill(p.gui_boatBody1 + type);
 //			p.noStroke();
 //			p.sphere(5);
@@ -267,14 +269,14 @@ public class myBoid {
 	public void drawClosestPrey(){
 		if(this.preyFlkLoc.size() == 0){return;}
 		myPointf tmp = this.preyFlkLoc.firstEntry().getValue();
-		int clr1 = p.gui_Red, clr2 = ((Boids_21_Main)p).gui_boatBody1 + ((type +3 - 1)%3);
+		int clr1 = IRenderInterface.gui_Red, clr2 = Boids_21_Main.gui_boatBody1 + ((type +3 - 1)%3);
 		drawClosestOther(tmp, clr1, clr2);
 	}
 	
 	public void drawClosestPredator(){
 		if(this.predFlkLoc.size() == 0){return;}
 		myPointf tmp = this.predFlkLoc.firstEntry().getValue();
-		int clr1 = p.gui_Cyan, clr2 = ((Boids_21_Main)p).gui_boatBody1 + ((type +3 + 1)%3);
+		int clr1 = IRenderInterface.gui_Cyan, clr2 = Boids_21_Main.gui_boatBody1 + ((type +3 + 1)%3);
 		drawClosestOther(tmp, clr1, clr2);
 	}	
 	
@@ -315,15 +317,15 @@ public class myBoid {
 		//if(p.flags[p.debugMode]){result +="\nOrientation : UP : "+orientation[O_UP] + " | FWD : "+orientation[O_FWD] + " | RIGHT : "+orientation[O_RHT] + "\n";}
 		int num =neighbors.size();
 		result += "# neighbors : "+ num + (num==0 ? "\n" : " | Neighbor IDs : \n");
-		if(f.win.getPrivFlags(f.win.showFlkMbrs)){	for(Float bd_K : neighbors.keySet()){result+="\tNeigh ID : "+neighbors.get(bd_K).ID + " dist from me : " + bd_K+"\n";}}
+		if(f.win.getPrivFlags(myBoids3DWin.showFlkMbrs)){	for(Float bd_K : neighbors.keySet()){result+="\tNeigh ID : "+neighbors.get(bd_K).ID + " dist from me : " + bd_K+"\n";}}
 		num = colliderLoc.size();
 		result += "# too-close neighbors : "+ num + (num==0 ? "\n" : " | Colliders IDs : \n");
-		if(f.win.getPrivFlags(f.win.showFlkMbrs)){for(Float bd_K : colliderLoc.keySet()){result+="\tDist from me : " + bd_K+"\n";}}
+		if(f.win.getPrivFlags(myBoids3DWin.showFlkMbrs)){for(Float bd_K : colliderLoc.keySet()){result+="\tDist from me : " + bd_K+"\n";}}
 		result += "# predators : "+ num + (num==0 ? "\n" : " | Predator IDs : \n");
-		if(f.win.getPrivFlags(f.win.showFlkMbrs)){for(Float bd_K : predFlkLoc.keySet()){result+="\tDist from me : " + bd_K+"\n";}}
+		if(f.win.getPrivFlags(myBoids3DWin.showFlkMbrs)){for(Float bd_K : predFlkLoc.keySet()){result+="\tDist from me : " + bd_K+"\n";}}
 		num = preyFlk.size();
 		result += "# prey : "+ num + (num==0 ? "\n" : " | Prey IDs : \n");
-		if(f.win.getPrivFlags(f.win.showFlkMbrs)){for(Float bd_K : preyFlk.keySet()){result+="\tPrey ID : "+preyFlk.get(bd_K).ID + " dist from me : " + bd_K+"\n";}}
+		if(f.win.getPrivFlags(myBoids3DWin.showFlkMbrs)){for(Float bd_K : preyFlk.keySet()){result+="\tPrey ID : "+preyFlk.get(bd_K).ID + " dist from me : " + bd_K+"\n";}}
 		return result;
 	}	
 }//myBoid class

@@ -3,6 +3,7 @@ package Boids2_PKG;
 import java.util.concurrent.ThreadLocalRandom;
 
 import base_UI_Objects.my_procApplet;
+import base_Utils_Objects.MyMathUtils;
 
 
 //struct-type class to hold flocking variables
@@ -69,7 +70,9 @@ public class myFlkVars {
 	
 	//set initial values
 	public void initFlockVals(float nRadMult, float _spnPct){
-		predRad = p.min(p.gridDimY, p.gridDimZ, p.gridDimX);					//radius to avoid pred/find prey	
+		//predRad = p.min(p.gridDimY, p.gridDimZ, p.gridDimX);					//radius to avoid pred/find prey	
+		
+		predRad = MyMathUtils.min(MyMathUtils.min(p.gridDimY, p.gridDimZ), p.gridDimX);					//radius to avoid pred/find prey	
 		nghbrRadMax = predRad*neighborMult;
 		nghbrRad = nghbrRadMax*nRadMult;
 		colRad  = nghbrRad*.1f;

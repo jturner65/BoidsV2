@@ -17,8 +17,10 @@ import Boids2_PKG.threadedSolvers.initializers.myInitPredPreyMaps;
 import Boids2_PKG.threadedSolvers.initializers.myBoidValsResetter;
 import Boids2_PKG.threadedSolvers.updaters.myBoidUpdater;
 import base_UI_Objects.my_procApplet;
+import base_UI_Objects.windowUI.base.myDispWindow;
 import base_Utils_Objects.vectorObjs.myPointf;
 import base_Utils_Objects.vectorObjs.myVectorf;
+import processing.core.PConstants;
 import processing.core.PImage;
 
 public class myBoidFlock {
@@ -109,6 +111,7 @@ public class myBoidFlock {
 	//init bflk_flags state machine
 	
 	//public void initbflk_flags(boolean initVal){bflk_flags = new boolean[numbflk_flags];for(int i=0;i<numbflk_flags;++i){bflk_flags[i]=initVal;}}
+	@SuppressWarnings("unchecked")
 	public void initFlock(){
 		boidFlock = new ArrayList<myBoid>(numBoids);
 		boidThrdFrames = new List[numThrds];//new ArrayList<List<myBoid>>();
@@ -160,14 +163,14 @@ public class myBoidFlock {
 	//move creatures to random start positions
 	public void scatterBoids() {for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).coords.set(randBoidStLoc());}}//	randInit
 	public void drawBoids(){
-		boolean debugAnim = win.getPrivFlags(win.debugAnimIDX), showVel = win.getPrivFlags(win.showVel);
-		if(win.getPrivFlags(win.drawBoids)){//broken apart to minimize if checks - only potentially 2 per flock per frame instead of thousands
+		boolean debugAnim = win.getPrivFlags(myBoids3DWin.debugAnimIDX), showVel = win.getPrivFlags(myBoids3DWin.showVel);
+		if(win.getPrivFlags(myBoids3DWin.drawBoids)){//broken apart to minimize if checks - only potentially 2 per flock per frame instead of thousands
 			if(debugAnim){		for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeDbgFrame();}}
 			else if (showVel){	for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeAndVel();}}
 			else {				for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMe();}}	  					
 		} else {
 			for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeBall(debugAnim,showVel);  }
-			if(win.getPrivFlags(win.showFlkMbrs)){
+			if(win.getPrivFlags(myBoids3DWin.showFlkMbrs)){
 				for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawClosestPrey();  }
 				for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawClosestPredator();  }
 			}
@@ -176,7 +179,7 @@ public class myBoidFlock {
 	//handle click in menu region - return idx of mod obj or -1
 	public int handleFlkMenuClick(int mouseX, int mouseY){
 		int vIdx = -1;
-		float mod = 0;
+		//float mod = 0;
 		int clkRow = (mouseY/12);//UI values modifiable in rows 1,3,5 and 6
 		switch(clkRow){
 		case 1 : {//radii 40 -100 | 110-165 | 180 ->
@@ -213,7 +216,7 @@ public class myBoidFlock {
 		p.beginShape(); 
 			p.texture(flkSail);
 			for(int i=0;i<ara.length;++i){	p.vTextured(ara[i], uvAra[i].y, uvAra[i].x);} 
-		p.endShape(p.CLOSE);
+		p.endShape(PConstants.CLOSE);
 	}//
 	
 	public void drawFlockMenu(int i){
@@ -224,9 +227,9 @@ public class myBoidFlock {
 		p.translate(bdgSizeX+3,bdgSizeY+6);
 		//p.setColorValFill(flkMenuClr);
 		tmpl.setMenuColor();
-		p.text(fvData[0],0,-win.yOff*.5f);p.translate(0,win.yOff*.75f);
+		p.text(fvData[0],0,-myDispWindow.yOff*.5f);p.translate(0,myDispWindow.yOff*.75f);
 		p.translate(-bdgSizeX-3,0);
-		for(int j=1;j<fvData.length; ++j){p.text(fvData[j],0,-win.yOff*.5f);p.translate(0,win.yOff*.75f);}	
+		for(int j=1;j<fvData.length; ++j){p.text(fvData[j],0,-myDispWindow.yOff*.5f);p.translate(0,myDispWindow.yOff*.75f);}	
 		p.popStyle();
 	}//drawFlockMenu
 	

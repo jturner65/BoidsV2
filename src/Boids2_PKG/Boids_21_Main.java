@@ -3,7 +3,8 @@ package Boids2_PKG;
 import java.io.File;
 
 import base_UI_Objects.my_procApplet;
-import base_UI_Objects.windowUI.myDispWindow;
+import base_UI_Objects.windowUI.base.myDispWindow;
+import base_UI_Objects.windowUI.sidebar.mySideBarMenu;
 import base_Utils_Objects.MyMathUtils;
 import processing.core.*;
 /**
@@ -20,7 +21,6 @@ public class Boids_21_Main extends my_procApplet {
 	//don't use sphere background for this program
 	private boolean useSphereBKGnd = true;	
 	
-	private int[] visFlags;
 	private final int
 		showUIMenu = 0,
 		show3DWin = 1,
@@ -40,7 +40,7 @@ public class Boids_21_Main extends my_procApplet {
 	//////////////////////////////////////////////// code
 	public static void main(String[] passedArgs) {
 	    String[] appletArgs = new String[] { "Boids2_PKG.Boids_21_Main" };
-	    my_procApplet.main(appletArgs, passedArgs);
+	    my_procApplet._invokedMain(appletArgs, passedArgs);
 	 }
 	
 	@Override
@@ -48,13 +48,15 @@ public class Boids_21_Main extends my_procApplet {
 		noSmooth();
 	}
 	/**
-	 * This will return the desired dimensions of the application, to be called in setup
-	 * @return int[] { desired application window width, desired application window height}
+	 * whether or not we want to restrict window size on widescreen monitors
+	 * 
+	 * @return 0 - use monitor size regardless
+	 * 			1 - use smaller dim to be determine window 
+	 * 			2+ - TBD
 	 */
 	@Override
-	protected int[] getDesiredAppDims() {return new int[] {(int)(getDisplayWidth()*.95f), (int)(getDisplayHeight()*.92f)};}
+	protected int setAppWindowDimRestrictions() {	return 1;}	
 	
-
 	@Override
 	protected void setBkgrnd(){
 		//TODO move to myDispWindow	
@@ -67,7 +69,7 @@ public class Boids_21_Main extends my_procApplet {
 		//modify default grid dims to be 1500x1500x1500
 		setDesired3DGridDims(1500);
 		//TODO move to window to set up specific background for each different "scene" type
-		PImage bgrndTex = loadImage("bkgrndTex.jpg");
+		//PImage bgrndTex = loadImage("bkgrndTex.jpg");
 		//PImage bgrndTex = loadImage("sky_1.jpg");
 		if(useSphereBKGnd) {			setBkgndSphere();	} else {		setBkgrnd();	}
 
@@ -111,7 +113,7 @@ public class Boids_21_Main extends my_procApplet {
 		float[] _dimOpen  =  new float[]{menuWidth, 0, width-menuWidth, height}, _dimClosed  =  new float[]{menuWidth, 0, hideWinWidth, height};	
 		System.out.println("Width : " + width + " | Height : " + height);
 		int wIdx = dispMenuIDX,fIdx=showUIMenu;
-		dispWinFrames[wIdx] = new mySideBarMenu(this, winTitles[wIdx], fIdx, winFillClrs[wIdx], winStrkClrs[wIdx], winRectDimOpen[wIdx], winRectDimClose[wIdx], winDescr[wIdx]);			
+		dispWinFrames[wIdx] = this.buildSideBarMenu(wIdx, fIdx, new String[]{"Functions 1","Functions 2","Functions 3","Functions 4"}, new int[] {3,4,4,4}, 5, true, false);//new mySideBarMenu(this, winTitles[wIdx], fIdx, winFillClrs[wIdx], winStrkClrs[wIdx], winRectDimOpen[wIdx], winRectDimClose[wIdx], winDescr[wIdx]);			
 		
 		//define windows
 		//idx 0 is menu, and is ignored	
@@ -223,17 +225,15 @@ public class Boids_21_Main extends my_procApplet {
 		}
 	}
 	
+	/**
+	 * return the number of visible window flags for this application
+	 * @return
+	 */
 	@Override
-	//init boolean state machine flags for program
-	public void initVisFlags(){
-		visFlags = new int[1 + numVisFlags/32];for(int i =0; i<numVisFlags;++i){forceVisFlag(i,false);}	
-		((mySideBarMenu)dispWinFrames[dispMenuIDX]).initPFlagColors();			//init sidebar window flags
-	}		
+	public int getNumVisFlags() {return numVisFlags;}
 	@Override
 	//address all flag-setting here, so that if any special cases need to be addressed they can be
-	public void setVisFlag(int idx, boolean val ){
-		int flIDX = idx/32, mask = 1<<(idx%32);
-		visFlags[flIDX] = (val ?  visFlags[flIDX] | mask : visFlags[flIDX] & ~mask);
+	protected void setVisFlag_Indiv(int idx, boolean val ){
 		switch (idx){
 			case showUIMenu 	    : { dispWinFrames[dispMenuIDX].setFlags(myDispWindow.showIDX,val);    break;}											//whether or not to show the main ui window (sidebar)			
 			case show3DWin		: {setWinFlagsXOR(disp3DResIDX, val); break;}
@@ -241,17 +241,7 @@ public class Boids_21_Main extends my_procApplet {
 			default : {break;}
 		}
 	}//setFlags  
-	@Override
-	//get vis flag
-	public boolean getVisFlag(int idx){int bitLoc = 1<<(idx%32);return (visFlags[idx/32] & bitLoc) == bitLoc;}	
-	@Override
-	public void forceVisFlag(int idx, boolean val) {
-		int flIDX = idx/32, mask = 1<<(idx%32);
-		visFlags[flIDX] = (val ?  visFlags[flIDX] | mask : visFlags[flIDX] & ~mask);
-		//doesn't perform any other ops - to prevent 
-	}
 
-	
 	/**
 	 * any instancing-class-specific colors - colorVal set to be higher than IRenderInterface.gui_OffWhite
 	 * @param colorVal
