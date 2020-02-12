@@ -8,8 +8,8 @@ import Boids2_PKG.myBoidFlock;
 import Boids2_PKG.boids.myBoid;
 import Boids2_PKG.threadedSolvers.forceSolvers.base.myFwdForceSolver;
 import base_UI_Objects.my_procApplet;
-import base_Utils_Objects.vectorObjs.myPointf;
-import base_Utils_Objects.vectorObjs.myVectorf;
+import base_Math_Objects.vectorObjs.floats.myPointf;
+import base_Math_Objects.vectorObjs.floats.myVectorf;
 
 public class myOrigForceSolver extends myFwdForceSolver{
 	public myOrigForceSolver(my_procApplet _p, myBoidFlock _f, int _flagInt, boolean _isClk, List<myBoid> _bAra) {

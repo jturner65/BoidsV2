@@ -3,7 +3,7 @@ package Boids2_PKG;
 import java.util.concurrent.ThreadLocalRandom;
 
 import base_UI_Objects.my_procApplet;
-import base_Utils_Objects.MyMathUtils;
+import base_Math_Objects.MyMathUtils;
 
 
 //struct-type class to hold flocking variables

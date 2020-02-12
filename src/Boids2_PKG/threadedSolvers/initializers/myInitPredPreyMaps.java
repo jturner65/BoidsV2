@@ -9,7 +9,7 @@ import Boids2_PKG.myBoids3DWin;
 import Boids2_PKG.myFlkVars;
 import Boids2_PKG.boids.myBoid;
 import base_UI_Objects.my_procApplet;
-import base_Utils_Objects.vectorObjs.myPointf;
+import base_Math_Objects.vectorObjs.floats.myPointf;
 
 
 public class myInitPredPreyMaps implements Callable<Boolean> {

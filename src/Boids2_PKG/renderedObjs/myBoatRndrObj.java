@@ -3,8 +3,8 @@ package Boids2_PKG.renderedObjs;
 import Boids2_PKG.myBoids3DWin;
 import Boids2_PKG.boids.myBoid;
 import base_UI_Objects.my_procApplet;
-import base_Utils_Objects.vectorObjs.myPointf;
-import base_Utils_Objects.vectorObjs.myVectorf;
+import base_Math_Objects.vectorObjs.floats.myPointf;
+import base_Math_Objects.vectorObjs.floats.myVectorf;
 import processing.core.*;
 
 //build a registered pre-rendered instantiatable object for each objRep - speeds up display by orders of magnitude

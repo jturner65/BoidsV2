@@ -5,8 +5,9 @@ import java.io.File;
 import base_UI_Objects.my_procApplet;
 import base_UI_Objects.windowUI.base.myDispWindow;
 import base_UI_Objects.windowUI.sidebar.mySideBarMenu;
-import base_Utils_Objects.MyMathUtils;
-import processing.core.*;
+import base_Math_Objects.MyMathUtils;
+import processing.core.PShape;
+import processing.core.PImage;
 /**
  * Flocking boids sim version 2.1
  * @author john turner

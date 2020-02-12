@@ -8,9 +8,9 @@ import Boids2_PKG.myBoidFlock;
 import Boids2_PKG.myBoids3DWin;
 import Boids2_PKG.boids.myBoid;
 import base_UI_Objects.my_procApplet;
-import base_Utils_Objects.MyMathUtils;
-import base_Utils_Objects.vectorObjs.myPointf;
-import base_Utils_Objects.vectorObjs.myVectorf;
+import base_Math_Objects.MyMathUtils;
+import base_Math_Objects.vectorObjs.floats.myPointf;
+import base_Math_Objects.vectorObjs.floats.myVectorf;
 import processing.core.PConstants;
 
 public class myBoidUpdater implements Callable<Boolean> {

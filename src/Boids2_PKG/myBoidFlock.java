@@ -18,8 +18,8 @@ import Boids2_PKG.threadedSolvers.initializers.myBoidValsResetter;
 import Boids2_PKG.threadedSolvers.updaters.myBoidUpdater;
 import base_UI_Objects.my_procApplet;
 import base_UI_Objects.windowUI.base.myDispWindow;
-import base_Utils_Objects.vectorObjs.myPointf;
-import base_Utils_Objects.vectorObjs.myVectorf;
+import base_Math_Objects.vectorObjs.floats.myPointf;
+import base_Math_Objects.vectorObjs.floats.myVectorf;
 import processing.core.PConstants;
 import processing.core.PImage;
 

@@ -14,8 +14,8 @@ import base_UI_Objects.windowUI.base.base_UpdateFromUIData;
 import base_UI_Objects.windowUI.base.myDispWindow;
 import base_UI_Objects.my_procApplet;
 import base_Utils_Objects.io.MsgCodes;
-import base_Utils_Objects.vectorObjs.myPoint;
-import base_Utils_Objects.vectorObjs.myVector;
+import base_Math_Objects.vectorObjs.doubles.myPoint;
+import base_Math_Objects.vectorObjs.doubles.myVector;
 import processing.core.PImage;
 
 public class myBoids3DWin extends myDispWindow {

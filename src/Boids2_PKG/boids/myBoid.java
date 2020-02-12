@@ -8,10 +8,10 @@ import Boids2_PKG.myBoidFlock;
 import Boids2_PKG.myBoids3DWin;
 import base_UI_Objects.IRenderInterface;
 import base_UI_Objects.my_procApplet;
-import base_Utils_Objects.MyMathUtils;
-import base_Utils_Objects.vectorObjs.myPoint;
-import base_Utils_Objects.vectorObjs.myPointf;
-import base_Utils_Objects.vectorObjs.myVectorf;
+import base_Math_Objects.MyMathUtils;
+import base_Math_Objects.vectorObjs.doubles.myPoint;
+import base_Math_Objects.vectorObjs.floats.myPointf;
+import base_Math_Objects.vectorObjs.floats.myVectorf;
 
 /**
  * class defining a creature object for flocking
