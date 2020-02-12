@@ -6,7 +6,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import Boids2_PKG.Boids_21_Main;
 import Boids2_PKG.myBoidFlock;
 import Boids2_PKG.myBoids3DWin;
-import base_UI_Objects.IRenderInterface;
+import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
 import base_UI_Objects.my_procApplet;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
