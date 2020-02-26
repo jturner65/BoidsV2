@@ -1,6 +1,7 @@
 package Boids2_PKG.renderedObjs;
 
 import Boids2_PKG.boids.myBoid;
+import Boids2_PKG.renderedObjs.base.myRenderObj;
 import base_UI_Objects.my_procApplet;
 import base_UI_Objects.windowUI.base.myDispWindow;
 import base_Math_Objects.MyMathUtils;

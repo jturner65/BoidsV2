@@ -8,15 +8,16 @@ import Boids2_PKG.myBoidFlock;
 import Boids2_PKG.myBoids3DWin;
 import Boids2_PKG.myFlkVars;
 import Boids2_PKG.boids.myBoid;
-import base_UI_Objects.my_procApplet;
 import base_Math_Objects.vectorObjs.floats.myPointf;
+import base_UI_Objects.GUI_AppManager;
 
 
 public class myInitPredPreyMaps implements Callable<Boolean> {
 
 	//an overlay for calculations to be used to determine forces acting on a creature
-	public my_procApplet p;
-	//public myBoid b;									//boid being worked on
+	
+	private GUI_AppManager AppMgr;
+	
 	public List<myBoid> bAra;								//boid ara being worked on
 	public myBoidFlock f, pry, prd;
 	//public flkVrs fv;
@@ -32,8 +33,8 @@ public class myInitPredPreyMaps implements Callable<Boolean> {
 	
 	public final int[] stFlagIDXs = new int[]{myBoids3DWin.useTorroid, myBoids3DWin.flkHunt, myBoids3DWin.flkSpawn};
 
-	public myInitPredPreyMaps(my_procApplet _p, myBoidFlock _f, myBoidFlock _pry, myBoidFlock _prd, myFlkVars _fv, int _flagInt, List<myBoid> _bAra) {
-		p = _p;	f = _f; flv = _fv; pry=_pry; prd=_prd; bAra=_bAra; type = f.type;
+	public myInitPredPreyMaps(GUI_AppManager _AppMgr, myBoidFlock _f, myBoidFlock _pry, myBoidFlock _prd, myFlkVars _fv, int _flagInt, List<myBoid> _bAra) {
+		AppMgr = _AppMgr;	f = _f; flv = _fv; pry=_pry; prd=_prd; bAra=_bAra; type = f.type;
 		tot2MaxRad = 2* f.totMaxRad;
 		totMaxRadSq = f.totMaxRad * f.totMaxRad;
 		//TODO set these via passed int
@@ -188,11 +189,11 @@ public class myInitPredPreyMaps implements Callable<Boolean> {
 		if(dist <= minSqDist){return dist;}			//means points are already closer to each other in regular space so they don't need to be special referenced.
 		//we're here because two boids are further from each other than the passed distance - now we have to find the closest they could be to each other given torroidal wrapping
 		float[] newP1 = new float[]{0}, newP2 = new float[]{0};
-		float dx = calcMinDist1D(pt1.x, pt2.x, p.gridDimX ,newP1, newP2);
+		float dx = calcMinDist1D(pt1.x, pt2.x, AppMgr.gridDimX ,newP1, newP2);
 		newPt1.x = newP1[0];newPt2.x = newP2[0];
-		float dy = calcMinDist1D(pt1.y, pt2.y, p.gridDimY ,newP1, newP2);
+		float dy = calcMinDist1D(pt1.y, pt2.y, AppMgr.gridDimY ,newP1, newP2);
 		newPt1.y = newP1[0];newPt2.y = newP2[0];
-		float dz = calcMinDist1D(pt1.z, pt2.z, p.gridDimZ ,newP1, newP2);
+		float dz = calcMinDist1D(pt1.z, pt2.z, AppMgr.gridDimZ ,newP1, newP2);
 		newPt1.z = newP1[0];newPt2.z = newP2[0];
 		return dx+dy+dz;
 	}	

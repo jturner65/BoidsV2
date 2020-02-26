@@ -7,18 +7,20 @@ import Boids2_PKG.Boids_21_Main;
 import Boids2_PKG.myBoidFlock;
 import Boids2_PKG.myBoids3DWin;
 import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
-import base_UI_Objects.my_procApplet;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
+import base_UI_Objects.GUI_AppManager;
+import base_UI_Objects.windowUI.base.myDispWindow;
 
 /**
  * class defining a creature object for flocking
  * @author John
  */
 public class myBoid {
-	public my_procApplet p;
+	public static IRenderInterface p;
+	public static GUI_AppManager AppMgr;
 	//public myBoids3DWin win;
 	public myBoidFlock f;
 	
@@ -70,8 +72,9 @@ public class myBoid {
 										predFlkLoc,						//boid mapped to location used for distance calc
 										preyFlkLoc;						//boid mapped to location used for distance calc
 			
-	public myBoid(my_procApplet _p, myBoids3DWin _win, myBoidFlock _f,  myPointf _coords, int _type){
-		ID = IDcount++;		p = _p;		f = _f; type=_type; //win = _win;		
+	public myBoid(IRenderInterface _p, myBoids3DWin _win, myBoidFlock _f,  myPointf _coords, int _type){
+		ID = IDcount++;		p = _p;		f = _f; type=_type; //win = _win;	
+		AppMgr = myDispWindow.AppMgr;
 		initbd_flags();
 		rotVec = myVectorf.RIGHT.cloneMe(); 			//initial setup
 		orientation = new myVectorf[3];
@@ -156,7 +159,8 @@ public class myBoid {
 	public void updateHungerCntr(){
 		--starveCntr;
 		if (starveCntr<=0){killMe("Starvation");}//if can get hungry then can starve to death
-		bd_flags[isHungry] = (bd_flags[isHungry] || (p.random(f.flv.eatFreq)>=starveCntr)); //once he's hungry he stays hungry unless he eats (hungry set to false elsewhere)
+		//bd_flags[isHungry] = (bd_flags[isHungry] || (p.random(f.flv.eatFreq)>=starveCntr)); //once he's hungry he stays hungry unless he eats (hungry set to false elsewhere)
+		bd_flags[isHungry] = (bd_flags[isHungry] || (ThreadLocalRandom.current().nextInt(f.flv.eatFreq)>=starveCntr)); //once he's hungry he stays hungry unless he eats (hungry set to false elsewhere)
 	}	
 	public void eat(float tarMass){	starveCntr = resetCntrs(f.flv.eatFreq,tarMass);bd_flags[isHungry]=false;}
 	public boolean canSprint(){return (starveCntr > .25f*f.flv.eatFreq);}
@@ -179,14 +183,14 @@ public class myBoid {
 	}//alignBoid	
 	//kill this boid
 	public void killMe(String cause){
-		if(p.isDebugMode()){System.out.println("Boid : " +ID+" killed : " + cause);}
+		if(AppMgr.isDebugMode()){System.out.println("Boid : " +ID+" killed : " + cause);}
 		bd_flags[isDead]=true;
 	}	
 	
 	//set this boat to be camera location
 	public void setBoatCam(float dThet, float dPhi, float dz){
 		//set eye to initially be at coords of boid, modified for world being displaced by half grid dims
-		myPointf eyeTmp = myPointf._sub(coords,p.gridHalfDim);
+		myPointf eyeTmp = myPointf._sub(coords,AppMgr.gridHalfDim);
 		myVectorf tmpEyeMod = new myVectorf( orientation[O_FWD]);
 		tmpEyeMod._mult(2.0f);
 		tmpEyeMod._add(orientation[O_UP]);
@@ -197,12 +201,18 @@ public class myBoid {
 		myVectorf eyeLookVec = myVectorf._rotAroundAxis( rotdir, rotdir._cross(orientation[O_UP]), dThet);
 		myPointf eye = myPointf._add(eyeTmp, .1f*dz, eyeLookVec);
 		myPointf dir =  myPointf._add(eyeTmp, eyeLookVec);
-		p.camera(eye.x, eye.y, eye.z, dir.x, dir.y, dir.z, -orientation[O_UP].x, -orientation[O_UP].y, -orientation[O_UP].z);
+		p.setCameraWinVals(new float[] {eye.x, eye.y, eye.z, dir.x, dir.y, dir.z, -orientation[O_UP].x, -orientation[O_UP].y, -orientation[O_UP].z});
 	}//setBoatCam
+	
+	private void drawTmpl() {
+		p.pushMatState();
+		f.tmpl.drawMe(animAraIDX, ID);
+		p.popMatState();
+	}
 	
 	//draw this body on mesh
 	public void drawMe(){
-		p.pushMatrix();p.pushStyle();
+		p.pushMatState();
 			p.translate(coords.x,coords.y,coords.z);		//move to location
 //			if(win.getPrivFlags(win.debugAnimIDX)){drawMyVec(rotVec, Boids_2.gui_Black,4.0f);p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
 //			if(win.getPrivFlags(win.showVel)){drawMyVec(velocity, Boids_2.gui_DarkMagenta,.5f);}
@@ -210,59 +220,62 @@ public class myBoid {
 			p.rotate(MyMathUtils.halfPi_f,1,0,0);
 			p.rotate(MyMathUtils.halfPi_f,0,1,0);
 			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
-			p.pushStyle();
-			f.tmpl.drawMe(animAraIDX, ID);
-			p.popStyle();			
-		p.popStyle();p.popMatrix();
+			drawTmpl();
+//			p.pushStyle();
+//			f.tmpl.drawMe(animAraIDX, ID);
+//			p.popStyle();			
+		p.popMatState();
 		animIncr();
 	}//drawme	
 	
 	public void drawMeDbgFrame(){
-		p.pushMatrix();p.pushStyle();
+		p.pushMatState();
 			p.translate(coords.x,coords.y,coords.z);		//move to location
 			drawMyVec(rotVec, IRenderInterface.gui_Black,4.0f);
-			p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);
+			AppMgr.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);
 			alignBoid();
 			p.rotate(MyMathUtils.halfPi_f,1,0,0);
 			p.rotate(MyMathUtils.halfPi_f,0,1,0);
 			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
-			p.pushStyle();
-			f.tmpl.drawMe(animAraIDX, ID);	
-			p.popStyle();			
-		p.popStyle();p.popMatrix();
+			drawTmpl();
+//			p.pushStyle();
+//			f.tmpl.drawMe(animAraIDX, ID);
+//			p.popStyle();	
+		p.popMatState();
 		animIncr();		
 	}
 	
 	public void drawMeAndVel(){
-		p.pushMatrix();p.pushStyle();
+		p.pushMatState();
 			p.translate(coords.x,coords.y,coords.z);		//move to location
 			drawMyVec(velocity, IRenderInterface.gui_Magenta,.5f);
 			alignBoid();
 			p.rotate(MyMathUtils.halfPi_f,1,0,0);
 			p.rotate(MyMathUtils.halfPi_f,0,1,0);
 			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
-			p.pushStyle();
-			f.tmpl.drawMe(animAraIDX, ID);	
-			p.popStyle();			
-		p.popStyle();p.popMatrix();
+			drawTmpl();
+//			p.pushStyle();
+//			f.tmpl.drawMe(animAraIDX, ID);
+//			p.popStyle();	
+		p.popMatState();
 		animIncr();		
 	}
 	
 	//draw this boid as a ball - replace with sphere render obj 
 	public void drawMeBall(boolean debugAnim, boolean showVel){
-		p.pushMatrix();p.pushStyle();
+		p.pushMatState();
 			//p.strokeWeight(1.0f);
 			p.translate(coords.x,coords.y,coords.z);		//move to location
 //			if(win.getPrivFlags(win.debugAnimIDX)){drawMyVec(rotVec, Boids_2.gui_Black,4.0f);p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
 //			if(win.getPrivFlags(win.showVel)){drawMyVec(velocity, Boids_2.gui_DarkMagenta,.5f);}
 			if(debugAnim){drawMyVec(rotVec, IRenderInterface.gui_Black,4.0f);
-			p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
+			AppMgr.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
 			if(showVel){drawMyVec(velocity, IRenderInterface.gui_DarkMagenta,.5f);}
 //			p.setColorValFill(p.gui_boatBody1 + type);
 //			p.noStroke();
 //			p.sphere(5);
 			f.sphTmpl.drawMe(animAraIDX, ID);
-		p.popStyle();p.popMatrix();
+		p.popMatState();
 		//animIncr();
 	}//drawme 
 	
@@ -281,28 +294,26 @@ public class myBoid {
 	}	
 	
 	private void drawClosestOther(myPointf tmp, int stClr, int endClr){
-		p.pushMatrix();p.pushStyle();
-			p.strokeWeight(1.0f);
+		p.pushMatState();
+			p.setStrokeWt(1.0f);
 			//p.setColorValStroke(stClr);
-			p.line(coords, tmp,stClr,endClr );
+			p.drawLine(coords, tmp,stClr,endClr );
 			//p.line(coords, tmp);
 			p.translate(tmp.x,tmp.y,tmp.z);		//move to location
 			p.setColorValFill(endClr, 255);
 			p.noStroke();
-			p.sphere(10);
-		p.popStyle();p.popMatrix();
+			p.drawSphere(10);
+		p.popMatState();
 		
 	}		
 	//public double calcBobbing(){		return 2*(p.cos(.01f*animCntr));	}		//bobbing motion
 	
 	public void drawMyVec(myVectorf v, int clr, float sw){
-		p.pushMatrix();
-			p.pushStyle();
+		p.pushMatState();
 			p.setColorValStroke(clr, 255);
-			p.strokeWeight(sw);
-			p.line(new myPointf(0,0,0),v);
-			p.popStyle();
-		p.popMatrix();		
+			p.setStrokeWt(sw);
+			p.drawLine(new myPointf(0,0,0),v);
+		p.popMatState();	
 	}
 	
 	private void animIncr(){

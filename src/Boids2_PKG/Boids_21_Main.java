@@ -2,18 +2,21 @@ package Boids2_PKG;
 
 import java.io.File;
 
+import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
+import base_UI_Objects.GUI_AppManager;
 import base_UI_Objects.my_procApplet;
 import base_UI_Objects.windowUI.base.myDispWindow;
 import base_UI_Objects.windowUI.sidebar.mySideBarMenu;
 import base_Math_Objects.MyMathUtils;
 import processing.core.PShape;
+import processing.core.PConstants;
 import processing.core.PImage;
 /**
  * Flocking boids sim version 2.1
  * @author john turner
  */
 
-public class Boids_21_Main extends my_procApplet {
+public class Boids_21_Main extends GUI_AppManager {
 	//project-specific variables
 	public String prjNmLong = "Boids Version 2.0", prjNmShrt = "Boids2";
 	
@@ -40,14 +43,12 @@ public class Boids_21_Main extends my_procApplet {
 	
 	//////////////////////////////////////////////// code
 	public static void main(String[] passedArgs) {
-	    String[] appletArgs = new String[] { "Boids2_PKG.Boids_21_Main" };
-	    my_procApplet._invokedMain(appletArgs, passedArgs);
+	    Boids_21_Main me = new Boids_21_Main();
+		my_procApplet._invokedMain(me, passedArgs);		    
 	 }
 	
 	@Override
-	protected final void setSmoothing() {		
-		noSmooth();
-	}
+	protected void setSmoothing() {		pa.setSmoothing(0);		}
 	/**
 	 * whether or not we want to restrict window size on widescreen monitors
 	 * 
@@ -61,7 +62,7 @@ public class Boids_21_Main extends my_procApplet {
 	@Override
 	protected void setBkgrnd(){
 		//TODO move to myDispWindow	
-		if(useSphereBKGnd) {shape(bgrndSphere);		} else {background(bground[0],bground[1],bground[2],bground[3]);		}
+		if(useSphereBKGnd) {((my_procApplet)pa).shape(bgrndSphere);		} else {((my_procApplet)pa).background(bground[0],bground[1],bground[2],bground[3]);		}
 	}
 
 
@@ -77,22 +78,22 @@ public class Boids_21_Main extends my_procApplet {
 	}
 	
 	private void setBkgndSphere() {
-		sphereDetail(100);
+		pa.setSphereDetail(100);
 		//TODO move to window to set up specific background for each different "scene" type
-		PImage bgrndTex = loadImage("bkgrndTex.jpg");
-		bgrndSphere = createShape(SPHERE, 10000);
+		PImage bgrndTex = ((my_procApplet)pa).loadImage("bkgrndTex.jpg");
+		bgrndSphere = ((my_procApplet)pa).createShape(PConstants.SPHERE, 10000);
 		bgrndSphere.setTexture(bgrndTex);
 		bgrndSphere.rotate(MyMathUtils.halfPi_f,-1,0,0);
 		bgrndSphere.setStroke(false);	
 		//TODO move to myDispWindow
-		background(bground[0],bground[1],bground[2],bground[3]);		
-		shape(bgrndSphere);	
-		sphereDetail(10);
+		((my_procApplet)pa).background(bground[0],bground[1],bground[2],bground[3]);		
+		((my_procApplet)pa).shape(bgrndSphere);	
+		pa.setSphereDetail(10);
 	}
 
 
 	@Override
-	protected void initMainFlags_Priv() {
+	protected void initMainFlags_Indiv() {
 		setMainFlagToShow_debugMode(false);
 		setMainFlagToShow_saveAnim(true); 
 		setMainFlagToShow_runSim(true);
@@ -101,9 +102,8 @@ public class Boids_21_Main extends my_procApplet {
 	}
 
 	@Override
-	protected void initVisOnce_Priv() {
+	protected void initVisOnce_Indiv() {
 		showInfo = true;
-		drawnTrajEditWidth = 10;
 		int numWins = numVisFlags;//includes 1 for menu window (never < 1)
 		String[] _winTitles = new String[]{"","Boids ver2.0 3D","Boids ver2.0 2D"},
 				_winDescr = new String[] {"", "Multi Flock Predator/Prey Boids 3D Simulation","Multi Flock Predator/Prey Boids 2D Simulation"};
@@ -111,8 +111,8 @@ public class Boids_21_Main extends my_procApplet {
 		//call for menu window
 		buildInitMenuWin(showUIMenu);
 		//instanced window dimensions when open and closed - only showing 1 open at a time
-		float[] _dimOpen  =  new float[]{menuWidth, 0, width-menuWidth, height}, _dimClosed  =  new float[]{menuWidth, 0, hideWinWidth, height};	
-		System.out.println("Width : " + width + " | Height : " + height);
+		float[] _dimOpen  =  new float[]{menuWidth, 0, pa.getWidth()-menuWidth,  pa.getHeight()}, _dimClosed  =  new float[]{menuWidth, 0, hideWinWidth,  pa.getHeight()};	
+		System.out.println("Width : " + pa.getWidth() + " | Height : " +  pa.getHeight());
 		int wIdx = dispMenuIDX,fIdx=showUIMenu;
 		dispWinFrames[wIdx] = this.buildSideBarMenu(wIdx, fIdx, new String[]{"Functions 1","Functions 2","Functions 3","Functions 4"}, new int[] {3,4,4,4}, 5, true, false);//new mySideBarMenu(this, winTitles[wIdx], fIdx, winFillClrs[wIdx], winStrkClrs[wIdx], winRectDimOpen[wIdx], winRectDimClose[wIdx], winDescr[wIdx]);			
 		
@@ -129,18 +129,18 @@ public class Boids_21_Main extends my_procApplet {
 		//			//display window initialization	
 		wIdx = disp3DResIDX; fIdx = show3DWin;
 		setInitDispWinVals(wIdx, _dimOpen, _dimClosed,new boolean[]{false,true,true,true}, new int[]{255,255,255,255},new int[]{0,0,0,255},new int[]{180,180,180,255},new int[]{100,100,100,255}); 
-		dispWinFrames[wIdx] = new myBoids3DWin(this, winTitles[wIdx], fIdx,winFillClrs[wIdx], winStrkClrs[wIdx], winRectDimOpen[wIdx], winRectDimClose[wIdx], winDescr[wIdx]);
+		dispWinFrames[wIdx] = new myBoids3DWin(pa, this, winTitles[wIdx], fIdx,winFillClrs[wIdx], winStrkClrs[wIdx], winRectDimOpen[wIdx], winRectDimClose[wIdx], winDescr[wIdx]);
 		wIdx = disp2DResIDX; fIdx = show2DWin;
 		setInitDispWinVals(wIdx, _dimOpen, _dimClosed,new boolean[]{false,false,true,false}, new int[]{50,40,20,255}, new int[]{255,255,255,255},new int[]{180,180,180,255},new int[]{100,100,100,255});
-		dispWinFrames[wIdx] = new myBoids3DWin(this, winTitles[wIdx], fIdx,winFillClrs[wIdx], winStrkClrs[wIdx], winRectDimOpen[wIdx], winRectDimClose[wIdx], winDescr[wIdx]);
+		dispWinFrames[wIdx] = new myBoids3DWin(pa, this, winTitles[wIdx], fIdx,winFillClrs[wIdx], winStrkClrs[wIdx], winRectDimOpen[wIdx], winRectDimClose[wIdx], winDescr[wIdx]);
 
 		//specify windows that cannot be shown simultaneously here
 		initXORWins(new int[]{show3DWin,show2DWin}, new int[]{disp3DResIDX, disp2DResIDX});
 	
-	}//initVisOnce_Priv
+	}//initVisOnce_Indiv
 
 	@Override
-	protected void initOnce_Priv() {
+	protected void initOnce_Indiv() {
 		setVisFlag(showUIMenu, true);					//show input UI menu	
 		setVisFlag(show3DWin, true);
 	}
@@ -180,7 +180,7 @@ public class Boids_21_Main extends my_procApplet {
 			case 'a' :
 			case 'A' : {toggleSaveAnim();break;}						//start/stop saving every frame for making into animation
 			case 's' :
-			case 'S' : {saveSS(prjNmShrt);break;}//save picture of current image			
+			case 'S' : {break;}//{saveSS(prjNmShrt);break;}//save picture of current image			
 //			case ';' :
 //			case ':' : {((mySideBarMenu)dispWinFrames[dispMenuIDX]).guiObjs[((mySideBarMenu)dispWinFrames[dispMenuIDX]).gIDX_cycModDraw].modVal(-1); break;}//decrease the number of cycles between each draw, to some lower bound
 //			case '\'' :
@@ -242,6 +242,15 @@ public class Boids_21_Main extends my_procApplet {
 			default : {break;}
 		}
 	}//setFlags  
+	/**
+	 * custom boid colors
+	 */
+	public static final int gui_boatBody1 = IRenderInterface.gui_nextColorIDX + 0;
+	public static final int gui_boatBody2 = IRenderInterface.gui_nextColorIDX + 1;
+	public static final int gui_boatBody3 = IRenderInterface.gui_nextColorIDX + 2;	
+	public static final int gui_boatBody4 = IRenderInterface.gui_nextColorIDX + 3;	
+	public static final int gui_boatBody5 = IRenderInterface.gui_nextColorIDX + 4;	
+	public static final int gui_boatStrut = IRenderInterface.gui_nextColorIDX + 5;
 
 	/**
 	 * any instancing-class-specific colors - colorVal set to be higher than IRenderInterface.gui_OffWhite
@@ -250,7 +259,7 @@ public class Boids_21_Main extends my_procApplet {
 	 * @return
 	 */
 	@Override
-	protected int[] getClr_Custom(int colorVal, int alpha) {
+	public int[] getClr_Custom(int colorVal, int alpha) {
 		switch(colorVal) {
 	    	case gui_boatBody1 	  	: {return new int[] {80, 40, 25,alpha};}
 	    	case gui_boatBody2 	  	: {return new int[] {0, 0, 0,alpha};}
@@ -262,14 +271,5 @@ public class Boids_21_Main extends my_procApplet {
 		}
 	}
 
-	/**
-	 * custom boid colors
-	 */
-	public static final int gui_boatBody1 = gui_nextColorIDX + 0;
-	public static final int gui_boatBody2 = gui_nextColorIDX + 1;
-	public static final int gui_boatBody3 = gui_nextColorIDX + 2;	
-	public static final int gui_boatBody4 = gui_nextColorIDX + 3;	
-	public static final int gui_boatBody5 = gui_nextColorIDX + 4;	
-	public static final int gui_boatStrut = gui_nextColorIDX + 5;
 
 }

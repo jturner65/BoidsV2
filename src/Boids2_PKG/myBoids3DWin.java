@@ -8,14 +8,18 @@ import java.util.concurrent.Executors;
 
 import Boids2_PKG.renderedObjs.myBoatRndrObj;
 import Boids2_PKG.renderedObjs.myJFishRndrObj;
-import Boids2_PKG.renderedObjs.myRenderObj;
 import Boids2_PKG.renderedObjs.mySphereRndrObj;
+import Boids2_PKG.renderedObjs.base.myRenderObj;
+import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
 import base_UI_Objects.windowUI.base.base_UpdateFromUIData;
 import base_UI_Objects.windowUI.base.myDispWindow;
+import base_UI_Objects.windowUI.drawnObjs.myDrawnSmplTraj;
+import base_UI_Objects.GUI_AppManager;
 import base_UI_Objects.my_procApplet;
 import base_Utils_Objects.io.MsgCodes;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
 import base_Math_Objects.vectorObjs.doubles.myVector;
+import processing.core.PApplet;
 import processing.core.PImage;
 
 public class myBoids3DWin extends myDispWindow {
@@ -110,8 +114,8 @@ public class myBoids3DWin extends myDispWindow {
 	};
 
 	
-	public myBoids3DWin(my_procApplet _p, String _n, int _flagIdx, int[] fc, int[] sc, float[] rd, float[] rdClosed,String _winTxt) {
-		super(_p, _n, _flagIdx, fc, sc, rd, rdClosed, _winTxt);
+	public myBoids3DWin(IRenderInterface _p, GUI_AppManager _AppMgr, String _n, int _flagIdx, int[] fc, int[] sc, float[] rd, float[] rdClosed,String _winTxt) {
+		super(_p, _AppMgr, _n, _flagIdx, fc, sc, rd, rdClosed, _winTxt);
 		
 		super.initThisWin(false);
 	}
@@ -198,7 +202,7 @@ public class myBoids3DWin extends myDispWindow {
 	//simple render objects - spheres
 	private void initSimpleBoids(){
 		sphrRndrTmpl = new mySphereRndrObj[MaxNumFlocks];
-		for(int i=0; i<MaxNumFlocks; ++i){		sphrRndrTmpl[i] = new mySphereRndrObj(pa, this, i);	}
+		for(int i=0; i<MaxNumFlocks; ++i){		sphrRndrTmpl[i] = new mySphereRndrObj((my_procApplet) pa, this, i);	}
 	}
 	
 	//initialize all instances of boat boid models - called 1 time
@@ -208,10 +212,10 @@ public class myBoids3DWin extends myDispWindow {
 		boatRndrTmpl = new myBoatRndrObj[MaxNumFlocks];
 		jellyFishRndrTmpl = new myJFishRndrObj[MaxNumFlocks];
 		for(int i=0; i<MaxNumFlocks; ++i){	
-			flkSails[i] = pa.loadImage(flkNames[i]+".jpg");
+			flkSails[i] = ((my_procApplet) pa).loadImage(flkNames[i]+".jpg");
 			//build boat render object for each individual flock type
-			boatRndrTmpl[i] = new myBoatRndrObj(pa, this, i);			
-			jellyFishRndrTmpl[i] = new myJFishRndrObj(pa, this, i);
+			boatRndrTmpl[i] = new myBoatRndrObj((my_procApplet) pa, this, i);			
+			jellyFishRndrTmpl[i] = new myJFishRndrObj((my_procApplet) pa, this, i);
 		}
 		cmplxRndrTmpls.put(boidTypeNames[0], boatRndrTmpl);
 		cmplxRndrTmpls.put(boidTypeNames[1], jellyFishRndrTmpl);
@@ -260,13 +264,13 @@ public class myBoids3DWin extends myDispWindow {
 	public int getFlkFlagsInt(){		return privFlags[0];} //get first 32 flag settings
 	
 	public void drawCustMenuObjs(){
-		pa.pushMatrix();				pa.pushStyle();		
+		pa.pushMatState();	
 		//all flock menu drawing within push mat call
 		pa.translate(5,custMenuOffset+yOff);
 		for(int i =0; i<flocks.length; ++i){
 			flocks[i].drawFlockMenu(i);
 		}		
-		pa.popStyle();					pa.popMatrix();		
+		pa.popMatState();
 	}
 	
 	//set camera to be on a boid in one of the flocks
@@ -377,9 +381,9 @@ public class myBoids3DWin extends myDispWindow {
 	public void initDrwnTrajIndiv(){}
 	
 	public void setLights(){
-		pa.ambientLight(102, 102, 102);
-		pa.lightSpecular(204, 204, 204);
-		pa.directionalLight(111, 111, 111, 0, 1, -1);	
+		((PApplet) pa).ambientLight(102, 102, 102);
+		((PApplet) pa).lightSpecular(204, 204, 204);
+		((PApplet) pa).directionalLight(111, 111, 111, 0, 1, -1);	
 	}
 	
 	//overrides function in base class mseClkDisp
@@ -390,7 +394,7 @@ public class myBoids3DWin extends myDispWindow {
 	protected void setCameraIndiv(float[] camVals){
 		if (getPrivFlags(viewFromBoid)){	setBoidCam(rx,ry,dz);		}
 		else {	
-			pa.camera(camVals[0],camVals[1],camVals[2],camVals[3],camVals[4],camVals[5],camVals[6],camVals[7],camVals[8]);      
+			pa.setCameraWinVals(camVals);//(camVals[0],camVals[1],camVals[2],camVals[3],camVals[4],camVals[5],camVals[6],camVals[7],camVals[8]);      
 			// puts origin of all drawn objects at screen center and moves forward/away by dz
 			pa.translate(camVals[0],camVals[1],(float)dz); 
 		    setCamOrient();	
@@ -402,10 +406,10 @@ public class myBoids3DWin extends myDispWindow {
 //		curMseLookVec = pa.c.getMse2DtoMse3DinWorld(pa.sceneCtrVals[pa.sceneIDX]);			//need to be here
 //		curMseLoc3D = pa.c.getMseLoc(pa.sceneCtrVals[pa.sceneIDX]);
 		//pa.outStr2Scr("Current mouse loc in 3D : " + curMseLoc3D.toStrBrf() + "| scenectrvals : " + pa.sceneCtrVals[pa.sceneIDX].toStrBrf() +"| current look-at vector from mouse point : " + curMseLookVec.toStrBrf());
-		pa.pushMatrix();pa.pushStyle();
-		pa.translate(-pa.gridHalfDim.x, -pa.gridHalfDim.y, -pa.gridHalfDim.z);
+		pa.pushMatState();
+		pa.translate(-AppMgr.gridHalfDim.x, -AppMgr.gridHalfDim.y, -AppMgr.gridHalfDim.z);
 		for(int i =0; i<flocks.length; ++i){flocks[i].drawBoids();}
-		pa.popStyle();pa.popMatrix();
+		pa.popMatState();
 	}//drawMe
 	
 
@@ -636,11 +640,11 @@ public class myBoids3DWin extends myDispWindow {
 
 	@Override
 	protected void setCustMenuBtnNames() {
-		pa.setAllMenuBtnNames(menuBtnNames);	
+		AppMgr.setAllMenuBtnNames(menuBtnNames);	
 	}
 
 	@Override
-	public void processTrajIndiv(base_UI_Objects.drawnObjs.myDrawnSmplTraj drawnTraj) {
+	public void processTrajIndiv(myDrawnSmplTraj drawnTraj) {
 		// TODO Auto-generated method stub
 		
 	}

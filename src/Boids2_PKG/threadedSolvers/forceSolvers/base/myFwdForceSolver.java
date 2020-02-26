@@ -9,15 +9,13 @@ import Boids2_PKG.myBoidFlock;
 import Boids2_PKG.myBoids3DWin;
 import Boids2_PKG.myFlkVars;
 import Boids2_PKG.boids.myBoid;
-import base_UI_Objects.my_procApplet;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
+import base_UI_Objects.GUI_AppManager;
 
 public abstract class myFwdForceSolver implements Callable<Boolean> {
-
-	//an overlay for calculations to be used to determine forces acting on a creature
-	public my_procApplet p;
+	private GUI_AppManager AppMgr;
 	//protected flkVrs fv;
 	private myFlkVars fv;
 	protected List<myBoid> bAra;								//boid being worked on
@@ -28,7 +26,7 @@ public abstract class myFwdForceSolver implements Callable<Boolean> {
 	public boolean[] stFlags; 
 	
 	public final float epsValCalc;
-	
+		
 	protected final float msClickForce = 100000000;
 	public final int 		
 		flkCenter		= 0,
@@ -52,8 +50,8 @@ public abstract class myFwdForceSolver implements Callable<Boolean> {
 	
 	private boolean addFrc;
 
-	public myFwdForceSolver(my_procApplet _p, myBoidFlock _f, int _flagInt, boolean _isClk, List<myBoid> _bAra) {
-		p = _p;	f = _f;fv = f.flv; bAra=_bAra;
+	public myFwdForceSolver(GUI_AppManager _AppMgr, myBoidFlock _f, int _flagInt, boolean _isClk, List<myBoid> _bAra) {
+		AppMgr=_AppMgr; f = _f;fv = f.flv; bAra=_bAra;
 		flagInt = _flagInt;
 		setStFlags();		
 		addFrc = _isClk;
@@ -88,14 +86,11 @@ public abstract class myFwdForceSolver implements Callable<Boolean> {
 		//TODO stam fluid lookup could happen here
 		return new myVectorf();
 	}
-
-	//all inheriting classes use the same run
 	
-	
-	public void run(){
+	public void runMe(){
 		//if((p.flags[p.mouseClicked] ) && (!p.flags[p.shiftKeyPressed])){//add click force : overwhelms all forces - is not scaled
 		if (addFrc){
-			for(myBoid b : bAra){b.forces._add(p.mouseForceAtLoc(msClickForce, b.coords, stFlags[attractMode]));}
+			for(myBoid b : bAra){b.forces._add(AppMgr.mouseForceAtLoc(msClickForce, b.coords, stFlags[attractMode]));}
 		}
 		//if(!stFlags[singleFlock]){
 		if (stFlags[flkHunt]) {//go to closest prey
@@ -190,7 +185,7 @@ public abstract class myFwdForceSolver implements Callable<Boolean> {
 	
 	@Override
 	public Boolean call() throws Exception {
-		run(); return true;
+		runMe(); return true;
 	}	
 
 }//class myFwdStencil

@@ -7,13 +7,13 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import Boids2_PKG.myBoidFlock;
 import Boids2_PKG.boids.myBoid;
 import Boids2_PKG.threadedSolvers.forceSolvers.base.myFwdForceSolver;
-import base_UI_Objects.my_procApplet;
+import base_UI_Objects.GUI_AppManager;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
 
 public class myOrigForceSolver extends myFwdForceSolver{
-	public myOrigForceSolver(my_procApplet _p, myBoidFlock _f, int _flagInt, boolean _isClk, List<myBoid> _bAra) {
-		super(_p, _f,_flagInt, _isClk, _bAra);
+	public myOrigForceSolver(GUI_AppManager _AppMgr, myBoidFlock _f, int _flagInt, boolean _isClk, List<myBoid> _bAra) {
+		super(_AppMgr, _f,_flagInt, _isClk, _bAra);
 	}
 	
 	//collect to center of local group

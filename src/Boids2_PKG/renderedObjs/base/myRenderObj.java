@@ -1,7 +1,8 @@
-package Boids2_PKG.renderedObjs;
+package Boids2_PKG.renderedObjs.base;
 
 import base_UI_Objects.my_procApplet;
 import base_UI_Objects.windowUI.base.myDispWindow;
+import Boids2_PKG.renderedObjs.myRndrObjClr;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
 import processing.core.PApplet;

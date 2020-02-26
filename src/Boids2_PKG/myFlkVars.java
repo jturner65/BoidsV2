@@ -2,13 +2,13 @@ package Boids2_PKG;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import base_UI_Objects.my_procApplet;
+import base_UI_Objects.windowUI.base.myDispWindow;
 import base_Math_Objects.MyMathUtils;
 
 
 //struct-type class to hold flocking variables
 public class myFlkVars {
-	public my_procApplet p;
+	//public my_procApplet p;
 	public myBoids3DWin win;
 	public myBoidFlock flock;
 	
@@ -59,8 +59,8 @@ public class myFlkVars {
 	
 	private String typeName;
 	
-	public myFlkVars(my_procApplet _p, myBoids3DWin _win, myBoidFlock _flock, float _nRadMult) {
-		p=_p; win = _win;
+	public myFlkVars(myBoids3DWin _win, myBoidFlock _flock, float _nRadMult) {
+		win = _win;
 		flock = _flock;
 		typeName = flock.name;
 		initFlockVals(_nRadMult, .05f);
@@ -72,7 +72,7 @@ public class myFlkVars {
 	public void initFlockVals(float nRadMult, float _spnPct){
 		//predRad = p.min(p.gridDimY, p.gridDimZ, p.gridDimX);					//radius to avoid pred/find prey	
 		
-		predRad = MyMathUtils.min(MyMathUtils.min(p.gridDimY, p.gridDimZ), p.gridDimX);					//radius to avoid pred/find prey	
+		predRad = MyMathUtils.min(MyMathUtils.min(myDispWindow.AppMgr.gridDimY, myDispWindow.AppMgr.gridDimZ), myDispWindow.AppMgr.gridDimX);					//radius to avoid pred/find prey	
 		nghbrRadMax = predRad*neighborMult;
 		nghbrRad = nghbrRadMax*nRadMult;
 		colRad  = nghbrRad*.1f;

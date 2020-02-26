@@ -9,13 +9,15 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 
 import Boids2_PKG.boids.myBoid;
-import Boids2_PKG.renderedObjs.myRenderObj;
+import Boids2_PKG.renderedObjs.base.myRenderObj;
 import Boids2_PKG.threadedSolvers.forceSolvers.myLinForceSolver;
 import Boids2_PKG.threadedSolvers.forceSolvers.myOrigForceSolver;
 import Boids2_PKG.threadedSolvers.forceSolvers.base.myFwdForceSolver;
 import Boids2_PKG.threadedSolvers.initializers.myInitPredPreyMaps;
 import Boids2_PKG.threadedSolvers.initializers.myBoidValsResetter;
 import Boids2_PKG.threadedSolvers.updaters.myBoidUpdater;
+import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
+import base_UI_Objects.GUI_AppManager;
 import base_UI_Objects.my_procApplet;
 import base_UI_Objects.windowUI.base.myDispWindow;
 import base_Math_Objects.vectorObjs.floats.myPointf;
@@ -24,9 +26,9 @@ import processing.core.PConstants;
 import processing.core.PImage;
 
 public class myBoidFlock {
-	public my_procApplet p;	
+	public IRenderInterface p;	
 	public myBoids3DWin win;
-
+	public static GUI_AppManager AppMgr;
 	public String name;
 	public int numBoids;
 	public ArrayList<myBoid> boidFlock;
@@ -70,19 +72,20 @@ public class myBoidFlock {
 	//flock-specific data
 	//private int flkMenuClr;//color of menu	
 	
-	public myBoidFlock(my_procApplet _p, myBoids3DWin _win, String _name, int _numBoids, int _type){
+	public myBoidFlock(IRenderInterface _p, myBoids3DWin _win, String _name, int _numBoids, int _type){
 		p = _p; win=_win;	name = _name; 
+		AppMgr = myDispWindow.AppMgr;
 		//fv = new flkVrs(p, win, win.MaxNumFlocks);	
 		type = _type;
 		th_exec = win.getTh_Exec();
-		numThrdsAvail =p.getNumThreadsAvailable();
+		numThrdsAvail = AppMgr.getNumThreadsAvailable();
 		numThrds = (numThrdsAvail - 2);
 		
-		flv = new myFlkVars(p, win, this, win.flkRadMults[type]);
+		flv = new myFlkVars(win, this, win.flkRadMults[type]);
 		//Boids_2 _p, myBoids3DWin _win, myBoidFlock _flock, int _bodyClr, int numSpc, float _nRadMult
 		delT = (float) win.getTimeStep();
 		setNumBoids(_numBoids);
-		totMaxRad = p.gridDimX + p.gridDimY + p.gridDimZ;
+		totMaxRad = AppMgr.gridDimX + AppMgr.gridDimY + AppMgr.gridDimZ;
 		
 		flkSail = win.flkSails[type];
 		//flkMenuClr = win.clrList[type];
@@ -91,7 +94,7 @@ public class myBoidFlock {
 		bdgSizeY = 15;
 
 		mnBdgBox = new myPointf[]{new myPointf(0,0,0),new myPointf(0,bdgSizeY,0),new myPointf(bdgSizeX,bdgSizeY,0),new myPointf(bdgSizeX,0,0)};
-		flv = new myFlkVars(p,win,this,(float)ThreadLocalRandom.current().nextDouble(0.65, 1.0));
+		flv = new myFlkVars(win,this,(float)ThreadLocalRandom.current().nextDouble(0.65, 1.0));
 		
 		callFwdBoidCalcs= new ArrayList<myFwdForceSolver>();
 		callFwdSimFutures = new ArrayList<Future<Boolean>>(); 
@@ -129,10 +132,10 @@ public class myBoidFlock {
 	}//set after init - all flocks should be made
 	
 	//finds valid coordinates if torroidal walls 
-	public myPointf findValidWrapCoordsForDraw(myPointf _coords){return new myPointf(((_coords.x+p.gridDimX) % p.gridDimX),((_coords.y+p.gridDimY) % p.gridDimY),((_coords.z+p.gridDimZ) % p.gridDimZ));	}//findValidWrapCoords	
-	public void setValidWrapCoordsForDraw(myPointf _coords){_coords.set(((_coords.x+p.gridDimX) % p.gridDimX),((_coords.y+p.gridDimY) % p.gridDimY),((_coords.z+p.gridDimZ) % p.gridDimZ));	}//findValidWrapCoords	
+	public myPointf findValidWrapCoordsForDraw(myPointf _coords){return new myPointf(((_coords.x+AppMgr.gridDimX) % AppMgr.gridDimX),((_coords.y+AppMgr.gridDimY) % AppMgr.gridDimY),((_coords.z+AppMgr.gridDimZ) % AppMgr.gridDimZ));	}//findValidWrapCoords	
+	public void setValidWrapCoordsForDraw(myPointf _coords){_coords.set(((_coords.x+AppMgr.gridDimX) % AppMgr.gridDimX),((_coords.y+AppMgr.gridDimY) % AppMgr.gridDimY),((_coords.z+AppMgr.gridDimZ) % AppMgr.gridDimZ));	}//findValidWrapCoords	
 	public float calcRandLocation(float randNum1, float randNum2, float sqDim, float mathCalc, float mult){return ((sqDim/2.0f) + (randNum2 * (sqDim/3.0f) * mathCalc * mult));}
-	public myPointf randBoidStLoc(){		return new myPointf(ThreadLocalRandom.current().nextFloat()*p.gridDimX,ThreadLocalRandom.current().nextFloat()*p.gridDimY,ThreadLocalRandom.current().nextFloat()*p.gridDimZ);	}
+	public myPointf randBoidStLoc(){		return new myPointf(ThreadLocalRandom.current().nextFloat()*AppMgr.gridDimX,ThreadLocalRandom.current().nextFloat()*AppMgr.gridDimY,ThreadLocalRandom.current().nextFloat()*AppMgr.gridDimZ);	}
 	
 	public void setNumBoids(int _numBoids){
 		numBoids = _numBoids;
@@ -213,24 +216,24 @@ public class myBoidFlock {
 	}//handleFlkMenuClick
 	
 	public void drawMenuBadge(myPointf[] ara, myPointf[] uvAra, int type) {
-		p.beginShape(); 
-			p.texture(flkSail);
-			for(int i=0;i<ara.length;++i){	p.vTextured(ara[i], uvAra[i].y, uvAra[i].x);} 
-		p.endShape(PConstants.CLOSE);
+		((my_procApplet)p).beginShape(); 
+		((my_procApplet)p).texture(flkSail);
+			for(int i=0;i<ara.length;++i){	((my_procApplet)p).vTextured(ara[i], uvAra[i].y, uvAra[i].x);} 
+			((my_procApplet)p).endShape(PConstants.CLOSE);
 	}//
 	
 	public void drawFlockMenu(int i){
 		String fvData[] = flv.getData(numBoids);
-		p.pushStyle();
+		//p.pushStyle();
 		p.translate(0,-bdgSizeY-6);
 		drawMenuBadge(mnBdgBox,mnUVBox,i);
 		p.translate(bdgSizeX+3,bdgSizeY+6);
 		//p.setColorValFill(flkMenuClr);
 		tmpl.setMenuColor();
-		p.text(fvData[0],0,-myDispWindow.yOff*.5f);p.translate(0,myDispWindow.yOff*.75f);
+		p.showText(fvData[0],0,-myDispWindow.yOff*.5f);p.translate(0,myDispWindow.yOff*.75f);
 		p.translate(-bdgSizeX-3,0);
-		for(int j=1;j<fvData.length; ++j){p.text(fvData[j],0,-myDispWindow.yOff*.5f);p.translate(0,myDispWindow.yOff*.75f);}	
-		p.popStyle();
+		for(int j=1;j<fvData.length; ++j){p.showText(fvData[j],0,-myDispWindow.yOff*.5f);p.translate(0,myDispWindow.yOff*.75f);}	
+		//p.popStyle();
 	}//drawFlockMenu
 	
 	//clear out all data for each boid
@@ -254,7 +257,7 @@ public class myBoidFlock {
 			boidThrdFrames[idx++]=boidFlock.subList(c, c+finalLen);
 		}							//find next turn's motion for every creature by finding total force to act on creature
 		for(List<myBoid> subL : boidThrdFrames){
-			callResetBoidCalcs.add(new myBoidValsResetter(p, this, preyFlock, curFlagState, subL));
+			callResetBoidCalcs.add(new myBoidValsResetter(this, preyFlock, curFlagState, subL));
 		}
 		try {callResetBoidFutures = th_exec.invokeAll(callResetBoidCalcs);for(Future<Boolean> f: callResetBoidFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }			
 	}
@@ -262,18 +265,18 @@ public class myBoidFlock {
 	public void initAllMaps(){
 		callInitBoidCalcs.clear();
 		for(List<myBoid> subL : boidThrdFrames){
-			callInitBoidCalcs.add(new myInitPredPreyMaps(p, this, preyFlock, predFlock, flv, curFlagState, subL));
+			callInitBoidCalcs.add(new myInitPredPreyMaps(AppMgr, this, preyFlock, predFlock, flv, curFlagState, subL));
 		}
 		try {callInitFutures = th_exec.invokeAll(callInitBoidCalcs);for(Future<Boolean> f: callInitFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }			
 	}
 	//TODO get this from myDispWindow instead of p
-	private boolean ckAddFrc(){return (p.mouseIsClicked()) && (!p.shiftIsPressed());}
+	private boolean ckAddFrc(){return (AppMgr.mouseIsClicked()) && (!AppMgr.shiftIsPressed());}
 	//build forces using linear distance functions
 	public void moveBoidsLinMultTH(){
 		callFwdBoidCalcs.clear();
 		boolean addFrc = ckAddFrc();
 		for(List<myBoid> subL : boidThrdFrames){
-			callFwdBoidCalcs.add(new myLinForceSolver(p, this, curFlagState, addFrc, subL));
+			callFwdBoidCalcs.add(new myLinForceSolver(AppMgr,  this, curFlagState, addFrc, subL));
 		}
 		try {callFwdSimFutures = th_exec.invokeAll(callFwdBoidCalcs);for(Future<Boolean> f: callFwdSimFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }		
 	}
@@ -283,14 +286,14 @@ public class myBoidFlock {
 		callFwdBoidCalcs.clear();
 		boolean addFrc = ckAddFrc();
 		for(List<myBoid> subL : boidThrdFrames){
-			callFwdBoidCalcs.add(new myOrigForceSolver(p, this, curFlagState, addFrc, subL));
+			callFwdBoidCalcs.add(new myOrigForceSolver(AppMgr,  this, curFlagState, addFrc, subL));
 		}
 		try {callFwdSimFutures = th_exec.invokeAll(callFwdBoidCalcs);for(Future<Boolean> f: callFwdSimFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }		
 	}
 	public void updateBoidMovement(){
 		callUbdBoidCalcs.clear();
 		for(List<myBoid> subL : boidThrdFrames){
-			callUbdBoidCalcs.add(new myBoidUpdater(p, this, curFlagState, subL));
+			callUbdBoidCalcs.add(new myBoidUpdater(AppMgr, this, curFlagState, subL));
 		}
 		try {callUpdFutures = th_exec.invokeAll(callUbdBoidCalcs);for(Future<Boolean> f: callUpdFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }		    	
 	}//updateBoids	

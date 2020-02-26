@@ -6,12 +6,10 @@ import java.util.concurrent.Callable;
 import Boids2_PKG.myBoidFlock;
 import Boids2_PKG.myBoids3DWin;
 import Boids2_PKG.boids.myBoid;
-import base_UI_Objects.my_procApplet;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 
 //reset all values at start of timestep
 public class myBoidValsResetter implements Callable<Boolean> {
-	public my_procApplet p;
 	public List<myBoid> bAra;								//boid ara being worked on
 	public myBoidFlock f, pry;
 	private int flagInt;						//bitmask of current flags
@@ -21,8 +19,8 @@ public class myBoidValsResetter implements Callable<Boolean> {
 			doSpawn 	= 1;
 	public final int[] stFlagIDXs = new int[]{myBoids3DWin.flkHunt, myBoids3DWin.flkSpawn};
 
-	public myBoidValsResetter(my_procApplet _p, myBoidFlock _f,myBoidFlock _pry,int _flagInt,  List<myBoid> _bAra) {
-		p = _p;	f = _f; pry = _pry; bAra=_bAra;
+	public myBoidValsResetter(myBoidFlock _f,myBoidFlock _pry,int _flagInt,  List<myBoid> _bAra) {
+		f = _f; pry = _pry; bAra=_bAra;
 		flagInt = _flagInt;
 		setStFlags();		
 	}

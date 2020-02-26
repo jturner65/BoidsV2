@@ -7,14 +7,14 @@ import java.util.concurrent.ThreadLocalRandom;
 import Boids2_PKG.myBoidFlock;
 import Boids2_PKG.myBoids3DWin;
 import Boids2_PKG.boids.myBoid;
-import base_UI_Objects.my_procApplet;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
-import processing.core.PConstants;
+//import processing.core.PConstants;
+import base_UI_Objects.GUI_AppManager;
 
 public class myBoidUpdater implements Callable<Boolean> {
-	private my_procApplet p;
+	private GUI_AppManager AppMgr;
 	private List<myBoid> bAra;
 	private myBoidFlock f;
 	private final float rt2;
@@ -32,8 +32,8 @@ public class myBoidUpdater implements Callable<Boolean> {
 		myBoids3DWin.flkHunger,
 		myBoids3DWin.flkSpawn};	
 	
-	public myBoidUpdater(my_procApplet _p, myBoidFlock _f, int _flagInt,  List<myBoid> _bAra){
-		p=_p; f=_f; bAra=_bAra;
+	public myBoidUpdater(GUI_AppManager _AppMgr, myBoidFlock _f, int _flagInt,  List<myBoid> _bAra){
+		f=_f; bAra=_bAra;AppMgr=_AppMgr;
 		flagInt = _flagInt;
 		setStFlags();		
 		O_FWD = myBoid.O_FWD;
@@ -77,7 +77,7 @@ public class myBoidUpdater implements Callable<Boolean> {
 				fxryuz3 = orientation[O_FWD].x+orientation[O_RHT].y+orientation[O_UP].z-3;
 			if (((fyrx2*fyrx2) < 1)	&& (fzux2*fzux2 < 1) && ((rzuy2*rzuy2) < 1) && ((fxryuz3*fxryuz3) < 1)) {	return new float[]{0,1,0,0}; }
 			// angle == pi
-			angle = PConstants.PI;
+			angle = MyMathUtils.Pi_f;
 			float fwd2x = (orientation[O_FWD].x+1)/2.0f,rht2y = (orientation[O_RHT].y+1)/2.0f,up2z = (orientation[O_UP].z+1)/2.0f,
 				fwd2y = fyrx2/4.0f, fwd2z = fzux2/4.0f, rht2z = rzuy2/4.0f;
 			if ((fwd2x > rht2y) && (fwd2x > up2z)) { // orientation[O_FWD].x is the largest diagonal term
@@ -100,7 +100,7 @@ public class myBoidUpdater implements Callable<Boolean> {
 	}//toAxisAngle
 	
 	private myVectorf getFwdVec(myBoid b){
-		if(b.velocity.magn < p.eps){			return b.orientation[O_FWD]._normalize();		}
+		if(b.velocity.magn < MyMathUtils.eps_f){			return b.orientation[O_FWD]._normalize();		}
 		else {		
 			myVectorf tmp = b.velocity.cloneMe()._normalize();			
 			return new myVectorf(b.orientation[O_FWD], f.delT, tmp);		
@@ -202,10 +202,10 @@ public class myBoidUpdater implements Callable<Boolean> {
 	public myVectorf integrate(myVectorf stateDot, myVectorf state){	return myVectorf._add(state, myVectorf._mult(stateDot, f.delT));}
 	
 	public void setValWrapCoordsForDraw(myPointf _coords){
-		if((_coords.x > p.gridDimX) || (_coords.x < 0)){	_coords.x = (_coords.x+p.gridDimX) % p.gridDimX;}
-		if((_coords.y > p.gridDimY) || (_coords.y < 0)){	_coords.y = (_coords.y+p.gridDimY) % p.gridDimY;}
-		if((_coords.z > p.gridDimZ) || (_coords.z < 0)){	_coords.z = (_coords.z+p.gridDimZ) % p.gridDimZ;}
-		//_coords.set(((_coords.x+p.gridDimX) % p.gridDimX),((_coords.y+p.gridDimY) % p.gridDimY),((_coords.z+p.gridDimZ) % p.gridDimZ));	
+		if((_coords.x > AppMgr.gridDimX) || (_coords.x < 0)){	_coords.x = (_coords.x+AppMgr.gridDimX) % AppMgr.gridDimX;}
+		if((_coords.y > AppMgr.gridDimY) || (_coords.y < 0)){	_coords.y = (_coords.y+AppMgr.gridDimY) % AppMgr.gridDimY;}
+		if((_coords.z > AppMgr.gridDimZ) || (_coords.z < 0)){	_coords.z = (_coords.z+AppMgr.gridDimZ) % AppMgr.gridDimZ;}
+		//_coords.set(((_coords.x+AppMgr.gridDimX) % AppMgr.gridDimX),((_coords.y+AppMgr.gridDimY) % AppMgr.gridDimY),((_coords.z+AppMgr.gridDimZ) % AppMgr.gridDimZ));	
 	}//findValidWrapCoords	
 
 	@Override
