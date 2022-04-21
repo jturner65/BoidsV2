@@ -170,6 +170,7 @@ public class myBoidFlock {
 	private void buildThreadFrames() {
 		int numFrames = (numBoids > numThrds ? numThrds : numBoids); //TODO : have threads equally spread among all flocks
 		boidThrdFrames = new List[numFrames];		
+		if (numFrames == 0) {return;}
 		int frSize = numBoids/numFrames;
 		// # of frames to add 1 to, to equally disperse remainder after integer div
 		int framesToOverload = numBoids % numFrames;
