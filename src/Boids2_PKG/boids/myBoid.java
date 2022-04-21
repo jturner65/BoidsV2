@@ -21,7 +21,6 @@ import base_UI_Objects.windowUI.base.myDispWindow;
 public class myBoid {
 	public static IRenderInterface p;
 	public static GUI_AppManager AppMgr;
-	//public myBoids3DWin win;
 	public myBoidFlock f;
 	
 	public int ID;
@@ -116,7 +115,8 @@ public class myBoid {
 	
 	public void clearNeighborMaps(){	
 		neighbors.clear(); 
-		neighLoc.clear(); colliderLoc.clear();	 
+		neighLoc.clear(); 
+		colliderLoc.clear();	 
 	}
 	public void clearHuntMaps(){
 		predFlkLoc.clear();

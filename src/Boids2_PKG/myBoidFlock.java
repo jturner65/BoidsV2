@@ -20,6 +20,7 @@ import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
 import base_UI_Objects.GUI_AppManager;
 import base_UI_Objects.my_procApplet;
 import base_UI_Objects.windowUI.base.myDispWindow;
+import base_Utils_Objects.io.MsgCodes;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
 import processing.core.PConstants;
@@ -67,7 +68,7 @@ public class myBoidFlock {
 	private myPointf[] mnBdgBox;
 	private static final myPointf[] mnUVBox = new myPointf[]{new myPointf(0,0,0),new myPointf(1,0,0),new myPointf(1,1,0),new myPointf(0,1,0)};
 	
-	private final int numThrds, numThrdsAvail;
+	private final int numThrds;
 	protected ExecutorService th_exec;	//to access multithreading - instance from calling program
 	//flock-specific data
 	//private int flkMenuClr;//color of menu	
@@ -78,7 +79,7 @@ public class myBoidFlock {
 		//fv = new flkVrs(p, win, win.MaxNumFlocks);	
 		type = _type;
 		th_exec = win.getTh_Exec();
-		numThrdsAvail = AppMgr.getNumThreadsAvailable();
+		int numThrdsAvail = AppMgr.getNumThreadsAvailable();
 		numThrds = (numThrdsAvail - 2);
 		
 		flv = new myFlkVars(win, this, win.flkRadMults[type]);
@@ -114,14 +115,13 @@ public class myBoidFlock {
 	//init bflk_flags state machine
 	
 	//public void initbflk_flags(boolean initVal){bflk_flags = new boolean[numbflk_flags];for(int i=0;i<numbflk_flags;++i){bflk_flags[i]=initVal;}}
-	@SuppressWarnings("unchecked")
 	public void initFlock(){
 		boidFlock = new ArrayList<myBoid>(numBoids);
-		boidThrdFrames = new List[numThrds];//new ArrayList<List<myBoid>>();
-		//System.out.println("make flock of size : "+ numBoids);
 		for(int c = 0; c < numBoids; ++c){
-			boidFlock.add(c, new myBoid(p, win,this,randBoidStLoc(), type));
+			boidFlock.add( new myBoid(p, win,this,randBoidStLoc(), type));
 		}
+		setNumBoids(boidFlock.size());
+		buildThreadFrames();
 	}//initFlock - run after each flock has been constructed
 	
 	public void setPredPreyTmpl(int predIDX, int preyIDX, myRenderObj _tmpl, myRenderObj _sphrTmpl){
@@ -161,7 +161,30 @@ public class myBoidFlock {
 		if(idx<0){return;}	
 		boidFlock.remove(idx);
 		setNumBoids(boidFlock.size());
-	}//removeBoid	
+	}//removeBoid		
+	
+	/**
+	 * This will build the individual per-thread views of the boid flock.
+	 */
+	@SuppressWarnings("unchecked")
+	private void buildThreadFrames() {
+		int numFrames = (numBoids > numThrds ? numThrds : numBoids); //TODO : have threads equally spread among all flocks
+		boidThrdFrames = new List[numFrames];		
+		int frSize = numBoids/numFrames;
+		// # of frames to add 1 to, to equally disperse remainder after integer div
+		int framesToOverload = numBoids % numFrames;
+		int c = 0, nextC;
+		for (int i = 0;i<framesToOverload;++i) {
+			nextC = c+frSize+1;
+			boidThrdFrames[i] = boidFlock.subList(c, nextC);
+			c = nextC;
+		}
+		for (int i=framesToOverload; i<numFrames; ++i) {
+			nextC = c+frSize;
+			boidThrdFrames[i] = boidFlock.subList(c, nextC);
+			c = nextC;	
+		}
+	}
 	
 	//move creatures to random start positions
 	public void scatterBoids() {for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).coords.set(randBoidStLoc());}}//	randInit
@@ -238,28 +261,23 @@ public class myBoidFlock {
 	
 	//clear out all data for each boid
 	public void clearOutBoids(){
-		//build set of boids per thread frame
-		//boidThrdFrames.clear();
 		curFlagState = win.getFlkFlagsInt();
 		//sets current time step from UI
-		int numBoids = boidFlock.size();
-		int frSize =(numBoids > numThrds ?  1 + (numBoids - 1)/numThrds : numThrds);//best balance
 		delT = (float) win.getTimeStep();
 		callResetBoidCalcs.clear();
-//		for(int c = 0; c < numBoids; c+=mtFrameSize){//set up each thread's view window of the flock
-//			int finalLen = (c+mtFrameSize < numBoids ? mtFrameSize : boidFlock.size() - c);
-//			boidThrdFrames.add(boidFlock.subList(c, c+finalLen));
-//		}							//find next turn's motion for every creature by finding total force to act on creature
-		int idx=0;
-		for(int c = 0; c < numBoids; c+=frSize){//set up each thread's view window of the flock
-			int finalLen = (c+frSize < numBoids ? frSize : numBoids - c);
-			//boidThrdFrames.add(boidFlock.subList(c, c+finalLen));
-			boidThrdFrames[idx++]=boidFlock.subList(c, c+finalLen);
-		}							//find next turn's motion for every creature by finding total force to act on creature
+						//find next turn's motion for every creature by finding total force to act on creature
 		for(List<myBoid> subL : boidThrdFrames){
 			callResetBoidCalcs.add(new myBoidValsResetter(this, preyFlock, curFlagState, subL));
 		}
-		try {callResetBoidFutures = th_exec.invokeAll(callResetBoidCalcs);for(Future<Boolean> f: callResetBoidFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }			
+		try {
+			callResetBoidFutures = th_exec.invokeAll(callResetBoidCalcs);
+			for(Future<Boolean> f: callResetBoidFutures) { 
+				f.get(); 
+			}
+		} catch (Exception e) {
+			//win.getMsgObj().dispMessage("myBoidFlock","buildThreadFrames ("+name+")","Error : "+e.toString()+"\n",MsgCodes.error1); 
+			e.printStackTrace(); 
+		}			
 	}
 	//build all data structures holding neighbors, pred, prey
 	public void initAllMaps(){
@@ -269,7 +287,7 @@ public class myBoidFlock {
 		}
 		try {callInitFutures = th_exec.invokeAll(callInitBoidCalcs);for(Future<Boolean> f: callInitFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }			
 	}
-	//TODO get this from myDispWindow instead of p
+	//TODO get this from myDispWindow instead of AppMgr
 	private boolean ckAddFrc(){return (AppMgr.mouseIsClicked()) && (!AppMgr.shiftIsPressed());}
 	//build forces using linear distance functions
 	public void moveBoidsLinMultTH(){
@@ -305,10 +323,13 @@ public class myBoidFlock {
         myBoid b;
         for(int c = 0; c < boidFlock.size(); ++c){
         	b = boidFlock.get(c);
-        	if(b==null){continue;}
+        	if(b==null){
+        		win.getMsgObj().dispMessage("myBoidFlock","finalizeBoids","boid is null", MsgCodes.info4);
+        		continue;}
         	if(b.bd_flags[myBoid.isDead]){       		removeBoid(c);       	}
         	else if(b.hadAChild(bl,bVelFrc)){  		myBoid tmpBby = addBoid(bl[0]); tmpBby.initNewborn(bVelFrc);   	}
-        } 		
+        } 	
+		buildThreadFrames();
 	}
 
 	public String[] getInfoString(){return this.toString().split("\n",-1);}
