@@ -54,12 +54,14 @@ public class myBoatRndrObj extends myRenderObj {
 	protected void initMainColor(){
 		mainColor = makeColor(boatFillClrs[baseBoatIDX], boatStrokeClrs[baseBoatIDX], boatEmitClrs[baseBoatIDX], new int[]{0,0,0,0}, boatSpecClr, clrStrkDiv[baseBoatIDX], strkWt, shn);
 		mainColor.disableAmbient();
+		//mainColor.disableStroke();
 	}			
 	//set up colors for individual flocks/teams 
 	@Override
 	protected void initFlkColor(){	
 		flockColor = makeColor(boatFillClrs[type], boatStrokeClrs[type], boatEmitClrs[type], new int[]{0,0,0,0}, boatSpecClr,clrStrkDiv[type], strkWt, shn);
 		flockColor.disableAmbient();
+		//flockColor.disableStroke();
 	}
 	
 	//builds geometry for object to be instanced - only perform once per object type 
@@ -163,22 +165,6 @@ public class myBoatRndrObj extends myRenderObj {
 			buildOars(j, clr, animCntr, -1, new myVectorf(0, 0.3f, 3));
 		}
 	}//initBoatMasts	
-
-//	//build oars to orient in appropriate position for animIdx frame of animation - want all numAnimFrm of animation to cycle
-//	private void buildOars(int animIdx, myRndrObjClr clr, float animCntr, float dirMult, myVectorf transVec){
-//		float[] rotAra1 = new float[]{PConstants.HALF_PI, 1, 0, 0},
-//				rotAra2, rotAra3;
-//		myVectorf transVec1 = new myVectorf(0,0,0);
-//		float disp = 0, d=-6, distMod = 10.0f/numOars;
-//		for(int i =0; i<numOars;++i){
-//			float ca = pi4thrds + .65f*PApplet.cos(animCntr*pi100th), sa = pi6ths + .65f*PApplet.sin(((animCntr + i/(1.0f*numOars)))*pi100th);
-//			transVec1.set((transVec.x)+dirMult*1.5f, transVec.y, (transVec.z)+ d+disp);//sh.translate((transVec.x)+dirMult*1.5f, transVec.y, (transVec.z)+ d+disp);
-//			rotAra2 = new float[]{ca, 0,0,dirMult};
-//			rotAra3 = new float[]{sa*.5f, 1,0, 0};			
-//			oars[animIdx].addChild(buildPole(1,clr,.1f, 6, false, transVec1, new myVectorf(1,1,1), rotAra1, new myVectorf(0,0,0), rotAra2, new myVectorf(0,0,0), rotAra3));			
-//			disp+=distMod;
-//		}			
-//	}//buildOars
 
 	//build oars to orient in appropriate position for animIdx frame of animation - want all numAnimFrm of animation to cycle
 	private void buildOars(int animIdx, myRndrObjClr clr, float animCntr, float dirMult, myVectorf transVec){
