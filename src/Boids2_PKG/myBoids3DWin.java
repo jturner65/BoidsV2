@@ -429,7 +429,7 @@ public class myBoids3DWin extends myDispWindow {
 	protected boolean simMe(float modAmtSec) {//run simulation
 		//scale timestep to account for lag of rendering if set in booleans		
 		timeStepMult = getPrivFlags(modDelT) ?  modAmtSec * 30.0f : 1.0f;
-		for(int i =0; i<flocks.length; ++i){flocks[i].clearOutBoids();}			//clear boid accumulators of neighbors, preds and prey  initAllMaps
+		for(int i =0; i<flocks.length; ++i){flocks[i].clearOutBoids();}			//clear boid accumulators of neighbors, preds and prey 
 		for(int i =0; i<flocks.length; ++i){flocks[i].initAllMaps();}
 		if(getFlags(useOrigDistFuncs)){for(int i =0; i<flocks.length; ++i){flocks[i].moveBoidsOrigMultTH();}} 
 		else {					for(int i =0; i<flocks.length; ++i){flocks[i].moveBoidsLinMultTH();}}
@@ -504,13 +504,13 @@ public class myBoids3DWin extends myDispWindow {
 	@Override
 	protected void showMe() {}
 
-	@Override
+	@Override  
 	protected void launchMenuBtnHndlr(int funcRow, int btn) {
-		msgObj.dispMessage("SOM_AnimWorldWin","launchMenuBtnHndlr","Begin requested action", MsgCodes.info4);
+		msgObj.dispMessage("myBoids3DWin","launchMenuBtnHndlr","Begin requested action", MsgCodes.info4);
 		
 		switch(funcRow) {
 		case 0 : {
-			pa.outStr2Scr("Clicked Btn row : Aux Func 1 | Btn : " + btn);
+			msgObj.dispMessage("myBoids3DWin","launchMenuBtnHndlr","Clicked Btn row : Aux Func 1 | Btn : " + btn, MsgCodes.info4);
 			switch(btn){
 				case 0 : {						
 					resetButtonState();
@@ -526,7 +526,7 @@ public class myBoids3DWin extends myDispWindow {
 			}	
 			break;}//row 1 of menu side bar buttons
 		case 1 : {
-			pa.outStr2Scr("Clicked Btn row : Aux Func 2 | Btn : " + btn);
+			msgObj.dispMessage("myBoids3DWin","launchMenuBtnHndlr","Clicked Btn row : Aux Func 2 | Btn : " + btn, MsgCodes.info4);
 			switch(btn){
 				case 0 : {	
 					resetButtonState();
@@ -546,7 +546,7 @@ public class myBoids3DWin extends myDispWindow {
 			}
 			break;}//row 2 of menu side bar buttons
 		case 2 : {
-			pa.outStr2Scr("Clicked Btn row : Aux Func 3 | Btn : " + btn);
+			msgObj.dispMessage("myBoids3DWin","launchMenuBtnHndlr","Clicked Btn row : Aux Func 3 | Btn : " + btn, MsgCodes.info4);
 			switch(btn){
 				case 0 : {	
 					resetButtonState();
@@ -566,7 +566,7 @@ public class myBoids3DWin extends myDispWindow {
 			}
 			break;}//row 2 of menu side bar buttons
 		case 3 : {
-			pa.outStr2Scr("Clicked Btn row : Aux Func 4 | Btn : " + btn);
+			msgObj.dispMessage("myBoids3DWin","launchMenuBtnHndlr","Clicked Btn row : Aux Func 4 | Btn : " + btn, MsgCodes.info4);
 			switch(btn){
 				case 0 : {	
 					resetButtonState();
@@ -593,33 +593,40 @@ public class myBoids3DWin extends myDispWindow {
 		
 		
 	}
-
 	@Override
-	public final void handleSideMenuDebugSel(int btn, int val) {	
-		msgObj.dispMessage("myBoids3DWin","handleSideMenuDebugSel","Click Debug functionality in "+name+" : btn : " + btn, MsgCodes.info4);
-		//{"All->Bld Map","All Dat To Map", "Func 22", "Func 23", "Prblt Map"},	//row 3
-		switch(btn){
-			case 0 : {	
-				resetButtonState();
-				break;}
-			case 1 : {	
-				resetButtonState();
-				break;}
-			case 2 : {	
-				resetButtonState();
-				break;}
-			case 3 : {//show current mapdat status
-				resetButtonState();
-				break;}
-			case 4 : {						
-				resetButtonState();
-				break;}
-			default : {
-				msgObj.dispMessage("myBoids3DWin","launchMenuBtnHndlr","Unknown Debug btn : "+btn, MsgCodes.warning2);
-				resetButtonState();
-				break;}
-		}	
-		msgObj.dispMessage("SOM_AnimWorldWin","handleSideMenuDebugSel","End Debug functionality selection.", MsgCodes.info4);
+	public final void handleSideMenuDebugSelEnable(int btn) {
+		msgObj.dispMessage(className, "handleSideMenuDebugSelEnable","Click Debug functionality on in " + name + " : btn : " + btn, MsgCodes.info4);
+		switch (btn) {
+			case 0: {				break;			}
+			case 1: {				break;			}
+			case 2: {				break;			}
+			case 3: {				break;			}
+			case 4: {				break;			}
+			case 5: {				break;			}
+			default: {
+				msgObj.dispMessage(className, "handleSideMenuDebugSelEnable", "Unknown Debug btn : " + btn,MsgCodes.warning2);
+				break;
+			}
+		}
+		msgObj.dispMessage(className, "handleSideMenuDebugSelEnable", "End Debug functionality on selection.",MsgCodes.info4);
+	}
+	
+	@Override
+	public final void handleSideMenuDebugSelDisable(int btn) {
+		msgObj.dispMessage(className, "handleSideMenuDebugSelDisable","Click Debug functionality off in " + name + " : btn : " + btn, MsgCodes.info4);
+		switch (btn) {
+			case 0: {				break;			}
+			case 1: {				break;			}
+			case 2: {				break;			}
+			case 3: {				break;			}
+			case 4: {				break;			}
+			case 5: {				break;			}
+		default: {
+			msgObj.dispMessage(className, "handleSideMenuDebugSelDisable", "Unknown Debug btn : " + btn,MsgCodes.warning2);
+			break;
+			}
+		}
+		msgObj.dispMessage(className, "handleSideMenuDebugSelDisable", "End Debug functionality off selection.",MsgCodes.info4);
 	}
 
 
