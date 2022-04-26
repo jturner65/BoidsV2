@@ -174,16 +174,18 @@ public class myBoidFlock {
 		int frSize = numBoids/numFrames;
 		// # of frames to add 1 to, to equally disperse remainder after integer div
 		int framesToOverload = numBoids % numFrames;
-		int c = 0, nextC;
+		int stIdx = 0, endIdx;
+		//for these frames add an extra 1
 		for (int i = 0;i<framesToOverload;++i) {
-			nextC = c+frSize+1;
-			boidThrdFrames[i] = boidFlock.subList(c, nextC);
-			c = nextC;
+			endIdx = stIdx+frSize+1;
+			boidThrdFrames[i] = boidFlock.subList(stIdx, endIdx);
+			stIdx = endIdx;
 		}
+		//for these frames use calculated frame size
 		for (int i=framesToOverload; i<numFrames; ++i) {
-			nextC = c+frSize;
-			boidThrdFrames[i] = boidFlock.subList(c, nextC);
-			c = nextC;	
+			endIdx = stIdx+frSize;
+			boidThrdFrames[i] = boidFlock.subList(stIdx, endIdx);
+			stIdx = endIdx;	
 		}
 	}
 	
