@@ -102,7 +102,7 @@ public class Boids_21_Main extends GUI_AppManager {
 	}
 
 	@Override
-	protected void initVisOnce_Indiv() {
+	protected void initAllDispWindows() {
 		showInfo = true;
 		int numWins = numVisFlags;//includes 1 for menu window (never < 1)
 		String[] _winTitles = new String[]{"","Boids ver2.0 3D","Boids ver2.0 2D"},
@@ -137,7 +137,7 @@ public class Boids_21_Main extends GUI_AppManager {
 		//specify windows that cannot be shown simultaneously here
 		initXORWins(new int[]{show3DWin,show2DWin}, new int[]{disp3DResIDX, disp2DResIDX});
 	
-	}//initVisOnce_Indiv
+	}//initAllDispWindows
 
 	@Override
 	protected void initOnce_Indiv() {
