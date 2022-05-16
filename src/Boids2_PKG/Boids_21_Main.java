@@ -67,7 +67,7 @@ public class Boids_21_Main extends GUI_AppManager {
 
 
 	@Override
-	protected void setup_indiv() {
+	protected void setup_Indiv() {
 		//modify default grid dims to be 1500x1500x1500
 		setDesired3DGridDims(1500);
 		//TODO move to window to set up specific background for each different "scene" type
@@ -192,6 +192,14 @@ public class Boids_21_Main extends GUI_AppManager {
 	/// graphics and base functionality utilities and variables
 	//////////////////////////////////////////
 
+	/**
+	 * Individual extending Application Manager post-drawMe functions
+	 * @param modAmtMillis
+	 * @param is3DDraw
+	 */
+	@Override
+	protected void drawMePost_Indiv(float modAmtMillis, boolean is3DDraw) {}
+	
 
 	@Override
 	//gives multiplier based on whether shift, alt or cntl (or any combo) is pressed
