@@ -284,29 +284,29 @@ public class myBoids3DWin extends myDispWindow {
 		int flIDX = idx/32, mask = 1<<(idx%32);
 		privFlags[flIDX] = (val ?  privFlags[flIDX] | mask : privFlags[flIDX] & ~mask);
 		switch(idx){
-			case debugAnimIDX 			: {break;}//pa.outStr2Scr("debugAnimIDX " + val + " : " + getPrivFlags(idx) + "|"+ mask);  break;}		
-			case drawBoids			    : {break;}//pa.outStr2Scr("drawBoids		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
+			case debugAnimIDX 			: {break;}//msgObj.dispInfoMessage(className, "xxx","debugAnimIDX " + val + " : " + getPrivFlags(idx) + "|"+ mask);  break;}		
+			case drawBoids			    : {break;}//msgObj.dispInfoMessage(className, "xxx","drawBoids		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
 			case clearPath			    : {
 				//TODO this needs to change how it works so that initialization doesn't call my_procApplet before it is ready
 				//pa.setClearBackgroundEveryStep( !val);//turn on or off background clearing in main window
 				break;}
-			case showVel			    : {break;}//pa.outStr2Scr("showVel		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case attractMode			: {break;}//pa.outStr2Scr("attractMode	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case showFlkMbrs 		    : {break;}//pa.outStr2Scr("showFlkMbrs 	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case flkCenter 			    : {break;}//pa.outStr2Scr("flkCenter 	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case flkVelMatch 		    : {break;}//pa.outStr2Scr("flkVelMatch 	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case flkAvoidCol 		    : {break;}//pa.outStr2Scr("flkAvoidCol 	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case flkWander 			    : {break;}//pa.outStr2Scr("flkWander 	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case flkAvoidPred		    : {break;}//pa.outStr2Scr("flkAvoidPred	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case flkHunt			    : {break;}//pa.outStr2Scr("flkHunt		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case flkHunger			    : {break;}//pa.outStr2Scr("flkHunger		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case flkSpawn			    : {break;}//pa.outStr2Scr("flkSpawn		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
+			case showVel			    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","showVel		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
+			case attractMode			: {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","attractMode	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
+			case showFlkMbrs 		    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","showFlkMbrs 	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
+			case flkCenter 			    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","flkCenter 	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
+			case flkVelMatch 		    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","flkVelMatch 	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
+			case flkAvoidCol 		    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","flkAvoidCol 	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
+			case flkWander 			    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","flkWander 	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
+			case flkAvoidPred		    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","flkAvoidPred	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
+			case flkHunt			    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","flkHunt		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
+			case flkHunger			    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","flkHunger		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
+			case flkSpawn			    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","flkSpawn		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
 			case modDelT	 			: {break;}	//whether to keep delT fixed or to modify it based on frame rate (to fight lag)
 			case flkCyclesFrc			: {break;}//whether or not current species scales force output cyclically with animation (pumping motion)
 			case viewFromBoid		    : {
 				super.setFlags(drawMseEdge,!val);//if viewing from boid, then don't show mse edge, and vice versa
 				break;}	//whether viewpoint is from a boid's perspective or global
-			case useOrigDistFuncs 	    : {//pa.outStr2Scr("useOrigDistFuncs " + val + " : " + getPrivFlags(idx) + "|"+ mask);
+			case useOrigDistFuncs 	    : {//msgObj.dispInfoMessage(className, "setPrivFlags","useOrigDistFuncs " + val + " : " + getPrivFlags(idx) + "|"+ mask);
 				if(flocks == null){break;}
 				for(int i =0; i<flocks.length; ++i){
 					flocks[i].flv.setDefaultWtVals(val);}
@@ -405,7 +405,7 @@ public class myBoids3DWin extends myDispWindow {
 	protected void drawMe(float animTimeMod) {
 //		curMseLookVec = pa.c.getMse2DtoMse3DinWorld(pa.sceneCtrVals[pa.sceneIDX]);			//need to be here
 //		curMseLoc3D = pa.c.getMseLoc(pa.sceneCtrVals[pa.sceneIDX]);
-		//pa.outStr2Scr("Current mouse loc in 3D : " + curMseLoc3D.toStrBrf() + "| scenectrvals : " + pa.sceneCtrVals[pa.sceneIDX].toStrBrf() +"| current look-at vector from mouse point : " + curMseLookVec.toStrBrf());
+//		msgObj.dispInfoMessage(className, "drawMe","Current mouse loc in 3D : " + curMseLoc3D.toStrBrf() + "| scenectrvals : " + pa.sceneCtrVals[pa.sceneIDX].toStrBrf() +"| current look-at vector from mouse point : " + curMseLookVec.toStrBrf());
 		pa.pushMatState();
 		pa.translate(-AppMgr.gridHalfDim.x, -AppMgr.gridHalfDim.y, -AppMgr.gridHalfDim.z);
 		for(int i =0; i<flocks.length; ++i){flocks[i].drawBoids();}
@@ -453,7 +453,7 @@ public class myBoids3DWin extends myDispWindow {
 			if((mouseX < uiClkCoords[2]) && (mouseY >= custMenuOffset)){
 				float relY = mouseY - custMenuOffset;
 				flkVarIDX = Math.round(relY) / 100;
-				//pa.outStr2Scr("ui drag in UI coords : [" + mouseX + "," + mouseY + "; rel Y : " +relY + " ] flkIDX : " + flkIDX);
+				//msgObj.dispInfoMessage(className, "hndlMouseClickIndiv","ui drag in UI coords : [" + mouseX + "," + mouseY + "; rel Y : " +relY + " ] flkIDX : " + flkVarIDX);
 				if(flkVarIDX < numFlocks){	
 					flkVarObjIDX = flocks[flkVarIDX].handleFlkMenuClick(mouseX, Math.round(relY) % 100);
 					res = (flkVarIDX != -1);	

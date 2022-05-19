@@ -4,13 +4,8 @@ import java.io.File;
 
 import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
 import base_UI_Objects.GUI_AppManager;
-import base_UI_Objects.my_procApplet;
 import base_UI_Objects.windowUI.base.myDispWindow;
 import base_UI_Objects.windowUI.sidebar.mySideBarMenu;
-import base_Math_Objects.MyMathUtils;
-import processing.core.PShape;
-import processing.core.PConstants;
-import processing.core.PImage;
 /**
  * Flocking boids sim version 2.1
  * @author john turner
@@ -37,14 +32,12 @@ public class Boids_21_Main extends GUI_AppManager {
 
 	//private boolean cyclModCmp;										//comparison every draw of cycleModDraw			
 	public final int[] bground = new int[]{244,244,255,255};		//bground color
-	private PShape bgrndSphere;										//giant sphere encapsulating entire scene
-
 	
 	
 	//////////////////////////////////////////////// code
 	public static void main(String[] passedArgs) {
 	    Boids_21_Main me = new Boids_21_Main();
-		my_procApplet._invokedMain(me, passedArgs);		    
+	    Boids_21_Main.invokeProcessingMain(me, passedArgs);
 	 }
 	
 	@Override
@@ -62,10 +55,19 @@ public class Boids_21_Main extends GUI_AppManager {
 	@Override
 	protected void setBkgrnd(){
 		//TODO move to myDispWindow	
-		if(useSphereBKGnd) {((my_procApplet)pa).shape(bgrndSphere);		} else {((my_procApplet)pa).background(bground[0],bground[1],bground[2],bground[3]);		}
+		if(useSphereBKGnd) { pa.setBkgndSphere();	} else {pa.setRenderBackground(bground[0],bground[1],bground[2],bground[3]);		}
 	}
 
-
+	/**
+	 * Called in pre-draw initial setup, before first init
+	 * potentially override setup variables on per-project basis :
+	 * (Current settings in my_procApplet) 	
+	 *  	strokeCap(PROJECT);
+	 *  	textSize(txtSz);
+	 *  	textureMode(NORMAL);			
+	 *  	rectMode(CORNER);	
+	 *  	sphereDetail(4);	 * 
+	 */
 	@Override
 	protected void setup_Indiv() {
 		//modify default grid dims to be 1500x1500x1500
@@ -73,25 +75,10 @@ public class Boids_21_Main extends GUI_AppManager {
 		//TODO move to window to set up specific background for each different "scene" type
 		//PImage bgrndTex = loadImage("bkgrndTex.jpg");
 		//PImage bgrndTex = loadImage("sky_1.jpg");
-		if(useSphereBKGnd) {			setBkgndSphere();	} else {		setBkgrnd();	}
+		if(useSphereBKGnd) {			pa.loadBkgndSphere("bkgrndTex.jpg");	} else {		setBkgrnd();	}
 
 	}
 	
-	private void setBkgndSphere() {
-		pa.setSphereDetail(100);
-		//TODO move to window to set up specific background for each different "scene" type
-		PImage bgrndTex = ((my_procApplet)pa).loadImage("bkgrndTex.jpg");
-		bgrndSphere = ((my_procApplet)pa).createShape(PConstants.SPHERE, 10000);
-		bgrndSphere.setTexture(bgrndTex);
-		bgrndSphere.rotate(MyMathUtils.halfPi_f,-1,0,0);
-		bgrndSphere.setStroke(false);	
-		//TODO move to myDispWindow
-		((my_procApplet)pa).background(bground[0],bground[1],bground[2],bground[3]);		
-		((my_procApplet)pa).shape(bgrndSphere);	
-		pa.setSphereDetail(10);
-	}
-
-
 	@Override
 	protected void initMainFlags_Indiv() {
 		setMainFlagToShow_debugMode(false);

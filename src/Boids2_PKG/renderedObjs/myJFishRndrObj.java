@@ -79,7 +79,7 @@ public class myJFishRndrObj extends myRenderObj {
 			PShape indiv = p.createShape(PConstants.SPHERE, 5.0f);
 			sclMult = (float) ((Math.sin(a * radAmt) * .25f) +1.0f);
 			indiv.scale(sclMult, sclMult, 1.0f/(sclMult * sclMult));
-			//p.outStr2Scr("a : " + a + " sclMult : " + sclMult);
+			//win.getMsgObj().dispInfoMessage("myJFishRndrObj","buildObj","a : " + a + " sclMult : " + sclMult);
 			//call shSetPaintColors since we need to use set<type> style functions of Pshape when outside beginShape-endShape
 			flockColor.shSetPaintColors(indiv);		
 			bodyAra[a].addChild(indiv);

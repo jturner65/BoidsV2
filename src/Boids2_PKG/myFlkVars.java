@@ -8,7 +8,6 @@ import base_Math_Objects.MyMathUtils;
 
 //struct-type class to hold flocking variables
 public class myFlkVars {
-	//public my_procApplet p;
 	public myBoids3DWin win;
 	public myBoidFlock flock;
 	
@@ -70,8 +69,6 @@ public class myFlkVars {
 	
 	//set initial values
 	public void initFlockVals(float nRadMult, float _spnPct){
-		//predRad = p.min(p.gridDimY, p.gridDimZ, p.gridDimX);					//radius to avoid pred/find prey	
-		
 		predRad = MyMathUtils.min(MyMathUtils.min(myDispWindow.AppMgr.gridDimY, myDispWindow.AppMgr.gridDimZ), myDispWindow.AppMgr.gridDimX);					//radius to avoid pred/find prey	
 		nghbrRadMax = predRad*neighborMult;
 		nghbrRad = nghbrRadMax*nRadMult;
@@ -107,12 +104,12 @@ public class myFlkVars {
 
 	//handles all modification of flock values from ui - wIdx is manufactured based on location in ui click area
 	public void modFlkVal(int wIdx, float mod){
-		//p.outStr2Scr("Attempt to modify flock : " + flock.name + " value : " + wIdx + " by " + mod);
+		//win.getMsgObj().dispInfoMessage("myFlkVars","modFlkVal","Attempt to modify flock : " + flock.name + " value : " + wIdx + " by " + mod);
 		if(wIdx==-1){return;}
 		switch(wIdx){
 		//hierarchy - if neighbor then col and vel, if col then 
 			case 0  : {
-				//p.outStr2Scr("nghbrRad : " + nghbrRad + " max : " + nghbrRadMax + " mod : " + mod);
+				//win.getMsgObj().dispInfoMessage("myFlkVars","modFlkVal","nghbrRad : " + nghbrRad + " max : " + nghbrRadMax + " mod : " + mod);
 				nghbrRad = modVal(nghbrRad, nghbrRadMax, .1f*nghbrRadMax, mod);
 				fixNCVRads(true, true);				
 				break;}			//flck radius

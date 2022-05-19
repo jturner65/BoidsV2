@@ -229,7 +229,7 @@ public class myBoidFlock {
 			break;	}		
 		default : {break;}
 		}//switch			
-		//p.outStr2Scr("handleFlkMenuClick : Flock : " + name + " [" + mouseX + "," + mouseY + "] row : " +clkRow + " obj idx : " + vIdx);	
+		//win.getMsgObj().dispInfoMessage("myBoidFlock","handleFlkMenuClick","Flock : " + name + " [" + mouseX + "," + mouseY + "] row : " +clkRow + " obj idx : " + vIdx);	
 		return vIdx;
 	}
 	//handle click in menu region - abs x, rel to start y
@@ -237,7 +237,7 @@ public class myBoidFlock {
 		boolean res = true;
 		float mod = (mouseX-pmx) + (mouseY-pmy)*-5.0f;		
 		flv.modFlkVal(flkVarIDX, mod);		
-		//p.outStr2Scr("handleFlkMenuDrag : Flock : " + name + " flkVar IDX : " + flkVarIDX + " mod amt : " + mod);		
+		//win.getMsgObj().dispInfoMessage("myBoidFlock","handleFlkMenuDrag","Flock : " + name + " flkVar IDX : " + flkVarIDX + " mod amt : " + mod);		
 		return res;
 	}//handleFlkMenuClick
 	
