@@ -73,7 +73,7 @@ public class myJFishRndrObj extends myRenderObj {
 	protected void buildObj() {
 		//build the boid's body geometry here - called at end of initInstObjGeometry
 		float sclMult;		//vary this based on animation frame
-		float radAmt=  (MyMathUtils.twoPi_f/(1.0f*myBoid.numAnimFrames));
+		float radAmt=  (MyMathUtils.TWO_PI_F/(1.0f*myBoid.numAnimFrames));
 		p.sphereDetail(20);
 		for(int a=0; a<myBoid.numAnimFrames; ++a){//for each frame of animation			
 			PShape indiv = p.createShape(PConstants.SPHERE, 5.0f);

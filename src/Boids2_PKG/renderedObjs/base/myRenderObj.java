@@ -3,16 +3,15 @@ package Boids2_PKG.renderedObjs.base;
 import base_UI_Objects.my_procApplet;
 import base_UI_Objects.windowUI.base.myDispWindow;
 import Boids2_PKG.renderedObjs.myRndrObjClr;
+import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
-import processing.core.PApplet;
-import processing.core.PConstants;
-import processing.core.PShape;
+import processing.core.*;
 
 public abstract class myRenderObj {
 	protected static my_procApplet p;	
 	protected myDispWindow win;
-	protected static final float pi4thrds = 4*PConstants.PI/3.0f, pi100th = .01f*PConstants.PI, pi6ths = PConstants.PI/6.0f, pi3rds = PConstants.PI/3.0f;
+	protected static final float pi3rds = MyMathUtils.PI_F/3.0f, pi4thrds = 4*pi3rds, pi100th = .01f*MyMathUtils.PI_F, pi6ths = .5f*pi3rds;
 	//individual objRep-type pshapes	
 	protected PShape objRep;										//1 shape for each type of objRep
 	protected int type;												//type of flock this objRep represents
@@ -114,8 +113,8 @@ public abstract class myRenderObj {
 		float numTurns = 6.0f;
 		PShape shRes = p.createShape(PConstants.GROUP), sh;
 		for(int i = 0; i <numTurns; ++i){
-			theta = (i/numTurns) * PConstants.TWO_PI;
-			theta2 = (((i+1)%numTurns)/numTurns) * PConstants.TWO_PI;
+			theta = (i/numTurns) * MyMathUtils.TWO_PI_F;
+			theta2 = (((i+1)%numTurns)/numTurns) * MyMathUtils.TWO_PI_F;
 			rsThet = rad*PApplet.sin(theta);
 			rcThet = rad*PApplet.cos(theta);
 			rsThet2 = rad*PApplet.sin(theta2);

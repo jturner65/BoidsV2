@@ -39,8 +39,8 @@ public class myBoidUpdater implements Callable<Boolean> {
 		O_FWD = myBoid.O_FWD;
 		O_RHT = myBoid.O_RHT;  
 		O_UP = myBoid.O_UP;  
-		rt2 = .5f*MyMathUtils.sqrt2_f;//p.fsqrt2; 
-		epsValCalc = MyMathUtils.eps_f;
+		rt2 = .5f*MyMathUtils.SQRT_2_F;//p.fsqrt2; 
+		epsValCalc = MyMathUtils.EPS_F;
 		epsValCalcSq = epsValCalc * epsValCalc;
 		spawnPct = f.flv.spawnPct;
 		killPct = f.flv.killPct;
@@ -77,22 +77,22 @@ public class myBoidUpdater implements Callable<Boolean> {
 				fxryuz3 = orientation[O_FWD].x+orientation[O_RHT].y+orientation[O_UP].z-3;
 			if (((fyrx2*fyrx2) < 1)	&& (fzux2*fzux2 < 1) && ((rzuy2*rzuy2) < 1) && ((fxryuz3*fxryuz3) < 1)) {	return new float[]{0,1,0,0}; }
 			// angle == pi
-			angle = MyMathUtils.Pi_f;
+			angle = MyMathUtils.PI_F;
 			float fwd2x = (orientation[O_FWD].x+1)/2.0f,rht2y = (orientation[O_RHT].y+1)/2.0f,up2z = (orientation[O_UP].z+1)/2.0f,
 				fwd2y = fyrx2/4.0f, fwd2z = fzux2/4.0f, rht2z = rzuy2/4.0f;
 			if ((fwd2x > rht2y) && (fwd2x > up2z)) { // orientation[O_FWD].x is the largest diagonal term
-				if (fwd2x< MyMathUtils.eps_f) {	x = 0;} else {			x = (float) Math.sqrt(fwd2x);y = fwd2y/x;z = fwd2z/x;} 
+				if (fwd2x< MyMathUtils.EPS_F) {	x = 0;} else {			x = (float) Math.sqrt(fwd2x);y = fwd2y/x;z = fwd2z/x;} 
 			} else if (rht2y > up2z) { 		// orientation[O_RHT].y is the largest diagonal term
-				if (rht2y< MyMathUtils.eps_f) {	y = 0;} else {			y = (float) Math.sqrt(rht2y);x = fwd2y/y;z = rht2z/y;}
+				if (rht2y< MyMathUtils.EPS_F) {	y = 0;} else {			y = (float) Math.sqrt(rht2y);x = fwd2y/y;z = rht2z/y;}
 			} else { // orientation[O_UP].z is the largest diagonal term so base result on this
-				if (up2z< MyMathUtils.eps_f) {	z = 0;} else {			z = (float) Math.sqrt(up2z);	x = fwd2z/z;y = rht2z/z;}
+				if (up2z< MyMathUtils.EPS_F) {	z = 0;} else {			z = (float) Math.sqrt(up2z);	x = fwd2z/z;y = rht2z/z;}
 			}
 			return new float[]{angle,x,y,z}; // return 180 deg rotation
 		}
 		//no singularities - handle normally
 		myVectorf tmp = new myVectorf(rzuy, uxfz, fyrx);
 		s = tmp.magn;
-		if (s < MyMathUtils.eps_f){ s=1; }
+		if (s < MyMathUtils.EPS_F){ s=1; }
 		tmp._scale(s);//changes mag to s
 			// prevent divide by zero, should not happen if matrix is orthogonal -- should be caught by singularity test above
 		angle = (float) -Math.acos(( orientation[O_FWD].x + orientation[O_RHT].y + orientation[O_UP].z - 1)/2.0);
@@ -100,7 +100,7 @@ public class myBoidUpdater implements Callable<Boolean> {
 	}//toAxisAngle
 	
 	private myVectorf getFwdVec(myBoid b){
-		if(b.velocity.magn < MyMathUtils.eps_f){			return b.orientation[O_FWD]._normalize();		}
+		if(b.velocity.magn < MyMathUtils.EPS_F){			return b.orientation[O_FWD]._normalize();		}
 		else {		
 			myVectorf tmp = b.velocity.cloneMe()._normalize();			
 			return new myVectorf(b.orientation[O_FWD], f.delT, tmp);		
@@ -124,11 +124,12 @@ public class myBoidUpdater implements Callable<Boolean> {
 		b.orientation[O_RHT]._normalize();
 		//b.orientation[O_RHT].set(b.orientation[O_RHT]._normalize());
 		//need to recalc up?  may not be perp to normal
-		if(Math.abs(b.orientation[O_FWD]._dot(b.orientation[O_UP])) > MyMathUtils.eps_f){
+		if(Math.abs(b.orientation[O_FWD]._dot(b.orientation[O_UP])) > MyMathUtils.EPS_F){
 			b.orientation[O_UP] = b.orientation[O_FWD]._cross(b.orientation[O_RHT]); //sideways is cross of up and forward
 			//b.orientation[O_UP].set(b.orientation[O_UP]._normalize());
 			b.orientation[O_RHT]._normalize();
 		}
+		//can't use MyMathUtiles static version
 		b.O_axisAngle = toAxisAngle(b.orientation);
 	}
 

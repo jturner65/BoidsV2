@@ -60,7 +60,7 @@ public abstract class myFwdForceSolver implements Callable<Boolean> {
 		neighRadSq = fv.nghbrRad* fv.nghbrRad;
 		colRadSq = fv.colRad * fv.colRad;
 		dampFrc = new myVectorf();
-		epsValCalc = MyMathUtils.eps_f;
+		epsValCalc = MyMathUtils.EPS_F;
 	}	
 	
 	//TODO set these externally when/if eventually recycling threads

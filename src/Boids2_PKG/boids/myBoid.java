@@ -217,8 +217,8 @@ public class myBoid {
 //			if(win.getPrivFlags(win.debugAnimIDX)){drawMyVec(rotVec, Boids_2.gui_Black,4.0f);p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
 //			if(win.getPrivFlags(win.showVel)){drawMyVec(velocity, Boids_2.gui_DarkMagenta,.5f);}
 			alignBoid();
-			p.rotate(MyMathUtils.halfPi_f,1,0,0);
-			p.rotate(MyMathUtils.halfPi_f,0,1,0);
+			p.rotate(MyMathUtils.HALF_PI_F,1,0,0);
+			p.rotate(MyMathUtils.HALF_PI_F,0,1,0);
 			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
 			drawTmpl();
 //			p.pushStyle();
@@ -234,8 +234,8 @@ public class myBoid {
 			drawMyVec(rotVec, IRenderInterface.gui_Black,4.0f);
 			AppMgr.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);
 			alignBoid();
-			p.rotate(MyMathUtils.halfPi_f,1,0,0);
-			p.rotate(MyMathUtils.halfPi_f,0,1,0);
+			p.rotate(MyMathUtils.HALF_PI_F,1,0,0);
+			p.rotate(MyMathUtils.HALF_PI_F,0,1,0);
 			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
 			drawTmpl();
 //			p.pushStyle();
@@ -250,8 +250,8 @@ public class myBoid {
 			p.translate(coords.x,coords.y,coords.z);		//move to location
 			drawMyVec(velocity, IRenderInterface.gui_Magenta,.5f);
 			alignBoid();
-			p.rotate(MyMathUtils.halfPi_f,1,0,0);
-			p.rotate(MyMathUtils.halfPi_f,0,1,0);
+			p.rotate(MyMathUtils.HALF_PI_F,1,0,0);
+			p.rotate(MyMathUtils.HALF_PI_F,0,1,0);
 			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
 			drawTmpl();
 //			p.pushStyle();
