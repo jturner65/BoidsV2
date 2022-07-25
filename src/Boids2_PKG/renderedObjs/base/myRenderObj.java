@@ -6,7 +6,8 @@ import Boids2_PKG.renderedObjs.myRndrObjClr;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
-import processing.core.*;
+import processing.core.PShape;
+import processing.core.PConstants;
 
 public abstract class myRenderObj {
 	protected static my_procApplet p;	
@@ -32,7 +33,7 @@ public abstract class myRenderObj {
 		if(!isMade){		
 			//set up species-wide geometry
 			initObjGeometry();
-			//base colors for all boids of this species
+			//base colors for all boids/flocks of this species
 			initMainColor();			
 		}//if not made yet initialize geometry to build this object
 		//individual per-flock-type setup - need to not be static since window can change
@@ -109,16 +110,27 @@ public abstract class myRenderObj {
 	
 	//build a pole
 	protected PShape buildPole(int poleNum, myRndrObjClr clr, float rad, float height, boolean drawBottom, myVectorf transVec, myVectorf scaleVec, float[] rotAra, myVectorf trans2Vec, float[] rotAra2, myVectorf trans3Vec, float[] rotAra3){
-		float theta, theta2, rsThet, rcThet, rsThet2, rcThet2;
-		float numTurns = 6.0f;
+		float theta, rsThet, rcThet, rsThet2, rcThet2;
+		int numTurns = 6;
+		float twoPiOvNumTurns = MyMathUtils.TWO_PI_F/numTurns;
 		PShape shRes = p.createShape(PConstants.GROUP), sh;
+		//pre-calc rad-theta-sin and rad-theta-cos
+		float[] rsThetAra = new float[1 + numTurns];
+		float[] rcThetAra = new float[1 + numTurns];
 		for(int i = 0; i <numTurns; ++i){
-			theta = (i/numTurns) * MyMathUtils.TWO_PI_F;
-			theta2 = (((i+1)%numTurns)/numTurns) * MyMathUtils.TWO_PI_F;
-			rsThet = rad*PApplet.sin(theta);
-			rcThet = rad*PApplet.cos(theta);
-			rsThet2 = rad*PApplet.sin(theta2);
-			rcThet2 = rad*PApplet.cos(theta2);
+			theta = i * twoPiOvNumTurns;
+			rsThetAra[i] = (float) (rad*Math.sin(theta));
+			rcThetAra[i] = (float) (rad*Math.cos(theta));
+		}
+		//wrap around value - theta == 0
+		rsThetAra[numTurns] = 0.0f;
+		rcThetAra[numTurns] = rad;
+		
+		for(int i = 0; i <numTurns; ++i){
+			rsThet = rsThetAra[i];
+			rcThet = rcThetAra[i];
+			rsThet2 = rsThetAra[i+1];
+			rcThet2 = rcThetAra[i+1];
 
 			sh = setRotVals(transVec, scaleVec, rotAra, trans2Vec, rotAra2, trans3Vec, rotAra3);
 			sh.beginShape(PConstants.QUAD);				      
@@ -129,7 +141,7 @@ public abstract class myRenderObj {
 				shgl_vertexf(sh,rsThet2, 0, rcThet2);
 			sh.endShape(PConstants.CLOSE);	
 			shRes.addChild(sh);
-
+			//caps
 			sh = setRotVals(transVec, scaleVec, rotAra, trans2Vec, rotAra2, trans3Vec, rotAra3);
 			sh.beginShape(PConstants.TRIANGLE);				      
 				clr.shPaintColors(sh);
@@ -165,7 +177,7 @@ public abstract class myRenderObj {
 	//draw object
 	protected abstract void drawMeIndiv(int animIDX);
 	
-	//public void shgl_vTextured(PShape sh, myPointf P, float u, float v) {sh.vertex((float)P.x,(float)P.y,(float)P.z,(float)u,(float)v);}                          // vertex with texture coordinates
+	//public void shgl_vTextured(PShape sh, myPointf P, float u, float v) {sh.vertex(P.x,P.y,P.z,u,v);}                          // vertex with texture coordinates
 	public void shgl_vertexf(PShape sh, float x, float y, float z){sh.vertex(x,y,z);}	 // vertex for shading or drawing
 	public void shgl_vertex(PShape sh, myPointf P){sh.vertex(P.x,P.y,P.z);}	 // vertex for shading or drawing
 	public void shgl_normal(PShape sh, myVectorf V){sh.normal(V.x,V.y,V.z);	} // changes normal for smooth shading

@@ -39,7 +39,7 @@ public class mySphereRndrObj extends myRenderObj {
 	//since this is a sphere, override default to create a different object type (instead of group)
 	@Override
 	protected void initInstObjGeometry() {
-		p.sphereDetail(5);
+		p.setSphereDetail(5);
 		objRep = p.createShape(PConstants.SPHERE, 5.0f); 
 		initFlkColor();
 		//call shSetPaintColors since we need to use set<type> style functions of Pshape when outside beginShape-endShape

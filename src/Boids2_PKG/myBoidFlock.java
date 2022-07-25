@@ -18,13 +18,10 @@ import Boids2_PKG.threadedSolvers.initializers.myBoidValsResetter;
 import Boids2_PKG.threadedSolvers.updaters.myBoidUpdater;
 import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
 import base_UI_Objects.GUI_AppManager;
-import base_UI_Objects.my_procApplet;
 import base_UI_Objects.windowUI.base.myDispWindow;
 import base_Utils_Objects.io.MsgCodes;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
-import processing.core.PConstants;
-import processing.core.PImage;
 
 public class myBoidFlock {
 	public IRenderInterface p;	
@@ -37,8 +34,6 @@ public class myBoidFlock {
 	private List<myBoid>[] boidThrdFrames;			//structure to hold views of boidFlock for each thread operation
 	
 	public float delT;
-	//specific flock vars for this flock TODO
-	//public flkVrs fv;
 	
 	public myFlkVars flv;						//flock vars per flock	
 	
@@ -60,42 +55,26 @@ public class myBoidFlock {
 	public List<myBoidUpdater> callUbdBoidCalcs;	
 	public List<myInitPredPreyMaps> callInitBoidCalcs;
 	public List<myBoidValsResetter> callResetBoidCalcs;
-	///////////
-	//graphical constructs for boids of this flock
-	///////////
-	public PImage flkSail;						//image sigil for sails
-	private float bdgSizeX = 20, bdgSizeY = 15;			//badge size
-	private myPointf[] mnBdgBox;
-	private static final myPointf[] mnUVBox = new myPointf[]{new myPointf(0,0,0),new myPointf(1,0,0),new myPointf(1,1,0),new myPointf(0,1,0)};
 	
 	private final int numThrds;
 	protected ExecutorService th_exec;	//to access multithreading - instance from calling program
 	//flock-specific data
 	//private int flkMenuClr;//color of menu	
 	
-	public myBoidFlock(IRenderInterface _p, myBoids3DWin _win, String _name, int _numBoids, int _type){
-		p = _p; win=_win;	name = _name; 
-		AppMgr = myDispWindow.AppMgr;
-		//fv = new flkVrs(p, win, win.MaxNumFlocks);	
+	public myBoidFlock(IRenderInterface _p, myBoids3DWin _win, myFlkVars _flv, int _numBoids, int _type){
+		p = _p; win=_win;	
+		flv = _flv;
+		name = flv.typeName; 
+		AppMgr = myDispWindow.AppMgr;	
 		type = _type;
 		th_exec = win.getTh_Exec();
 		int numThrdsAvail = AppMgr.getNumThreadsAvailable();
 		numThrds = (numThrdsAvail - 2);
 		
-		flv = new myFlkVars(win, this, win.flkRadMults[type]);
 		//Boids_2 _p, myBoids3DWin _win, myBoidFlock _flock, int _bodyClr, int numSpc, float _nRadMult
 		delT = (float) win.getTimeStep();
 		setNumBoids(_numBoids);
 		totMaxRad = AppMgr.gridDimX + AppMgr.gridDimY + AppMgr.gridDimZ;
-		
-		flkSail = win.flkSails[type];
-		//flkMenuClr = win.clrList[type];
-		float scale = flkSail.width / (1.0f*flkSail.height);
-		bdgSizeX = 15 * scale; 
-		bdgSizeY = 15;
-
-		mnBdgBox = new myPointf[]{new myPointf(0,0,0),new myPointf(0,bdgSizeY,0),new myPointf(bdgSizeX,bdgSizeY,0),new myPointf(bdgSizeX,0,0)};
-		flv = new myFlkVars(win,this,(float)ThreadLocalRandom.current().nextDouble(0.65, 1.0));
 		
 		callFwdBoidCalcs= new ArrayList<myFwdForceSolver>();
 		callFwdSimFutures = new ArrayList<Future<Boolean>>(); 
@@ -192,11 +171,19 @@ public class myBoidFlock {
 	//move creatures to random start positions
 	public void scatterBoids() {for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).coords.set(randBoidStLoc());}}//	randInit
 	public void drawBoids(){
-		boolean debugAnim = win.getPrivFlags(myBoids3DWin.debugAnimIDX), showVel = win.getPrivFlags(myBoids3DWin.showVel);
+		boolean debugAnim = win.getPrivFlags(myBoids3DWin.debugAnimIDX), 
+				showVel = win.getPrivFlags(myBoids3DWin.showVel);
+
 		if(win.getPrivFlags(myBoids3DWin.drawBoids)){//broken apart to minimize if checks - only potentially 2 per flock per frame instead of thousands
-			if(debugAnim){		for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeDbgFrame();}}
-			else if (showVel){	for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeAndVel();}}
-			else {				for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMe();}}	  					
+			if (win.getPrivFlags(myBoids3DWin.drawScaledBoids)) {
+				if(debugAnim){		for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeDbgFrameScaled();}}
+				else if (showVel){	for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeAndVelScaled();}}
+				else {				for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeScaled();}}				
+			} else {
+				if(debugAnim){		for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeDbgFrame();}}
+				else if (showVel){	for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeAndVel();}}
+				else {				for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMe();}}
+			}
 		} else {
 			for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeBall(debugAnim,showVel);  }
 			if(win.getPrivFlags(myBoids3DWin.showFlkMbrs)){
@@ -232,35 +219,6 @@ public class myBoidFlock {
 		//win.getMsgObj().dispInfoMessage("myBoidFlock","handleFlkMenuClick","Flock : " + name + " [" + mouseX + "," + mouseY + "] row : " +clkRow + " obj idx : " + vIdx);	
 		return vIdx;
 	}
-	//handle click in menu region - abs x, rel to start y
-	public boolean handleFlkMenuDrag(int flkVarIDX, int mouseX, int mouseY, int pmx, int pmy, int mseBtn){
-		boolean res = true;
-		float mod = (mouseX-pmx) + (mouseY-pmy)*-5.0f;		
-		flv.modFlkVal(flkVarIDX, mod);		
-		//win.getMsgObj().dispInfoMessage("myBoidFlock","handleFlkMenuDrag","Flock : " + name + " flkVar IDX : " + flkVarIDX + " mod amt : " + mod);		
-		return res;
-	}//handleFlkMenuClick
-	
-	public void drawMenuBadge(myPointf[] ara, myPointf[] uvAra, int type) {
-		((my_procApplet)p).beginShape(); 
-		((my_procApplet)p).texture(flkSail);
-			for(int i=0;i<ara.length;++i){	((my_procApplet)p).vTextured(ara[i], uvAra[i].y, uvAra[i].x);} 
-			((my_procApplet)p).endShape(PConstants.CLOSE);
-	}//
-	
-	public void drawFlockMenu(int i){
-		String fvData[] = flv.getData(numBoids);
-		//p.pushStyle();
-		p.translate(0,-bdgSizeY-6);
-		drawMenuBadge(mnBdgBox,mnUVBox,i);
-		p.translate(bdgSizeX+3,bdgSizeY+6);
-		//p.setColorValFill(flkMenuClr);
-		tmpl.setMenuColor();
-		p.showText(fvData[0],0,-myDispWindow.yOff*.5f);p.translate(0,myDispWindow.yOff*.75f);
-		p.translate(-bdgSizeX-3,0);
-		for(int j=1;j<fvData.length; ++j){p.showText(fvData[j],0,-myDispWindow.yOff*.5f);p.translate(0,myDispWindow.yOff*.75f);}	
-		//p.popStyle();
-	}//drawFlockMenu
 	
 	//clear out all data for each boid
 	public void clearOutBoids(){

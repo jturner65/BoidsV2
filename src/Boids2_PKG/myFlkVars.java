@@ -9,7 +9,6 @@ import base_Math_Objects.MyMathUtils;
 //struct-type class to hold flocking variables
 public class myFlkVars {
 	public myBoids3DWin win;
-	public myBoidFlock flock;
 	
 	private final float neighborMult = .5f;							//multiplier for neighborhood consideration against zone size - all rads built off this
 	
@@ -56,12 +55,11 @@ public class myFlkVars {
 			MinHuntAra = new float[]{.00001f, 10, 100};		
 	public float[] maxFrc = new float[]{200,200,200};
 	
-	private String typeName;
+	public final String typeName;
 	
-	public myFlkVars(myBoids3DWin _win, myBoidFlock _flock, float _nRadMult) {
+	public myFlkVars(myBoids3DWin _win, String _flockName, float _nRadMult) {
 		win = _win;
-		flock = _flock;
-		typeName = flock.name;
+		typeName = _flockName;
 		initFlockVals(_nRadMult, .05f);
 	}//ctor
 	
@@ -173,7 +171,7 @@ public class myFlkVars {
 	}
 	
 	public String toString(){
-		String res = "Flock Vars for " + flock.name + " \n";
+		String res = "Flock Vars for " + typeName + " \n";
 //		for(int f=0;f<this.numFlocks;++f){
 //			String[] flkStrs = getData(f);
 //			for(int s=0; s<flkStrs.length; ++s){res+=flkStrs+"\n";}

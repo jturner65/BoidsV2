@@ -19,7 +19,8 @@ import base_UI_Objects.my_procApplet;
 import base_Utils_Objects.io.MsgCodes;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
 import base_Math_Objects.vectorObjs.doubles.myVector;
-import processing.core.PApplet;
+import base_Math_Objects.vectorObjs.floats.myPointf;
+import processing.core.PConstants;
 import processing.core.PImage;
 
 public class myBoids3DWin extends myDispWindow {
@@ -41,28 +42,29 @@ public class myBoids3DWin extends myDispWindow {
 			debugAnimIDX 		= 0,						//debug
 			isMTCapableIDX 		= 1,			//whether this machine supports multiple threads
 			drawBoids			= 2,			//whether to draw boids or draw spheres (renders faster)
-			clearPath			= 3,			//whether to clear each drawn boid, or to show path by keeping past drawn boids
-			showVel			 	= 4,			//display vel values
-			showFlkMbrs 		= 5,			//whether or not to show actual subflock members (i.e. neigbhors,colliders, preds, etc) when debugging
-			attractMode 		= 6,			// whether we are in mouse attractor mode or repel mode
+			drawScaledBoids 	= 3,			//whether to draw boids scaled by their mass
+			clearPath			= 4,			//whether to clear each drawn boid, or to show path by keeping past drawn boids
+			showVel			 	= 5,			//display vel values
+			showFlkMbrs 		= 6,			//whether or not to show actual subflock members (i.e. neigbhors,colliders, preds, etc) when debugging
+			attractMode 		= 7,			// whether we are in mouse attractor mode or repel mode
 			//must stay within first 32 positions(single int) to make flocking control flag int easier (just sent first int)
 			//flocking control flags
-			flkCenter 			= 7,			// on/off : flock-centering
-			flkVelMatch 		= 8,			// on/off : flock velocity matching
-			flkAvoidCol 		= 9,			// on/off : flock collision avoidance	
-			flkWander 			= 10,			// on/off : flock wandering		
-			flkAvoidPred		= 11,			//turn on/off avoiding predators force and chasing prey force
-			flkHunt				= 12,			//whether hunting is enabled
-			flkHunger			= 13,			//can get hungry	
-			flkSpawn			= 14,			//allow breeding
-			useOrigDistFuncs 	= 15,
-			useTorroid			= 16,	
-			flkCyclesFrc		= 17,			//the force these boids exert cycles with motion
+			flkCenter 			= 8,			// on/off : flock-centering
+			flkVelMatch 		= 9,			// on/off : flock velocity matching
+			flkAvoidCol 		= 10,			// on/off : flock collision avoidance	
+			flkWander 			= 11,			// on/off : flock wandering		
+			flkAvoidPred		= 12,			//turn on/off avoiding predators force and chasing prey force
+			flkHunt				= 13,			//whether hunting is enabled
+			flkHunger			= 14,			//can get hungry	
+			flkSpawn			= 15,			//allow breeding
+			useOrigDistFuncs 	= 16,
+			useTorroid			= 17,	
+			flkCyclesFrc		= 18,			//the force these boids exert cycles with motion
 			//end must stay within first 32
-			modDelT				= 18,			//whether to modify delT based on frame rate or keep it fixed (to fight lag)
-			viewFromBoid		= 19;			//whether viewpoint is from a boid's perspective or global
+			modDelT				= 19,			//whether to modify delT based on frame rate or keep it fixed (to fight lag)
+			viewFromBoid		= 20;			//whether viewpoint is from a boid's perspective or global
 	
-	private static final int numPrivFlags = 20;
+	private static final int numPrivFlags = 21;
 
 	public final int MaxNumBoids = 15000;		//max # of boids per flock
 	public final int initNumBoids = 500;		//initial # of boids per flock
@@ -71,7 +73,16 @@ public class myBoids3DWin extends myDispWindow {
 	//only 5 different flocks will display nicely on side menu
 	public String[] flkNames = new String[]{"Privateers", "Pirates", "Corsairs", "Marauders", "Freebooters"};
 	public float[] flkRadMults = {1.0f, 0.5f, 0.25f, 0.75f, 0.66f, 0.33f};
+	
+	///////////
+	//graphical constructs for pirate boids 
+	///////////
 	public PImage[] flkSails;						//image sigils for sails
+	private final float bdgSizeX_base = 15, bdgSizeY = 15;			//badge size
+	private float[] bdgSizeX;
+
+	private myPointf[][] mnBdgBox;
+	private static final myPointf[] mnUVBox = new myPointf[]{new myPointf(0,0,0),new myPointf(1,0,0),new myPointf(1,1,0),new myPointf(0,1,0)};
 	
 	public String[] boidTypeNames = new String[]{"Pirate Boats", "Jellyfish"};
 	//whether this boid exhibits cyclic motion
@@ -91,6 +102,7 @@ public class myBoids3DWin extends myDispWindow {
 	//current values
 	public int numFlocks = 1;						
 	public myBoidFlock[] flocks;
+	private myFlkVars[] flockVars;
 	public int curFlock = 0;
 	public ArrayList<Float[]> flkVarClkRes;
 	//idxs of flock and boid to assign camera to if we are watching from "on deck"
@@ -128,6 +140,7 @@ public class myBoids3DWin extends myDispWindow {
 										//needs to be in order of privModFlgIdxs
 		tmpBtnNamesArray.add(new Object[] {"Debugging", "Enable Debug", debugAnimIDX});
 		tmpBtnNamesArray.add(new Object[] {"Drawing Boids", "Drawing Spheres", drawBoids});
+		tmpBtnNamesArray.add(new Object[] {"Scale Boids' Sizes", "Boids Same Size", drawScaledBoids});
 		tmpBtnNamesArray.add(new Object[] {"Showing Boid Path", "Hiding Boid Path", clearPath});
 		tmpBtnNamesArray.add(new Object[] {"Showing Vel Vectors", "Hiding Vel Vectors", showVel});
 		tmpBtnNamesArray.add(new Object[] {"DBG : List Flk Mmbrs", "DBG : Hide Flk Mmbrs", showFlkMbrs});
@@ -168,11 +181,7 @@ public class myBoids3DWin extends myDispWindow {
 		} else {//setting this just so that it doesn't fail somewhere - won't actually be exec'ed
 			th_exec = Executors.newCachedThreadPool();// Executors.newFixedThreadPool(numUsableThreads);
 		}
-
-	
-		
-		setFlockingOn();
-		
+			
 		initFlocks();	
 		//flkMenuOffset = uiClkCoords[1] + uiClkCoords[3] - y45Off;	//495
 		custMenuOffset = uiClkCoords[3];	//495
@@ -195,9 +204,7 @@ public class myBoids3DWin extends myDispWindow {
 	@Override
 	protected void buildUIUpdateStruct_Indiv(TreeMap<Integer, Integer> intValues, TreeMap<Integer, Float> floatValues,TreeMap<Integer, Boolean> boolValues) {
 		// TODO Auto-generated method stub
-		
 	}
-
 	
 	//simple render objects - spheres
 	private void initSimpleBoids(){
@@ -211,8 +218,16 @@ public class myBoids3DWin extends myDispWindow {
 		flkSails = new PImage[MaxNumFlocks];
 		boatRndrTmpl = new myBoatRndrObj[MaxNumFlocks];
 		jellyFishRndrTmpl = new myJFishRndrObj[MaxNumFlocks];
+		bdgSizeX = new float[MaxNumFlocks];
+		mnBdgBox = new myPointf[MaxNumFlocks][];
 		for(int i=0; i<MaxNumFlocks; ++i){	
 			flkSails[i] = ((my_procApplet) pa).loadImage(flkNames[i]+".jpg");
+
+			float scale = flkSails[i].width / (1.0f*flkSails[i].height);
+			bdgSizeX[i] = bdgSizeX_base * scale; 
+
+			mnBdgBox[i] = new myPointf[]{new myPointf(0,0,0),new myPointf(0,bdgSizeY,0),new myPointf(bdgSizeX[i],bdgSizeY,0),new myPointf(bdgSizeX[i],0,0)};
+			
 			//build boat render object for each individual flock type
 			boatRndrTmpl[i] = new myBoatRndrObj((my_procApplet) pa, this, i);			
 			jellyFishRndrTmpl[i] = new myJFishRndrObj((my_procApplet) pa, this, i);
@@ -223,19 +238,14 @@ public class myBoids3DWin extends myDispWindow {
 	}
 	
 	//turn on/off all flocking control boolean variables
-	public void setFlockingOn(){setFlocking(true);}
-	public void setFlockingOff(){setFlocking(false);}
-	
-	private void setFlocking(boolean val){
+	public void setFlocking(boolean val){
 		setPrivFlags(flkCenter, val);
 		setPrivFlags(flkVelMatch, val);
 		setPrivFlags(flkAvoidCol, val);
 		setPrivFlags(flkWander, val);
 	}
 	
-	public void setHuntingOn(){setHunting(true);}
-	public void setHuntingOff(){setHunting(false);}
-	private void setHunting(boolean val){
+	public void setHunting(boolean val){
 		//should generally only be enabled if multiple flocks present
 		//TODO set up to enable single flock to cannibalize
 		setPrivFlags(flkAvoidPred, val);
@@ -247,14 +257,22 @@ public class myBoids3DWin extends myDispWindow {
 	
 	//set up current flock configuration, based on ui selections
 	private void initFlocks(){
+		// Always start with flocking controls enabled
+		setFlocking(true);
+		// Only enable hunting if more than 1 flock exist
 		setHunting(numFlocks > 1);
 		flockToWatch = 0;
 		boidToWatch = 0;
 		setMaxUIFlockToWatch();
 		flocks = new myBoidFlock[numFlocks];
+		flockVars = new myFlkVars[numFlocks];
 		flkVarClkRes = new ArrayList<Float[]>();
 		for(int i =0; i<flocks.length; ++i){
-			flocks[i] = (new myBoidFlock(pa,this,flkNames[i],initNumBoids,i));flocks[i].initFlock();
+			// ??? 
+			// flockVars[i] = new myFlkVars(this, flkNames[i],(float)ThreadLocalRandom.current().nextDouble(0.65, 1.0));
+			flockVars[i] = new myFlkVars(this, flkNames[i], flkRadMults[i]);
+			flocks[i] = new myBoidFlock(pa,this,flockVars[i],initNumBoids,i);
+			flocks[i].initFlock();
 		}
 
 		//rndrTmpl = getCurRndrObjAra();
@@ -263,12 +281,34 @@ public class myBoids3DWin extends myDispWindow {
 
 	public int getFlkFlagsInt(){		return privFlags[0];} //get first 32 flag settings
 	
+	private void drawMenuBadge(myPointf[] ara, myPointf[] uvAra, int type) {
+		((my_procApplet)pa).beginShape(); 
+		((my_procApplet)pa).texture(flkSails[type]);
+		for(int i=0;i<ara.length;++i){	((my_procApplet)pa).vTextured(ara[i], uvAra[i].y, uvAra[i].x);} 
+		((my_procApplet)pa).endShape(PConstants.CLOSE);
+	}//
+	
+	public void drawFlockMenu(int i, int numBoids){
+		String fvData[] = flockVars[i].getData(numBoids);
+		//p.pushStyle();
+		pa.translate(0,-bdgSizeY-6);
+		drawMenuBadge(mnBdgBox[i],mnUVBox,i);
+		pa.translate(bdgSizeX[i]+3,bdgSizeY+6);
+		//p.setColorValFill(flkMenuClr);
+		rndrTmpl[i].setMenuColor();
+		pa.showText(fvData[0],0,-myDispWindow.yOff*.5f);pa.translate(0,myDispWindow.yOff*.75f);
+		pa.translate(-bdgSizeX[i]-3,0);
+		for(int j=1;j<fvData.length; ++j){pa.showText(fvData[j],0,-myDispWindow.yOff*.5f);pa.translate(0,myDispWindow.yOff*.75f);}	
+		//p.popStyle();
+	}//drawFlockMenu
+	
+	
 	public void drawCustMenuObjs(){
 		pa.pushMatState();	
 		//all flock menu drawing within push mat call
 		pa.translate(5,custMenuOffset+yOff);
 		for(int i =0; i<flocks.length; ++i){
-			flocks[i].drawFlockMenu(i);
+			drawFlockMenu(i, flocks[i].numBoids);
 		}		
 		pa.popMatState();
 	}
@@ -286,6 +326,7 @@ public class myBoids3DWin extends myDispWindow {
 		switch(idx){
 			case debugAnimIDX 			: {break;}//msgObj.dispInfoMessage(className, "xxx","debugAnimIDX " + val + " : " + getPrivFlags(idx) + "|"+ mask);  break;}		
 			case drawBoids			    : {break;}//msgObj.dispInfoMessage(className, "xxx","drawBoids		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
+			case drawScaledBoids		: {break;}//msgObj.dispInfoMessage(className, "xxx","drawScaledBoids		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}		
 			case clearPath			    : {
 				//TODO this needs to change how it works so that initialization doesn't call my_procApplet before it is ready
 				//pa.setClearBackgroundEveryStep( !val);//turn on or off background clearing in main window
@@ -309,13 +350,20 @@ public class myBoids3DWin extends myDispWindow {
 			case useOrigDistFuncs 	    : {//msgObj.dispInfoMessage(className, "setPrivFlags","useOrigDistFuncs " + val + " : " + getPrivFlags(idx) + "|"+ mask);
 				if(flocks == null){break;}
 				for(int i =0; i<flocks.length; ++i){
-					flocks[i].flv.setDefaultWtVals(val);}
+					flockVars[i].setDefaultWtVals(val);}
 				break;
 			}
 			case useTorroid			    : { break;}		
 			case isMTCapableIDX			: {break;}
 		}		
 	}//setPrivFlags		
+	
+	/**
+	 * Return the current flock vars for the flock specified by flockIDX
+	 * @param flockIDX
+	 * @return
+	 */	
+	public myFlkVars getFlkVars(int flockIDX) {return flockVars[flockIDX];}
 	
 	//initialize structure to hold modifiable menu regions
 	@Override
@@ -381,9 +429,9 @@ public class myBoids3DWin extends myDispWindow {
 	public void initDrwnTrajIndiv(){}
 	
 	public void setLights(){
-		((PApplet) pa).ambientLight(102, 102, 102);
-		((PApplet) pa).lightSpecular(204, 204, 204);
-		((PApplet) pa).directionalLight(111, 111, 111, 0, 1, -1);	
+		((my_procApplet) pa).ambientLight(102, 102, 102);
+		((my_procApplet) pa).lightSpecular(204, 204, 204);
+		((my_procApplet) pa).directionalLight(111, 111, 111, 0, 1, -1);	
 	}
 	
 	//overrides function in base class mseClkDisp
@@ -467,10 +515,19 @@ public class myBoids3DWin extends myDispWindow {
 	protected boolean hndlMouseDragIndiv(int mouseX, int mouseY, int pmouseX, int pmouseY, myPoint mouseClickIn3D, myVector mseDragInWorld, int mseBtn) {
 		boolean res = false;
 		if(!res){//not in ui buttons, check if in flk vars region
-			if ((flkVarIDX != -1 ) && (flkVarObjIDX != -1)) {	res = flocks[flkVarIDX].handleFlkMenuDrag(flkVarObjIDX, mouseX, mouseY, pmouseX, pmouseY, mseBtn);		}
+			if ((flkVarIDX != -1 ) && (flkVarObjIDX != -1)) {	res = handleFlkMenuDrag(flkVarIDX, flkVarObjIDX, mouseX, mouseY, pmouseX, pmouseY, mseBtn);		}
 		}					 
 		return res;
 	}
+	
+	//handle click in menu region - abs x, rel to start y
+	private boolean handleFlkMenuDrag(int flkIDX, int flkValIDX, int mouseX, int mouseY, int pmx, int pmy, int mseBtn){
+		boolean res = true;
+		float mod = (mouseX-pmx) + (mouseY-pmy)*-5.0f;		
+		flockVars[flkIDX].modFlkVal(flkValIDX, mod);		
+		//msgObj.dispInfoMessage("myBoidFlock","handleFlkMenuDrag","Flock : " + name + " flkVar IDX : " + flkVarIDX + " mod amt : " + mod);		
+		return res;
+	}//handleFlkMenuClick
 	
 	@Override
 	protected void snapMouseLocs(int oldMouseX, int oldMouseY, int[] newMouseLoc) {}	

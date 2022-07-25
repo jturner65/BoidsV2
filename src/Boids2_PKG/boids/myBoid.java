@@ -214,16 +214,10 @@ public class myBoid {
 	public void drawMe(){
 		p.pushMatState();
 			p.translate(coords.x,coords.y,coords.z);		//move to location
-//			if(win.getPrivFlags(win.debugAnimIDX)){drawMyVec(rotVec, Boids_2.gui_Black,4.0f);p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
-//			if(win.getPrivFlags(win.showVel)){drawMyVec(velocity, Boids_2.gui_DarkMagenta,.5f);}
 			alignBoid();
 			p.rotate(MyMathUtils.HALF_PI_F,1,0,0);
 			p.rotate(MyMathUtils.HALF_PI_F,0,1,0);
-			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
-			drawTmpl();
-//			p.pushStyle();
-//			f.tmpl.drawMe(animAraIDX, ID);
-//			p.popStyle();			
+			drawTmpl();		
 		p.popMatState();
 		animIncr();
 	}//drawme	
@@ -236,11 +230,7 @@ public class myBoid {
 			alignBoid();
 			p.rotate(MyMathUtils.HALF_PI_F,1,0,0);
 			p.rotate(MyMathUtils.HALF_PI_F,0,1,0);
-			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
 			drawTmpl();
-//			p.pushStyle();
-//			f.tmpl.drawMe(animAraIDX, ID);
-//			p.popStyle();	
 		p.popMatState();
 		animIncr();		
 	}
@@ -252,28 +242,59 @@ public class myBoid {
 			alignBoid();
 			p.rotate(MyMathUtils.HALF_PI_F,1,0,0);
 			p.rotate(MyMathUtils.HALF_PI_F,0,1,0);
-			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
 			drawTmpl();
-//			p.pushStyle();
-//			f.tmpl.drawMe(animAraIDX, ID);
-//			p.popStyle();	
 		p.popMatState();
 		animIncr();		
 	}
 	
+	//draw this body on mesh
+	public void drawMeScaled(){
+		p.pushMatState();
+			p.translate(coords.x,coords.y,coords.z);		//move to location
+			alignBoid();
+			p.rotate(MyMathUtils.HALF_PI_F,1,0,0);
+			p.rotate(MyMathUtils.HALF_PI_F,0,1,0);
+			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
+			drawTmpl();
+		p.popMatState();
+		animIncr();
+	}//drawme	
+	
+	public void drawMeDbgFrameScaled(){
+		p.pushMatState();
+			p.translate(coords.x,coords.y,coords.z);		//move to location
+			drawMyVec(rotVec, IRenderInterface.gui_Black,4.0f);
+			AppMgr.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);
+			alignBoid();
+			p.rotate(MyMathUtils.HALF_PI_F,1,0,0);
+			p.rotate(MyMathUtils.HALF_PI_F,0,1,0);
+			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
+			drawTmpl();
+		p.popMatState();
+		animIncr();		
+	}
+	
+	public void drawMeAndVelScaled(){
+		p.pushMatState();
+			p.translate(coords.x,coords.y,coords.z);		//move to location
+			drawMyVec(velocity, IRenderInterface.gui_Magenta,.5f);
+			alignBoid();
+			p.rotate(MyMathUtils.HALF_PI_F,1,0,0);
+			p.rotate(MyMathUtils.HALF_PI_F,0,1,0);
+			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
+			drawTmpl();
+		p.popMatState();
+		animIncr();		
+	}
+	
+	
 	//draw this boid as a ball - replace with sphere render obj 
 	public void drawMeBall(boolean debugAnim, boolean showVel){
 		p.pushMatState();
-			//p.strokeWeight(1.0f);
 			p.translate(coords.x,coords.y,coords.z);		//move to location
-//			if(win.getPrivFlags(win.debugAnimIDX)){drawMyVec(rotVec, Boids_2.gui_Black,4.0f);p.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
-//			if(win.getPrivFlags(win.showVel)){drawMyVec(velocity, Boids_2.gui_DarkMagenta,.5f);}
 			if(debugAnim){drawMyVec(rotVec, IRenderInterface.gui_Black,4.0f);
 			AppMgr.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
 			if(showVel){drawMyVec(velocity, IRenderInterface.gui_DarkMagenta,.5f);}
-//			p.setColorValFill(p.gui_boatBody1 + type);
-//			p.noStroke();
-//			p.sphere(5);
 			f.sphTmpl.drawMe(animAraIDX, ID);
 		p.popMatState();
 		//animIncr();
