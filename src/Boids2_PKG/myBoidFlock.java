@@ -192,34 +192,7 @@ public class myBoidFlock {
 			}
 		}
 	}//drawBoids
-	//handle click in menu region - return idx of mod obj or -1
-	public int handleFlkMenuClick(int mouseX, int mouseY){
-		int vIdx = -1;
-		//float mod = 0;
-		int clkRow = (mouseY/12);//UI values modifiable in rows 1,3,5 and 6
-		switch(clkRow){
-		case 1 : {//radii 40 -100 | 110-165 | 180 ->
-			if(40 > mouseX) {		vIdx =  -1;	} 
-			else {		vIdx = (mouseX - 40)/60; vIdx = (vIdx > 2 ? 2 : vIdx);}
-			break;	}
-		case 3 : {//weight vals : ctr : 10-45; av 50-90; velM 95-125; wander 130-165; avPred 170-200   ; chase 205->    ;
-			if(10 > mouseX) {		vIdx = -1;	} 
-			else {		vIdx = 3 + (mouseX - 10)/40;vIdx = (vIdx > 8 ? 8 : vIdx);}
-			break;	}
-		case 5 : {//spawn vals ( 60-85; 90-125; 130-165 )
-			if(60 > mouseX) {		vIdx = -1;	} 
-			else {		vIdx = 9 +  (mouseX - 60)/30;	}
-			break;		}
-		case 6 : {//hunt vals (  60-85; 90-135; 140-175 )
-			if(60 > mouseX) {		vIdx = -1;	} 
-			else {		vIdx = 12 + (mouseX - 60)/30;	}
-			break;	}		
-		default : {break;}
-		}//switch			
-		//win.getMsgObj().dispInfoMessage("myBoidFlock","handleFlkMenuClick","Flock : " + name + " [" + mouseX + "," + mouseY + "] row : " +clkRow + " obj idx : " + vIdx);	
-		return vIdx;
-	}
-	
+
 	//clear out all data for each boid
 	public void clearOutBoids(){
 		curFlagState = win.getFlkFlagsInt();
