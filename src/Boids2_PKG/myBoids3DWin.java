@@ -499,9 +499,10 @@ public class myBoids3DWin extends myDispWindow {
 		//float mod = 0;
 		int clkRow = (mouseY/12);//UI values modifiable in rows 1,3,5 and 6
 		switch(clkRow){
-		case 1 : {//radii 40 -100 | 110-165 | 180 ->
-			if(40 > mouseX) {		vIdx =  -1;	} 
-			else {		vIdx = (mouseX - 40)/60; vIdx = (vIdx > 2 ? 2 : vIdx);}
+		case 1 : {//radii 45 -110 | 110-183 | 183 ->
+			if((mouseX >= 45) && (mouseX < 110)) {			vIdx = 0;} 
+			else if((mouseX >= 110) && (mouseX < 185)) {	vIdx = 1;} 
+			else if (mouseX >= 185) {						vIdx = 2;} 
 			break;	}
 		case 3 : {//weight vals : ctr : 10-45; av 50-90; velM 95-125; wander 130-165; avPred 170-200   ; chase 205->    ;
 			if(10 > mouseX) {		vIdx = -1;	} 
@@ -509,15 +510,15 @@ public class myBoids3DWin extends myDispWindow {
 			break;	}
 		case 5 : {//spawn vals ( 60-85; 90-125; 130-165 )
 			if(60 > mouseX) {		vIdx = -1;	} 
-			else {		vIdx = 9 +  (mouseX - 60)/30;	}
+			else {		vIdx = 9 +  (mouseX - 60)/30;vIdx = (vIdx > 11 ? 11 : vIdx);}
 			break;		}
 		case 6 : {//hunt vals (  60-85; 90-135; 140-175 )
 			if(60 > mouseX) {		vIdx = -1;	} 
-			else {		vIdx = 12 + (mouseX - 60)/30;	}
+			else {		vIdx = 12 + (mouseX - 60)/30;vIdx = (vIdx > 14 ? 14 : vIdx);}
 			break;	}		
 		default : {break;}
 		}//switch			
-		//msgObj.dispInfoMessage("myBoidFlock","handleFlkMenuClick","Flock : " + name + " [" + mouseX + "," + mouseY + "] row : " +clkRow + " obj idx : " + vIdx);	
+		msgObj.dispInfoMessage(className,"handleFlkMenuClick","Flock vars click : [" + mouseX + "," + mouseY + "] row : " +clkRow + " obj idx : " + vIdx);	
 		return vIdx;
 	}//handleFlkMenuClick
 	

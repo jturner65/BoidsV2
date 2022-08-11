@@ -6,7 +6,7 @@ import base_UI_Objects.windowUI.base.myDispWindow;
 import base_Math_Objects.MyMathUtils;
 
 
-//struct-type class to hold flocking variables
+//struct-type class to hold flocking variables for a specific flock
 public class myFlkVars {
 	public myBoids3DWin win;
 	
@@ -31,9 +31,9 @@ public class myFlkVars {
 	public int nearCount;						//# of creatures required to have a neighborhood - some % of total # of creatures, or nearMinCnt, whichever is larger
 	public final int nearMinCnt = 5;			//smallest neighborhood size allowed -> 5 or total # of creatures, whichever is smaller
 	
-	public float[] massForType,		// = new float[][]{{2,4},{1,3},{.5f,2}},
-					maxFrcs,									//max forces for each flock, for each force type
-					wts;										//weights for flock calculations for each flock
+	public float[] massForType,		//
+					maxFrcs,									//max forces for this flock, for each force type
+					wts;										//weights for flock calculations for this flock
 	//idx's of vars in wts arrays
 	public final int wFrcCtr = 0,								//idx in wt array for multiplier of centering force
             		wFrcAvd = 1,								//idx in wt array for multiplier of col avoidance force
@@ -45,15 +45,15 @@ public class myFlkVars {
 	public float maxVelMag = 180,		//max velocity for flock member 
 				minVelMag;										//min velocity for flock member
 
-	public static final float[] defWtAra = new float[]{.5f, .75f, .5f, .5f, .5f, .1f};						//default array of weights for different forces
-	public static final float[] defOrigWtAra = new float[]{5.0f, 12.0f, 7.0f, 3.5f, .5f, .1f};			//default array of weights for different forces
-	public float[] MaxWtAra = new float[]{15, 15, 15, 15, 15, 15},								
+	protected static final float[] 
+			defWtAra = new float[]{.5f, .75f, .5f, .5f, .5f, .1f},									//default array of weights for different forces
+			defOrigWtAra = new float[]{5.0f, 12.0f, 7.0f, 3.5f, .5f, .1f},							//default array of weights for different forces
+			MaxWtAra = new float[]{15, 15, 15, 15, 15, 15},								
 			MinWtAra = new float[]{.01f, .01f, .01f, .01f, .001f, .001f},			
 			MaxSpAra = new float[]{1,10000,100000},								
 			MinSpAra = new float[]{.001f, 100, 100},			
 			MaxHuntAra = new float[]{.1f,10000,100000},							
-			MinHuntAra = new float[]{.00001f, 10, 100};		
-	public float[] maxFrc = new float[]{200,200,200};
+			MinHuntAra = new float[]{.00001f, 10, 100};	
 	
 	public final String typeName;
 	
@@ -91,12 +91,8 @@ public class myFlkVars {
 	//if set default weight mults based on whether using force calcs based on original inverted distance functions or linear distance functions
 	public void setDefaultWtVals(boolean useOrig){	
 		float[] srcAra = (useOrig ? defOrigWtAra: defWtAra);
-		for(int i=0;i<3;++i){wts = new float[srcAra.length]; System.arraycopy( srcAra, 0, wts, 0, srcAra.length );}			
-//		if(useOrig){
-//			for(int i=0;i<3;++i){wts = new float[defOrigWtAra.length]; System.arraycopy( defOrigWtAra, 0, wts, 0, defWtAra.length );}			
-//		} else {
-//			for(int i=0;i<3;++i){wts = new float[defWtAra.length]; System.arraycopy( defWtAra, 0, wts, 0, defWtAra.length );}
-//		}		
+		wts = new float[srcAra.length]; 
+		System.arraycopy( srcAra, 0, wts, 0, srcAra.length );				
 	}
 	
 
@@ -108,11 +104,11 @@ public class myFlkVars {
 		//hierarchy - if neighbor then col and vel, if col then 
 			case 0  : {
 				//win.getMsgObj().dispInfoMessage("myFlkVars","modFlkVal","nghbrRad : " + nghbrRad + " max : " + nghbrRadMax + " mod : " + mod);
-				nghbrRad = modVal(nghbrRad, nghbrRadMax, .1f*nghbrRadMax, mod);
+				nghbrRad = modVal(nghbrRad, .1f*nghbrRadMax, nghbrRadMax, mod);
 				fixNCVRads(true, true);				
 				break;}			//flck radius
-			case 1  : {colRad = modVal(colRad, .9f*nghbrRad, .05f*nghbrRad, mod);fixNCVRads(false, true);break;}	//avoid radius
-			case 2  : {velRad = modVal(velRad, .9f*nghbrRad, colRad, mod);break;}			//vel match radius
+			case 1  : {colRad = modVal(colRad, .05f*nghbrRad, .9f*nghbrRad, mod);fixNCVRads(false, true);break;}	//avoid radius
+			case 2  : {velRad = modVal(velRad, colRad, .9f*nghbrRad, mod);break;}			//vel match radius
 			
 			case 3  : 						//3-8 are the 6 force weights
 			case 4  : 
@@ -121,12 +117,12 @@ public class myFlkVars {
 			case 7  : 
 			case 8  : {modFlkWt(wIdx-3,mod*.01f);break;}						//3-9 are the 6 force weights
 			
-			case 9  : {spawnPct = modVal(spawnPct, MaxSpAra[0], MinSpAra[0], mod*.001f); break;}
-			case 10 : {spawnRad = modVal(spawnRad, MaxSpAra[1], MinSpAra[1], mod);break;}
-			case 11 : {spawnFreq = modVal(spawnFreq, MaxSpAra[2], MinSpAra[2], (int)(mod*10));break;}
-			case 12 : {killPct  = modVal(killPct, MaxHuntAra[0], MinHuntAra[0], mod*.0001f); break;}
-			case 13 : {predRad  = modVal(predRad, MaxHuntAra[1], MinHuntAra[1], mod);break;}
-			case 14 : {eatFreq  = modVal(eatFreq, MaxHuntAra[2], MinHuntAra[2], (int)(mod*10));break;}
+			case 9  : {spawnPct = modVal(spawnPct, MinSpAra[0], MaxSpAra[0], mod*.001f); break;}
+			case 10 : {spawnRad = modVal(spawnRad, MinSpAra[1], MaxSpAra[1], mod);break;}
+			case 11 : {spawnFreq = modVal(spawnFreq, MinSpAra[2], MaxSpAra[2], (int)(mod*10));break;}
+			case 12 : {killPct  = modVal(killPct, MinHuntAra[0], MaxHuntAra[0], mod*.0001f); break;}
+			case 13 : {predRad  = modVal(predRad, MinHuntAra[1], MaxHuntAra[1], mod);break;}
+			case 14 : {eatFreq  = modVal(eatFreq, MinHuntAra[2], MaxHuntAra[2], (int)(mod*10));break;}
 			default : break;
 		}//switch
 		
@@ -138,18 +134,17 @@ public class myFlkVars {
 		if(modV){velRad = Math.min(Math.max(colRad,velRad),.9f*nghbrRad);}//when col or neighbor rad modded
 	}
 	
-	private int modVal(int val, float max, float min, int mod){	int oldVal = val;val += mod;if(!(inRange(val, max, min))){val = oldVal;} return val;}	
-	private float modVal(float val, float max, float min, float mod){float oldVal = val;val += mod;	if(!(inRange(val, max, min))){val = oldVal;}return val;}
+	private int modVal(int val, float min, float max, int mod){	int oldVal = val;val += mod;if(!(MyMathUtils.inRange(val, min, max))){val = oldVal;} return val;}	
+	private float modVal(float val, float min, float max, float mod){float oldVal = val;val += mod;	if(!(MyMathUtils.inRange(val, min, max))){val = oldVal;}return val;}
 	
 	
 	//modify a particular flock force weight for a particular flock
 	private void modFlkWt(int wIdx, float mod){
 		float oldVal = this.wts[wIdx];
 		this.wts[wIdx] += mod;
-		if(!(inRange(wts[wIdx], MaxWtAra[wIdx], MinWtAra[wIdx]))){this.wts[wIdx] = oldVal;}		
+		if(!(MyMathUtils.inRange(wts[wIdx], MinWtAra[wIdx], MaxWtAra[wIdx]))){this.wts[wIdx] = oldVal;}		
 	}
 
-	public boolean inRange(float val, float max, float min){return ((val<max)&&(val>min));}	
 	//used to display flock-specific values
 	public String[] getData(int numBoids){
 		String res[] = new String[]{
