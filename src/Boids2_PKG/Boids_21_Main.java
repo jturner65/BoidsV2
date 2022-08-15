@@ -30,7 +30,6 @@ public class Boids_21_Main extends GUI_AppManager {
 	private static final int disp3DResIDX = 1,
 							disp2DResIDX = 2;	
 
-	//private boolean cyclModCmp;										//comparison every draw of cycleModDraw			
 	public final int[] bground = new int[]{244,244,255,255};		//bground color
 	
 	
@@ -101,7 +100,9 @@ public class Boids_21_Main extends GUI_AppManager {
 		float[] _dimOpen  =  new float[]{menuWidth, 0, pa.getWidth()-menuWidth,  pa.getHeight()}, _dimClosed  =  new float[]{menuWidth, 0, hideWinWidth,  pa.getHeight()};	
 		System.out.println("Width : " + pa.getWidth() + " | Height : " +  pa.getHeight());
 		int wIdx = dispMenuIDX,fIdx=showUIMenu;
-		dispWinFrames[wIdx] = this.buildSideBarMenu(wIdx, fIdx, new String[]{"Functions 1","Functions 2","Functions 3","Functions 4"}, new int[] {3,4,4,4}, 5, true, false);//new mySideBarMenu(this, winTitles[wIdx], fIdx, winFillClrs[wIdx], winStrkClrs[wIdx], winRectDimOpen[wIdx], winRectDimClose[wIdx], winDescr[wIdx]);			
+		//new mySideBarMenu(this, winTitles[wIdx], fIdx, winFillClrs[wIdx], winStrkClrs[wIdx], winRectDimOpen[wIdx], winRectDimClose[wIdx], winDescr[wIdx]);
+		//Builds sidebar menu button config
+		dispWinFrames[wIdx] = this.buildSideBarMenu(wIdx, fIdx, new String[]{"Functions 1","Functions 2","Functions 3","Functions 4"}, new int[] {3,4,4,4}, 5, true, false);			
 		
 		//define windows
 		//idx 0 is menu, and is ignored	
@@ -204,7 +205,7 @@ public class Boids_21_Main extends GUI_AppManager {
 		switch(idx){
 			case dispMenuIDX 		: {return new float[0];}			//idx 0 is parent menu sidebar
 			case disp3DResIDX 		: {return dispWinFrames[dispMenuIDX].uiClkCoords;}
-			case disp2DResIDX 		: {	return dispWinFrames[dispMenuIDX].uiClkCoords;}
+			case disp2DResIDX 		: {return dispWinFrames[dispMenuIDX].uiClkCoords;}
 			default :  return dispWinFrames[dispMenuIDX].uiClkCoords;
 		}
 	}
@@ -267,4 +268,4 @@ public class Boids_21_Main extends GUI_AppManager {
 	}
 
 
-}
+}//class Boids_21_Main extends GUI_AppManager
