@@ -20,7 +20,6 @@ import base_Utils_Objects.io.MsgCodes;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
 import base_Math_Objects.vectorObjs.doubles.myVector;
 import base_Math_Objects.vectorObjs.floats.myPointf;
-import processing.core.PConstants;
 import processing.core.PImage;
 
 public class myBoids3DWin extends myDispWindow {
@@ -127,8 +126,7 @@ public class myBoids3DWin extends myDispWindow {
 
 	
 	public myBoids3DWin(IRenderInterface _p, GUI_AppManager _AppMgr, String _n, int _flagIdx, int[] fc, int[] sc, float[] rd, float[] rdClosed,String _winTxt) {
-		super(_p, _AppMgr, _n, _flagIdx, fc, sc, rd, rdClosed, _winTxt);
-		
+		super(_p, _AppMgr, _n, _flagIdx, fc, sc, rd, rdClosed, _winTxt);		
 		super.initThisWin(false);
 	}
 	
@@ -282,10 +280,10 @@ public class myBoids3DWin extends myDispWindow {
 	public int getFlkFlagsInt(){		return privFlags[0];} //get first 32 flag settings
 	
 	private void drawMenuBadge(myPointf[] ara, myPointf[] uvAra, int type) {
-		((my_procApplet)pa).beginShape(); 
+		pa.gl_beginShape(); 
 		((my_procApplet)pa).texture(flkSails[type]);
 		for(int i=0;i<ara.length;++i){	((my_procApplet)pa).vTextured(ara[i], uvAra[i].y, uvAra[i].x);} 
-		((my_procApplet)pa).endShape(PConstants.CLOSE);
+		pa.gl_endShape(true);
 	}//
 	
 	public void drawFlockMenu(int i, int numBoids){
@@ -427,12 +425,6 @@ public class myBoids3DWin extends myDispWindow {
 
 	@Override
 	public void initDrwnTrajIndiv(){}
-	
-	public void setLights(){
-		((my_procApplet) pa).ambientLight(102, 102, 102);
-		((my_procApplet) pa).lightSpecular(204, 204, 204);
-		((my_procApplet) pa).directionalLight(111, 111, 111, 0, 1, -1);	
-	}
 	
 	//overrides function in base class mseClkDisp
 	@Override
