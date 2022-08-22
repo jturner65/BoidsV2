@@ -15,11 +15,13 @@ public class myJFishRndrObj extends myRenderObj {
 	//if overall geometry has been made or not
 	private static boolean made;
 	
-	private static PShape[] bodyAra;
+	private static PShape[][] bodyAra = new PShape[5][];
 	private int numTentacles = 5;
 	
 	//primary object color (same across all types of boids); 
 	private static myRndrObjClr mainColor;	
+	
+	private static myRndrObjClr[] allFlockColors = new myRndrObjClr[5];
 	//base IDX - this is idx to main color for all jellyfish
 	private static final int baseFishIDX = 0;
 	//divisors for stroke color from fill color
@@ -67,33 +69,39 @@ public class myJFishRndrObj extends myRenderObj {
 		mainColor = makeColor(jFishFillClrs[baseFishIDX], jFishStrokeClrs[baseFishIDX], jFishEmitClrs[baseFishIDX], new int[]{0,0,0,0}, jFishSpecClr,clrStrkDiv[baseFishIDX], strkWt, shn);
 		//mainColor.disableStroke();
 		mainColor.disableAmbient();
+		// have all flock colors available initially to facilitate first-time creation
+		for (int i=0;i<allFlockColors.length;++i) {
+			allFlockColors[i] =  makeColor(jFishFillClrs[i], jFishStrokeClrs[i], jFishEmitClrs[i], new int[]{0,0,0,0}, jFishSpecClr,clrStrkDiv[i], strkWt, shn);
+			//allFlockColors[i].disableStroke();
+			allFlockColors[i].disableAmbient();
+		}
 	}			
 
 	@Override
 	protected void initFlkColor() {
-		flockColor = makeColor(jFishFillClrs[type], jFishStrokeClrs[type], jFishEmitClrs[type], new int[]{0,0,0,0}, jFishSpecClr,clrStrkDiv[type], strkWt, shn);
-		//flockColor.disableStroke();
-		flockColor.disableAmbient();
+		flockColor = allFlockColors[type];
 	}
 	
 	//builds geometry for object to be instanced - only perform once per object type 
 	@Override
 	protected void initObjGeometry() {
 		//make all bodies of a cycle of animation - make instances in buildObj
-		bodyAra = new PShape[myBoid.numAnimFrames];
-		float sclMult;		//vary this based on animation frame
-		float radAmt = (MyMathUtils.TWO_PI_F/(1.0f*myBoid.numAnimFrames));
-		p.setSphereDetail(20);
-		for(int a=0; a<myBoid.numAnimFrames; ++a){//for each frame of animation			
-			bodyAra[a] = createBaseShape(PConstants.GROUP);
-			PShape indiv = createBaseShape(PConstants.SPHERE, 5.0f);
-			sclMult = (float) ((Math.sin(a * radAmt) * .25f) +1.0f);
-			indiv.scale(sclMult, sclMult, 1.0f/(sclMult * sclMult));
-			//win.getMsgObj().dispInfoMessage("myJFishRndrObj","buildObj","a : " + a + " sclMult : " + sclMult);
-			//call shSetPaintColors since we need to use set<type> style functions of Pshape when outside beginShape-endShape
-			//flockColor.shSetPaintColors(indiv);		
-			bodyAra[a].addChild(indiv);
-		}	
+		for(int i=0;i<bodyAra.length;++i) {
+			bodyAra[i] = new PShape[myBoid.numAnimFrames];
+			float sclMult;		//vary this based on animation frame
+			float radAmt = (MyMathUtils.TWO_PI_F/(1.0f*myBoid.numAnimFrames));
+			p.setSphereDetail(20);
+			for(int a=0; a<myBoid.numAnimFrames; ++a){//for each frame of animation			
+				bodyAra[i][a] = createBaseShape(PConstants.GROUP);
+				PShape indiv = createBaseShape(PConstants.SPHERE, 5.0f);
+				sclMult = (float) ((Math.sin(a * radAmt) * .25f) +1.0f);
+				indiv.scale(sclMult, sclMult, 1.0f/(sclMult * sclMult));
+				//win.getMsgObj().dispInfoMessage("myJFishRndrObj","buildObj","a : " + a + " sclMult : " + sclMult);
+				//call shSetPaintColors since we need to use set<type> style functions of Pshape when outside beginShape-endShape
+				allFlockColors[i].shSetPaintColors(indiv);		
+				bodyAra[i][a].addChild(indiv);
+			}	
+		}
 		p.setSphereDetail(5);			
 	}
 	//any instance specific, jelly-fish specific geometry setup goes here (textures, sizes, shapes, etc)
@@ -106,14 +114,12 @@ public class myJFishRndrObj extends myRenderObj {
 	@Override
 	protected void buildObj() {
 		//build the boid's body geometry here - called at end of initInstObjGeometry
-
 	}
 
 	@Override
 	protected void drawMeIndiv(int animIDX) {
-		//call shSetPaintColors since we need to use set<type> style functions of Pshape when outside beginShape-endShape
-		flockColor.shSetPaintColors(bodyAra[animIDX]);		
-		((my_procApplet) p).shape(bodyAra[animIDX]);
+		//draw animation index-specified deformed "jellyfish"
+		((my_procApplet) p).shape(bodyAra[type][animIDX]);
 	}
 
 }

@@ -35,6 +35,8 @@ public class myBoatRndrObj extends myRenderObj {
 	//colors for boat reps of boids
 	//primary object color (same across all types of boids); individual type colors defined in instance class
 	private static myRndrObjClr mainColor;	
+	
+	private static myRndrObjClr[] allFlockColors = new myRndrObjClr[5];
 	//base IDX - this is main color for all boats
 	private static final int baseBoatIDX = 0;
 	//divisors for stroke color from fill color
@@ -84,14 +86,18 @@ public class myBoatRndrObj extends myRenderObj {
 		mainColor.disableAmbient();
 		//boat oars and masts
 		//mainColor.disableStroke();
+		// have all flock colors available initially to facilitate first-time creation
+		for (int i=0;i<allFlockColors.length;++i) {
+			//boat bodies
+			allFlockColors[i] =  makeColor(boatFillClrs[i], boatFillClrs[i], boatFillClrs[i], new int[]{0,0,0,0}, boatSpecClr,clrStrkDiv[i], strkWt, shn);
+			//allFlockColors[i].disableStroke();
+			allFlockColors[i].disableAmbient();
+		}
 	}			
-	//set up colors for individual flocks/teams 
+
 	@Override
-	protected void initFlkColor(){	
-		flockColor = makeColor(boatFillClrs[type], boatStrokeClrs[type], boatEmitClrs[type], new int[]{0,0,0,0}, boatSpecClr,clrStrkDiv[type], strkWt, shn);
-		flockColor.disableAmbient();
-		//boat bodies
-		//flockColor.disableStroke();
+	protected void initFlkColor() {
+		flockColor = allFlockColors[type];
 	}
 	
 	/**
@@ -137,11 +143,6 @@ public class myBoatRndrObj extends myRenderObj {
 	protected void initInstObjGeometryIndiv(){ 
 		//sailTexture = ((myBoids3DWin)win).flkSails[type];
 	}//initInstObjGeometry
-
-	@Override //representation-specific drawing code (i.e. oars settings for boats)
-	protected void drawMeIndiv(int animIDX){//which oars array instance of oars to show - oars move relative to speed of boid
-		((my_procApplet) p).shape(oars[animIDX]);
-	}//drawMe
 	
 	@Override
 	protected void buildObj(){
@@ -166,6 +167,11 @@ public class myBoatRndrObj extends myRenderObj {
 		}		
 	}//buildShape
 	//end inherited from myRenderObj
+
+	@Override //representation-specific drawing code (i.e. oars settings for boats)
+	protected void drawMeIndiv(int animIDX){//which oars array instance of oars to show - oars move relative to speed of boid
+		((my_procApplet) p).shape(oars[animIDX]);
+	}//drawMe
 	
 	private myPointf[] buildSailPtAra(float len){
 		myPointf[] res = new myPointf[]{new myPointf(0,0,.1f),new myPointf(0,len,.1f),
@@ -261,21 +267,21 @@ public class myBoatRndrObj extends myRenderObj {
 	private void buildBodyBottom(myPointf[][] boatVerts, int i, int lastIDX, int numX){
 		PShape sh = makeShape(transYup1);		
 		sh.beginShape(PConstants.TRIANGLE);			
-			flockColor.shPaintColors(sh);
+			allFlockColors[type].shPaintColors(sh);
 			sh.vertex(boatVerts[i][lastIDX].x, boatVerts[i][lastIDX].y, 	boatVerts[i][lastIDX].z);	sh.vertex(0, 1, lastIDX-1);	sh.vertex(boatVerts[(i+1)%numX][lastIDX].x, boatVerts[(i+1)%numX][lastIDX].y, 	boatVerts[(i+1)%numX][lastIDX].z);	
 		sh.endShape(PConstants.CLOSE);
 		objRep.addChild(sh);			
 
 		sh = makeShape(transYup1);		
 		sh.beginShape(PConstants.QUAD);		
-			flockColor.shPaintColors(sh);
+			allFlockColors[type].shPaintColors(sh);
 			sh.vertex(boatVerts[i][0].x, boatVerts[i][0].y, boatVerts[i][0].z);sh.vertex(boatVerts[i][0].x * .75f, boatVerts[i][0].y * .75f, boatVerts[i][0].z -.5f);	sh.vertex(boatVerts[(i+1)%numX][0].x * .75f, boatVerts[(i+1)%numX][0].y * .75f, 	boatVerts[(i+1)%numX][0].z -.5f);sh.vertex(boatVerts[(i+1)%numX][0].x, boatVerts[(i+1)%numX][0].y, 	boatVerts[(i+1)%numX][0].z );
 		sh.endShape(PConstants.CLOSE);
 		objRep.addChild(sh);			
 		
 		sh = makeShape(transYup1);		
 		sh.beginShape(PConstants.TRIANGLE);		
-			flockColor.shPaintColors(sh);
+			allFlockColors[type].shPaintColors(sh);
 			sh.vertex(boatVerts[i][0].x * .75f, boatVerts[i][0].y * .75f, boatVerts[i][0].z  -.5f);	sh.vertex(0, 0, boatVerts[i][0].z - 1);	sh.vertex(boatVerts[(i+1)%numX][0].x * .75f, boatVerts[(i+1)%numX][0].y * .75f, 	boatVerts[(i+1)%numX][0].z  -.5f);	
 		sh.endShape(PConstants.CLOSE);		
 		objRep.addChild(sh);

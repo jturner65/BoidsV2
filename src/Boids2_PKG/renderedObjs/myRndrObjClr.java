@@ -93,7 +93,10 @@ public class myRndrObjClr{
 		return res;		
 	}
 	
-	//instance all activated colors in passed PShape for constructed PShape, set all colors
+	/**
+	 * instance all activated colors in passed PShape for constructed PShape, set all colors
+	 * @param sh
+	 */
 	public void shSetPaintColors(PShape sh){
 		if(getFlags(fillIDX)){sh.setFill(getHexClr(fillColor,fillAlpha));}
 		else {		sh.setFill(false);}

@@ -72,11 +72,10 @@ public abstract class myRenderObj {
 	 */
 	protected final void initInstObjGeometry(){
 		objRep = createBaseShape(getMainMeshType()); 
-		
-		//any per-flock (child class) setup required
+		//set per-flock color 
+		initFlkColor();
+		//any per-flock (child class) setup required	
 		initInstObjGeometryIndiv();
-		
-		initFlkColor();	
 		buildObj();			
 	}//	initInstObjGeometry
 	
