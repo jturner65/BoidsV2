@@ -1,7 +1,7 @@
 package Boids2_PKG.renderedObjs;
 
 import Boids2_PKG.renderedObjs.base.myRenderObj;
-import base_UI_Objects.my_procApplet;
+import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
 import base_UI_Objects.windowUI.base.myDispWindow;
 import processing.core.PConstants;
 
@@ -19,9 +19,8 @@ public class mySphereRndrObj extends myRenderObj {
 	private static final float strkWt = 1.0f;
 	private static final float shn = 5.0f;
 
-	public mySphereRndrObj(my_procApplet _p, myDispWindow _win, int _type) {	
-		super(_p, _win, _type);	 
-		made = initGeometry(made);
+	public mySphereRndrObj(IRenderInterface _p, myDispWindow _win, int _type) {	
+		super(_p, _win, _type);	
 	}//ctor
 	
 	@Override
@@ -32,22 +31,46 @@ public class mySphereRndrObj extends myRenderObj {
 		flockColor.disableAmbient();
 		flockColor.disableStroke();
 	}
+	/**
+	 * Get per-species boolean defining whether or not species-wide geometry has been completed. 
+	 * Each species should (class inheriting from this class) should have its own static 'made' boolean,
+	 * which this provides access to.
+	 */
+	@Override
+	protected boolean getObjMade() {return made;}
+
+	/**
+	 * Set per-species boolean defining whether or not species-wide geometry has been completed. 
+	 * Each species should (class inheriting from this class) should have its own static 'made' boolean,
+	 * which this provides access to.
+	 */
+	@Override
+	protected void setObjMade(boolean isMade) {made = isMade;}
+	
+	/**
+	 * Get the type of the main mesh to be created
+	 * Overridden by creating sphere in initInstObjGeometryIndiv() below
+	 * @return a constant defining the type of PShape being created
+	 */	
+	@Override
+	protected int getMainMeshType() {return PConstants.GROUP;}
+	
 	
 	//no custom geometry for sphere
 	@Override
 	protected void initObjGeometry() {	}
 	//since this is a sphere, override default to create a different object type (instead of group)
+
 	@Override
-	protected void initInstObjGeometry() {
+	protected void initInstObjGeometryIndiv(){
+		int tmpDet = p.getSphereDetail();
 		p.setSphereDetail(5);
-		objRep = p.createShape(PConstants.SPHERE, 5.0f); 
+		objRep = createBaseShape(PConstants.SPHERE, 5.0f);
+		p.setSphereDetail(tmpDet);
 		initFlkColor();
 		//call shSetPaintColors since we need to use set<type> style functions of Pshape when outside beginShape-endShape
 		flockColor.shSetPaintColors(objRep);
 	}
-	
-	@Override
-	protected void initInstObjGeometryIndiv(){}
 
 	//no need for specific object-building function for spheres
 	@Override

@@ -2,10 +2,12 @@ package Boids2_PKG.renderedObjs;
 
 import Boids2_PKG.boids.myBoid;
 import Boids2_PKG.renderedObjs.base.myRenderObj;
+import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
 import base_UI_Objects.my_procApplet;
 import base_UI_Objects.windowUI.base.myDispWindow;
 import base_Math_Objects.MyMathUtils;
-import processing.core.*;
+import processing.core.PShape;
+import processing.core.PConstants;
 
 //jellyfish pshape, with multiple component shapes that are animated
 public class myJFishRndrObj extends myRenderObj {
@@ -13,7 +15,7 @@ public class myJFishRndrObj extends myRenderObj {
 	//if overall geometry has been made or not
 	private static boolean made;
 	
-	private PShape[] bodyAra;
+	private static PShape[] bodyAra;
 	private int numTentacles = 5;
 	
 	//primary object color (same across all types of boids); 
@@ -32,11 +34,33 @@ public class myJFishRndrObj extends myRenderObj {
 	private static final float strkWt = .1f;
 	private static final float shn = 5.0f;
 
-	public myJFishRndrObj(my_procApplet _p, myDispWindow _win, int _type)  {	
+	public myJFishRndrObj(IRenderInterface _p, myDispWindow _win, int _type)  {	
 		super(_p, _win, _type);	 
 		emitMod = .85f;
-		made = initGeometry(made);
 	}//ctor
+	
+	/**
+	 * Get per-species boolean defining whether or not species-wide geometry has been completed. 
+	 * Each species should (class inheriting from this class) should have its own static 'made' boolean,
+	 * which this provides access to.
+	 */
+	@Override
+	protected boolean getObjMade() {return made;}
+
+	/**
+	 * Set per-species boolean defining whether or not species-wide geometry has been completed. 
+	 * Each species should (class inheriting from this class) should have its own static 'made' boolean,
+	 * which this provides access to.
+	 */
+	@Override
+	protected void setObjMade(boolean isMade) {made = isMade;}
+	
+	/**
+	 * Get the type of the main mesh to be created
+	 * @return a constant defining the type of PShape being created
+	 */	
+	@Override
+	protected int getMainMeshType() {return PConstants.GROUP;}
 	
 	@Override
 	protected void initMainColor(){
@@ -55,16 +79,26 @@ public class myJFishRndrObj extends myRenderObj {
 	//builds geometry for object to be instanced - only perform once per object type 
 	@Override
 	protected void initObjGeometry() {
-
+		//make all bodies of a cycle of animation - make instances in buildObj
+		bodyAra = new PShape[myBoid.numAnimFrames];
+		float sclMult;		//vary this based on animation frame
+		float radAmt = (MyMathUtils.TWO_PI_F/(1.0f*myBoid.numAnimFrames));
+		p.setSphereDetail(20);
+		for(int a=0; a<myBoid.numAnimFrames; ++a){//for each frame of animation			
+			bodyAra[a] = createBaseShape(PConstants.GROUP);
+			PShape indiv = createBaseShape(PConstants.SPHERE, 5.0f);
+			sclMult = (float) ((Math.sin(a * radAmt) * .25f) +1.0f);
+			indiv.scale(sclMult, sclMult, 1.0f/(sclMult * sclMult));
+			//win.getMsgObj().dispInfoMessage("myJFishRndrObj","buildObj","a : " + a + " sclMult : " + sclMult);
+			//call shSetPaintColors since we need to use set<type> style functions of Pshape when outside beginShape-endShape
+			//flockColor.shSetPaintColors(indiv);		
+			bodyAra[a].addChild(indiv);
+		}	
+		p.setSphereDetail(5);			
 	}
 	//any instance specific, jelly-fish specific geometry setup goes here (textures, sizes, shapes, etc)
 	@Override
 	protected void initInstObjGeometryIndiv() {
-		//make all bodies of a cycle of animation - make instances in buildObj
-		bodyAra = new PShape[myBoid.numAnimFrames];
-		for(int a=0; a<myBoid.numAnimFrames; ++a){
-			bodyAra[a] = p.createShape(PConstants.GROUP); 
-		}	
 		//build instance
 	
 	}//initInstObjGeometry
@@ -72,26 +106,14 @@ public class myJFishRndrObj extends myRenderObj {
 	@Override
 	protected void buildObj() {
 		//build the boid's body geometry here - called at end of initInstObjGeometry
-		float sclMult;		//vary this based on animation frame
-		float radAmt=  (MyMathUtils.TWO_PI_F/(1.0f*myBoid.numAnimFrames));
-		p.sphereDetail(20);
-		for(int a=0; a<myBoid.numAnimFrames; ++a){//for each frame of animation			
-			PShape indiv = p.createShape(PConstants.SPHERE, 5.0f);
-			sclMult = (float) ((Math.sin(a * radAmt) * .25f) +1.0f);
-			indiv.scale(sclMult, sclMult, 1.0f/(sclMult * sclMult));
-			//win.getMsgObj().dispInfoMessage("myJFishRndrObj","buildObj","a : " + a + " sclMult : " + sclMult);
-			//call shSetPaintColors since we need to use set<type> style functions of Pshape when outside beginShape-endShape
-			flockColor.shSetPaintColors(indiv);		
-			bodyAra[a].addChild(indiv);
-		}	
-		p.sphereDetail(5);
+
 	}
 
 	@Override
 	protected void drawMeIndiv(int animIDX) {
-		//int idx = calcAnimIDX(animCntr);
-		p.shape(bodyAra[animIDX]);
-
+		//call shSetPaintColors since we need to use set<type> style functions of Pshape when outside beginShape-endShape
+		flockColor.shSetPaintColors(bodyAra[animIDX]);		
+		((my_procApplet) p).shape(bodyAra[animIDX]);
 	}
 
 }

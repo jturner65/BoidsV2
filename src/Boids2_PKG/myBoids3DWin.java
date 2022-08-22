@@ -227,7 +227,7 @@ public class myBoids3DWin extends myDispWindow {
 			mnBdgBox[i] = new myPointf[]{new myPointf(0,0,0),new myPointf(0,bdgSizeY,0),new myPointf(bdgSizeX[i],bdgSizeY,0),new myPointf(bdgSizeX[i],0,0)};
 			
 			//build boat render object for each individual flock type
-			boatRndrTmpl[i] = new myBoatRndrObj((my_procApplet) pa, this, i);			
+			boatRndrTmpl[i] = new myBoatRndrObj(pa, this, i);			
 			jellyFishRndrTmpl[i] = new myJFishRndrObj((my_procApplet) pa, this, i);
 		}
 		cmplxRndrTmpls.put(boidTypeNames[0], boatRndrTmpl);

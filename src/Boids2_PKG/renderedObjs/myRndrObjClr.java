@@ -1,12 +1,13 @@
 package Boids2_PKG.renderedObjs;
 
+import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
 import base_UI_Objects.my_procApplet;
-import processing.core.*;
+import processing.core.PShape;
 
 //class that will hold the relevant information for a particular color 
 //configuration for rendering, with functions to render to a PShape, as well as a passed PApplet instance
 public class myRndrObjClr{
-	protected static my_procApplet p;	
+	protected static IRenderInterface p;	
 	protected final static int[] tmpInit = new int[]{255,255,255};
 	//values for color
 	protected int[] fillColor, strokeColor, emitColor, specColor, ambColor;
@@ -24,7 +25,7 @@ public class myRndrObjClr{
 	
 	protected int numFlags = 6;
 	
-	public myRndrObjClr(my_procApplet _p){
+	public myRndrObjClr(IRenderInterface _p){
 		p=_p;
 		shininess = 1.0f;
 		strkWt = 1.0f;
@@ -107,20 +108,20 @@ public class myRndrObjClr{
 	}
 	//instance all activated colors globally
 	public void paintColors(){
-		if(getFlags(fillIDX)){p.fill(fillColor[0],fillColor[1],fillColor[2],fillAlpha);}
-		else {		p.noFill();}
+		if(getFlags(fillIDX)){p.setFill(fillColor[0],fillColor[1],fillColor[2],fillAlpha);}
+		else {		p.setNoFill();}
 		if(getFlags(strokeIDX)){
-			p.strokeWeight(strkWt);
-			p.stroke(strokeColor[0],strokeColor[1],strokeColor[2],strokeAlpha);
+			p.setStrokeWt(strkWt);
+			p.setStroke(strokeColor[0],strokeColor[1],strokeColor[2],strokeAlpha);
 		} else {			p.noStroke();		}
-		if(getFlags(specIDX)){p.specular(specColor[0],specColor[1],specColor[2]);}
-		if(getFlags(emitIDX)){p.emissive(emitColor[0],emitColor[1],emitColor[2]);}
-		if(getFlags(ambIDX)){p.ambient(ambColor[0],ambColor[1],ambColor[2]);}
-		if(getFlags(shnIDX)){p.shininess(shininess);}
+		if(getFlags(specIDX)){((my_procApplet) p).specular(specColor[0],specColor[1],specColor[2]);}
+		if(getFlags(emitIDX)){((my_procApplet) p).emissive(emitColor[0],emitColor[1],emitColor[2]);}
+		if(getFlags(ambIDX)){((my_procApplet) p).ambient(ambColor[0],ambColor[1],ambColor[2]);}
+		if(getFlags(shnIDX)){((my_procApplet) p).shininess(shininess);}
 	}
-	//apply this color's fill color to papplet
+	//apply this color's fill color to applet
 	public void fillMenu(float mult){
-		p.fill(mult*fillColor[0],mult*fillColor[1],mult*fillColor[2],255);
+		p.setFill((int)(mult*fillColor[0]),(int)(mult*fillColor[1]),(int)(mult*fillColor[2]),255);
 	}
 	
 	public void setFlags(int idx, boolean val){setPrivFlag(flags, idx, val);}
