@@ -42,9 +42,13 @@ public class myBoatRndrObj extends myRenderObj {
 	//divisors for stroke color from fill color
 	private static float[] clrStrkDiv = new float[]{.8f,5.0f,.75f,4.0f,.3f};
 	//boat colors - get from load? TODO
-	private static int[][] 
-			boatFillClrs = new int[][]{{110, 65, 30,255},	{30, 30, 30,255},	{130, 22, 10,255},	{22, 230, 10,255},	{22, 10, 130,255}},
-			boatStrokeClrs = new int[5][4],//overridden to be fraction of fill color
+	private static final int[][] boatFillClrs = new int[][]{
+		{110, 65, 30,255},	
+		{30, 30, 30,255},	
+		{130, 22, 10,255},	
+		{22, 230, 10,255},
+		{22, 10, 130,255}};
+	private static int[][] boatStrokeClrs = new int[5][4],//overridden to be fraction of fill color
 			boatEmitClrs = new int[][]{boatFillClrs[0],		boatFillClrs[1],	boatFillClrs[2],	boatFillClrs[3],	boatFillClrs[4]};
 	private static final int[] boatSpecClr = new int[]{255,255,255,255};
 	private static final float strkWt = 1.0f;
@@ -89,7 +93,7 @@ public class myBoatRndrObj extends myRenderObj {
 		// have all flock colors available initially to facilitate first-time creation
 		for (int i=0;i<allFlockColors.length;++i) {
 			//boat bodies
-			allFlockColors[i] =  makeColor(boatFillClrs[i], boatFillClrs[i], boatFillClrs[i], new int[]{0,0,0,0}, boatSpecClr,clrStrkDiv[i], strkWt, shn);
+			allFlockColors[i] = makeColor(boatFillClrs[i], boatStrokeClrs[i], boatEmitClrs[i], new int[]{0,0,0,0}, boatSpecClr,clrStrkDiv[i], strkWt, shn);
 			//allFlockColors[i].disableStroke();
 			allFlockColors[i].disableAmbient();
 		}

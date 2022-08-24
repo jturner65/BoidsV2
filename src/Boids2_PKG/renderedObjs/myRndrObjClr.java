@@ -8,10 +8,11 @@ import processing.core.PShape;
 //configuration for rendering, with functions to render to a PShape, as well as a passed PApplet instance
 public class myRndrObjClr{
 	protected static IRenderInterface p;	
-	protected final static int[] tmpInit = new int[]{255,255,255};
-	//values for color
-	protected int[] fillColor, strokeColor, emitColor, specColor, ambColor;
-	protected int fillAlpha, strokeAlpha;
+	protected final static int[] tmpInit = new int[]{255,255,255,255};
+	//alpha values for fill and stroke colors
+	protected int[] alphas;
+	//all values for various colors as hex
+	protected int[] hexColors;
 	protected float shininess, strkWt;
 	
 	protected int[] flags;		//bit flags for color
@@ -20,111 +21,127 @@ public class myRndrObjClr{
 				strokeIDX 		= 1,
 				emitIDX 		= 2,
 				specIDX 		= 3,
-				shnIDX			= 4,
-				ambIDX 			= 5;
+				ambIDX 			= 4,
+	//idxs above for colors array of arrays
+				shnIDX			= 5;
+	protected static final int numColors = 5;
 	
-	protected int numFlags = 6;
+	protected static final int numFlags = 6;
 	
 	public myRndrObjClr(IRenderInterface _p){
 		p=_p;
 		shininess = 1.0f;
 		strkWt = 1.0f;
-		fillAlpha = 255;
+		hexColors = new int[numColors];
+		alphas = new int[numColors];
 		//RGBA (alpha ignored as appropriate) - init all as white
-		fillColor = new int[3]; cpyClr(tmpInit, fillColor);
-		strokeColor = new int[3];cpyClr(tmpInit, strokeColor);
-		emitColor = new int[3];cpyClr(tmpInit, emitColor);
-		specColor = new int[3];cpyClr(tmpInit, specColor);
-		ambColor = new int[3];cpyClr(tmpInit, ambColor);
+		for(int i=0; i<numColors;++i) {
+			//initialize colors to be either ARGB or RGB white
+			setColorsFromArray(tmpInit, i, i < 2);
+		}
 		//init all flags as true
 		initFlags();
 	}
 	
+	private void setColorsFromArray(int[] _srcClr, int _idx, boolean _hasAlpha) {
+		if(_hasAlpha) {			alphas[_idx] = _srcClr[3];} 
+		else {					alphas[_idx] = -1;}
+		hexColors[_idx] = p.getClrAsHex(_srcClr, alphas[_idx]);	
+	}
 
 	public void setClrVal(String type, int[] _clr){	setClrVal(type, _clr, -1);	}
 	public void setClrVal(String type, float _val){	setClrVal(type, null, _val);}
 	protected void setClrVal(String type, int[] clr, float _val){
 		switch(type){
-		case "fill" : 		{cpyClr(clr, fillColor); fillAlpha = clr[3]; break;}
-		case "stroke" :		{cpyClr(clr, strokeColor); strokeAlpha = clr[3];break;}
+		case "fill" : 		{setColorsFromArray(clr, fillIDX, true); break;}
+		case "stroke" :		{setColorsFromArray(clr, strokeIDX, true); break;}
+		case "emit" : 		{setColorsFromArray(clr, emitIDX, false); break;}
+		case "spec" : 		{setColorsFromArray(clr, specIDX, false); break;}
+		case "amb" :  		{setColorsFromArray(clr, ambIDX, false); break;}
 		case "shininess" : 	{shininess = _val; break;}
 		case "strokeWt" :	{strkWt = _val; break;}
-		case "spec" : 		{cpyClr(clr, specColor); break;}
-		case "emit" : 		{cpyClr(clr, emitColor); break;}
-		case "amb" :  		{cpyClr(clr, ambColor); break;}
 		default : {break;}
 		}		
 	}
-	private void cpyClr(int[] src, int[] dest){	System.arraycopy(src, 0, dest, 0, dest.length);}
-
+	
 	public float getStrkWt(){return strkWt;}
 	public float getShine(){return shininess;}
-	public int[] getClrByType(String type){
+	public int[] getClrAraByType(String type){
 		switch(type){
-		case "fill" : 		{return fillColor;}
-		case "stroke" :		{return strokeColor;}
-		case "spec" : 		{return specColor;}
-		case "emit" : 		{return emitColor;}
-		case "amb" :  		{return ambColor;}
+		case "fill" : 		{return p.getClrFromHex(hexColors[fillIDX]);}
+		case "stroke" :		{return p.getClrFromHex(hexColors[strokeIDX]);}
+		case "emit" : 		{return p.getClrFromHex(hexColors[emitIDX]);}
+		case "spec" : 		{return p.getClrFromHex(hexColors[specIDX]);}
+		case "amb" :  		{return p.getClrFromHex(hexColors[ambIDX]);}
 		default : {return null;}
 		}	
 	}
-
-	//instance all activated colors in passed PShape
+	public int getHexClrByType(String type){
+		switch(type){
+		case "fill" : 		{return hexColors[fillIDX];}
+		case "stroke" :		{return hexColors[strokeIDX];}
+		case "emit" : 		{return hexColors[emitIDX];}
+		case "spec" : 		{return hexColors[specIDX];}
+		case "amb" :  		{return hexColors[ambIDX];}
+		default : {return 0x0;}
+		}	
+	}
+	/**
+	 * instance all activated colors in passed PShape for constructed PShape, set all colors.  This is called 
+	 * between "beginShape/endShape"
+	 * @param sh
+	 */
 	public void shPaintColors(PShape sh){
-		if(getFlags(fillIDX)){sh.fill(fillColor[0],fillColor[1],fillColor[2],fillAlpha);}
+		if(getFlags(fillIDX)){sh.fill(hexColors[fillIDX], alphas[fillIDX]);}
 		else {		sh.noFill();}
 		if(getFlags(strokeIDX)){
 			sh.strokeWeight(strkWt);
-			sh.stroke(strokeColor[0],strokeColor[1],strokeColor[2],strokeAlpha);
+			sh.stroke(hexColors[strokeIDX],alphas[strokeIDX]);
 		} else {			sh.noStroke();		}
-		if(getFlags(specIDX)){sh.specular(specColor[0],specColor[1],specColor[2]);}
-		if(getFlags(emitIDX)){sh.emissive(emitColor[0],emitColor[1],emitColor[2]);}
-		if(getFlags(ambIDX)){sh.ambient(ambColor[0],ambColor[1],ambColor[2]);}
+		if(getFlags(specIDX)){sh.specular(hexColors[specIDX]);}
+		if(getFlags(emitIDX)){sh.emissive(hexColors[emitIDX]);}
+		if(getFlags(ambIDX)){sh.ambient(hexColors[ambIDX]);}
 		if(getFlags(shnIDX)){sh.shininess(shininess);}
 	}
-	//return hex rep of passed color
-	private int getHexClr(int[] vals, int alpha){
-		int res = 0;
-		if (alpha >= 0){res = ((alpha & 0xFF)<<24);}//A
-		res += (vals[0] & 0xFF) << 16;//R
-		res += (vals[1] & 0xFF) << 8;//G
-		res += (vals[2] & 0xFF) ;//B		
-		return res;		
-	}
+
 	
 	/**
-	 * instance all activated colors in passed PShape for constructed PShape, set all colors
+	 * instance all activated colors in passed PShape for constructed PShape, set all colors.  Not between "beginShape/endShape"
 	 * @param sh
 	 */
-	public void shSetPaintColors(PShape sh){
-		if(getFlags(fillIDX)){sh.setFill(getHexClr(fillColor,fillAlpha));}
+	public void shSetShapeColors(PShape sh){
+		if(getFlags(fillIDX)){sh.setFill(hexColors[fillIDX]);}
 		else {		sh.setFill(false);}
 		if(getFlags(strokeIDX)){
 			sh.setStrokeWeight(strkWt);			
-			sh.setStroke(getHexClr(strokeColor,strokeAlpha));
+			sh.setStroke(hexColors[strokeIDX]);
 		} else {	sh.setStroke(false);}
-		if(getFlags(specIDX)){sh.setSpecular(getHexClr(specColor,-1));}
-		if(getFlags(emitIDX)){sh.setEmissive(getHexClr(emitColor,-1));}
-		if(getFlags(ambIDX)){sh.setAmbient(getHexClr(ambColor,-1));}
+		if(getFlags(specIDX)){sh.setSpecular(hexColors[specIDX]);}
+		if(getFlags(emitIDX)){sh.setEmissive(hexColors[emitIDX]);}
+		if(getFlags(ambIDX)){sh.setAmbient(hexColors[ambIDX]);}
 		if(getFlags(shnIDX)){sh.setShininess(shininess);}
 	}
-	//instance all activated colors globally
+	
+	/**
+	 * instance all activated colors globally
+	 */
 	public void paintColors(){
-		if(getFlags(fillIDX)){p.setFill(fillColor[0],fillColor[1],fillColor[2],fillAlpha);}
+		if(getFlags(fillIDX)){p.setFill(hexColors[fillIDX]);}
 		else {		p.setNoFill();}
 		if(getFlags(strokeIDX)){
 			p.setStrokeWt(strkWt);
-			p.setStroke(strokeColor[0],strokeColor[1],strokeColor[2],strokeAlpha);
+			p.setStroke(hexColors[strokeIDX]);
 		} else {			p.noStroke();		}
-		if(getFlags(specIDX)){((my_procApplet) p).specular(specColor[0],specColor[1],specColor[2]);}
-		if(getFlags(emitIDX)){((my_procApplet) p).emissive(emitColor[0],emitColor[1],emitColor[2]);}
-		if(getFlags(ambIDX)){((my_procApplet) p).ambient(ambColor[0],ambColor[1],ambColor[2]);}
+		if(getFlags(specIDX)){((my_procApplet) p).specular(hexColors[specIDX]);}
+		if(getFlags(emitIDX)){((my_procApplet) p).emissive(hexColors[emitIDX]);}
+		if(getFlags(ambIDX)){((my_procApplet) p).ambient(hexColors[ambIDX]);}
 		if(getFlags(shnIDX)){((my_procApplet) p).shininess(shininess);}
 	}
+	
 	//apply this color's fill color to applet
 	public void fillMenu(float mult){
-		p.setFill((int)(mult*fillColor[0]),(int)(mult*fillColor[1]),(int)(mult*fillColor[2]),255);
+		int[] clrAra = p.getClrFromHex(hexColors[fillIDX]);
+		p.setFill((int)(mult*clrAra[0]),(int)(mult*clrAra[1]),(int)(mult*clrAra[2]),255);
 	}
 	
 	public void setFlags(int idx, boolean val){setPrivFlag(flags, idx, val);}

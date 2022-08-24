@@ -68,8 +68,8 @@ public class mySphereRndrObj extends myRenderObj {
 		objRep = createBaseShape(PConstants.SPHERE, 5.0f);
 		p.setSphereDetail(tmpDet);
 		initFlkColor();
-		//call shSetPaintColors since we need to use set<type> style functions of Pshape when outside beginShape-endShape
-		flockColor.shSetPaintColors(objRep);
+		//call shSetShapeColors since we need to use set<type> style functions of Pshape when outside beginShape-endShape
+		flockColor.shSetShapeColors(objRep);
 	}
 
 	//no need for specific object-building function for spheres

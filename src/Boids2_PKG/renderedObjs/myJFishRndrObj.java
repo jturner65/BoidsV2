@@ -98,7 +98,7 @@ public class myJFishRndrObj extends myRenderObj {
 				indiv.scale(sclMult, sclMult, 1.0f/(sclMult * sclMult));
 				//win.getMsgObj().dispInfoMessage("myJFishRndrObj","buildObj","a : " + a + " sclMult : " + sclMult);
 				//call shSetPaintColors since we need to use set<type> style functions of Pshape when outside beginShape-endShape
-				allFlockColors[i].shSetPaintColors(indiv);		
+				allFlockColors[i].shSetShapeColors(indiv);		
 				bodyAra[i][a].addChild(indiv);
 			}	
 		}
@@ -107,8 +107,7 @@ public class myJFishRndrObj extends myRenderObj {
 	//any instance specific, jelly-fish specific geometry setup goes here (textures, sizes, shapes, etc)
 	@Override
 	protected void initInstObjGeometryIndiv() {
-		//build instance
-	
+		//build instance	
 	}//initInstObjGeometry
 
 	@Override
