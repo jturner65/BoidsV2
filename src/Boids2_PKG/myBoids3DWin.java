@@ -116,15 +116,6 @@ public class myBoids3DWin extends myDispWindow {
 	protected ExecutorService th_exec;	//to access multithreading - instance from calling program
 	protected int numUsableThreads;		//# of threads usable by the application
 	
-	public String[][] menuBtnNames = new String[][] {	//each must have literals for every button defined in side bar menu, or ignored
-		{},
-		{"Func 00", "Func 01", "Func 02"},				//row 1
-		{"Func 10", "Func 11", "Func 12", "Func 13"},	//row 2
-		{"Func 10", "Func 11", "Func 12", "Func 13"},	//row 2
-		{"Func 20", "Func 21", "Func 22", "Func 23","Func 24"}	
-	};
-
-	
 	public myBoids3DWin(IRenderInterface _p, GUI_AppManager _AppMgr, String _n, int _flagIdx, int[] fc, int[] sc, float[] rd, float[] rdClosed,String _winTxt) {
 		super(_p, _AppMgr, _n, _flagIdx, fc, sc, rd, rdClosed, _winTxt);		
 		super.initThisWin(false);
@@ -195,14 +186,11 @@ public class myBoids3DWin extends myDispWindow {
 	}
 	@Override
 	protected base_UpdateFromUIData buildUIDataUpdateObject() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	protected void buildUIUpdateStruct_Indiv(TreeMap<Integer, Integer> intValues, TreeMap<Integer, Float> floatValues,TreeMap<Integer, Boolean> boolValues) {
-		// TODO Auto-generated method stub
-	}
+	protected void buildUIUpdateStruct_Indiv(TreeMap<Integer, Integer> intValues, TreeMap<Integer, Float> floatValues,TreeMap<Integer, Boolean> boolValues) {}
 	
 	//simple render objects - spheres
 	private void initSimpleBoids(){
@@ -454,16 +442,10 @@ public class myBoids3DWin extends myDispWindow {
 	
 
 	@Override
-	protected void drawRightSideInfoBarPriv(float modAmtMillis) {
-		// TODO Auto-generated method stub
-		
-	}
+	protected void drawRightSideInfoBarPriv(float modAmtMillis) {}
 
 	@Override
-	protected void drawOnScreenStuffPriv(float modAmtMillis) {
-		// TODO Auto-generated method stub
-		
-	}
+	protected void drawOnScreenStuffPriv(float modAmtMillis) {}
 	
 	@Override
 	protected boolean simMe(float modAmtSec) {//run simulation
@@ -710,7 +692,6 @@ public class myBoids3DWin extends myDispWindow {
 
 	@Override
 	protected String[] getSaveFileDirNamesPriv() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -718,34 +699,20 @@ public class myBoids3DWin extends myDispWindow {
 	protected myPoint getMsePtAs3DPt(myPoint mseLoc){return new myPoint(mseLoc.x,mseLoc.y,mseLoc.z);}
 
 	@Override
-	protected void setVisScreenDimsPriv() {
-		// TODO Auto-generated method stub
-		
-	}
+	protected void setVisScreenDimsPriv() {}
 
 	@Override
-	protected void setCustMenuBtnNames() {
-		AppMgr.setAllMenuBtnNames(menuBtnNames);	
-	}
+	protected void setCustMenuBtnNames() {}
 
 	@Override
-	public void processTrajIndiv(myDrawnSmplTraj drawnTraj) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void processTrajIndiv(myDrawnSmplTraj drawnTraj) {}
 
 	@Override
-	public void hndlFileLoad(File file, String[] vals, int[] stIdx) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void hndlFileLoad(File file, String[] vals, int[] stIdx) {}
 
 	@Override
-	public ArrayList<String> hndlFileSave(File file) {
-		// TODO Auto-generated method stub
+	public ArrayList<String> hndlFileSave(File file) {		
 		return null;
 	}
-
-
-}
+}//class myBoids3DWin
 

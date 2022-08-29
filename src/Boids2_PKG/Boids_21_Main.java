@@ -102,7 +102,15 @@ public class Boids_21_Main extends GUI_AppManager {
 		int wIdx = dispMenuIDX,fIdx=showUIMenu;
 		//new mySideBarMenu(this, winTitles[wIdx], fIdx, winFillClrs[wIdx], winStrkClrs[wIdx], winRectDimOpen[wIdx], winRectDimClose[wIdx], winDescr[wIdx]);
 		//Builds sidebar menu button config
-		dispWinFrames[wIdx] = this.buildSideBarMenu(wIdx, fIdx, new String[]{"Functions 1","Functions 2","Functions 3","Functions 4"}, new int[] {3,4,4,4}, 5, true, false);			
+		//application-wide menu button bar titles and button names
+		String[] menuBtnTitles = new String[]{"Functions 1","Functions 2","Functions 3"};
+		String[][] menuBtnNames = new String[][] { // each must have literals for every button defined in side bar menu, or ignored
+			{"Func 00", "Func 01", "Func 02"},				//row 1
+			{"Func 10", "Func 11", "Func 12", "Func 13"},	//row 2
+			{"Func 10", "Func 11", "Func 12", "Func 13"}	//row 3
+			};
+		String [] dbgBtns = {"Debug 0", "Debug 1", "Debug 2", "Debug 3","Debug 4"};
+		dispWinFrames[wIdx] = buildSideBarMenu(wIdx, fIdx,menuBtnTitles, menuBtnNames, dbgBtns, true, false);
 		
 		//define windows
 		//idx 0 is menu, and is ignored	
