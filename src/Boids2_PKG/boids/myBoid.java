@@ -143,7 +143,7 @@ public class myBoid {
 			_bVelFrc[0].set(birthVel);
 			_bVelFrc[1].set(birthForce);
 			return true;} 
-		else {return false;}
+		return false;
 	}	
 	public int resetCntrs(int cntrBseVal, float mod){return (int)(cntrBseVal*(1+mod));}
 	//only reset spawn counters once boid has spawned
