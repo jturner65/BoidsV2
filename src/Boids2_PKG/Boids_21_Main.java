@@ -40,6 +40,10 @@ public class Boids_21_Main extends GUI_AppManager {
 	 }
 	
 	@Override
+	protected void setRuntimeArgsVals(String[] _passedArgs) {
+	}
+	
+	@Override
 	protected void setSmoothing() {		pa.setSmoothing(0);		}
 	/**
 	 * whether or not we want to restrict window size on widescreen monitors
