@@ -1,7 +1,5 @@
 package Boids2_PKG;
 
-import java.io.File;
-
 import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
 import base_UI_Objects.GUI_AppManager;
 import base_UI_Objects.windowUI.base.myDispWindow;
@@ -14,9 +12,7 @@ import base_UI_Objects.windowUI.sidebar.mySideBarMenu;
 public class Boids_21_Main extends GUI_AppManager {
 	//project-specific variables
 	public String prjNmLong = "Boids Version 2.0", prjNmShrt = "Boids2";
-	
-	//platform independent path separator
-	public String dirSep = File.separator;
+
 	//don't use sphere background for this program
 	private boolean useSphereBKGnd = true;	
 	
@@ -153,7 +149,6 @@ public class Boids_21_Main extends GUI_AppManager {
 
 	@Override
 	public String[] getMouseOverSelBtnNames() {
-		// TODO Auto-generated method stub
 		return new String[0];
 	}
 
@@ -207,7 +202,7 @@ public class Boids_21_Main extends GUI_AppManager {
 
 	@Override
 	public boolean isClickModUIVal() {
-		//TODO change this to manage other key settings for situations where multiple simultaneous key presses are not optimal or conventient
+		//TODO change this to manage other key settings for situations where multiple simultaneous key presses are not optimal or convenient
 		return altIsPressed() || shiftIsPressed();		
 	}
 
