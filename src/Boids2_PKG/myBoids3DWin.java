@@ -567,11 +567,11 @@ public class myBoids3DWin extends myDispWindow {
 
 	@Override  
 	protected void launchMenuBtnHndlr(int funcRow, int btn) {
-		msgObj.dispMessage("myBoids3DWin","launchMenuBtnHndlr","Begin requested action", MsgCodes.info4);
+		msgObj.dispMessage(className,"launchMenuBtnHndlr","Begin requested action", MsgCodes.info4);
 		
 		switch(funcRow) {
 		case 0 : {
-			msgObj.dispMessage("myBoids3DWin","launchMenuBtnHndlr","Clicked Btn row : Aux Func 1 | Btn : " + btn, MsgCodes.info4);
+			msgObj.dispMessage(className,"launchMenuBtnHndlr","Clicked Btn row : Aux Func 1 | Btn : " + btn, MsgCodes.info4);
 			switch(btn){
 				case 0 : {						
 					resetButtonState();
@@ -587,7 +587,7 @@ public class myBoids3DWin extends myDispWindow {
 			}	
 			break;}//row 1 of menu side bar buttons
 		case 1 : {
-			msgObj.dispMessage("myBoids3DWin","launchMenuBtnHndlr","Clicked Btn row : Aux Func 2 | Btn : " + btn, MsgCodes.info4);
+			msgObj.dispMessage(className,"launchMenuBtnHndlr","Clicked Btn row : Aux Func 2 | Btn : " + btn, MsgCodes.info4);
 			switch(btn){
 				case 0 : {	
 					resetButtonState();
@@ -607,7 +607,7 @@ public class myBoids3DWin extends myDispWindow {
 			}
 			break;}//row 2 of menu side bar buttons
 		case 2 : {
-			msgObj.dispMessage("myBoids3DWin","launchMenuBtnHndlr","Clicked Btn row : Aux Func 3 | Btn : " + btn, MsgCodes.info4);
+			msgObj.dispMessage(className,"launchMenuBtnHndlr","Clicked Btn row : Aux Func 3 | Btn : " + btn, MsgCodes.info4);
 			switch(btn){
 				case 0 : {	
 					resetButtonState();
@@ -627,7 +627,7 @@ public class myBoids3DWin extends myDispWindow {
 			}
 			break;}//row 2 of menu side bar buttons
 		case 3 : {
-			msgObj.dispMessage("myBoids3DWin","launchMenuBtnHndlr","Clicked Btn row : Aux Func 4 | Btn : " + btn, MsgCodes.info4);
+			msgObj.dispMessage(className,"launchMenuBtnHndlr","Clicked Btn row : Aux Func 4 | Btn : " + btn, MsgCodes.info4);
 			switch(btn){
 				case 0 : {	
 					resetButtonState();
