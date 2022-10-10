@@ -117,7 +117,6 @@ public class Boids_21_Main extends GUI_AppManager {
 		//setInitDispWinVals : use this to define the values of a display window
 		//int _winIDX, 
 		//float[] _dimOpen, float[] _dimClosed  : dimensions opened or closed
-		//String _ttl, String _desc 			: window title and description
 		//boolean[] _dispFlags 					: 
 		//   flags controlling display of window :  idxs : 0 : canDrawInWin; 1 : canShow3dbox; 2 : canMoveView; 3 : dispWinIs3d
 		//int[] _fill, int[] _strk, 			: window fill and stroke colors
@@ -125,10 +124,10 @@ public class Boids_21_Main extends GUI_AppManager {
 		//			//display window initialization	
 		wIdx = disp3DResIDX; fIdx = show3DWin;
 		setInitDispWinVals(wIdx, _dimOpen, _dimClosed,new boolean[]{false,true,true,true}, new int[]{255,255,255,255},new int[]{0,0,0,255},new int[]{180,180,180,255},new int[]{100,100,100,255}); 
-		dispWinFrames[wIdx] = new myBoids3DWin(pa, this, winTitles[wIdx], fIdx,winFillClrs[wIdx], winStrkClrs[wIdx], winRectDimOpen[wIdx], winRectDimClose[wIdx], winDescr[wIdx]);
+		dispWinFrames[wIdx] = new myBoids3DWin(pa, this, wIdx, fIdx);
 		wIdx = disp2DResIDX; fIdx = show2DWin;
 		setInitDispWinVals(wIdx, _dimOpen, _dimClosed,new boolean[]{false,false,true,false}, new int[]{50,40,20,255}, new int[]{255,255,255,255},new int[]{180,180,180,255},new int[]{100,100,100,255});
-		dispWinFrames[wIdx] = new myBoids3DWin(pa, this, winTitles[wIdx], fIdx,winFillClrs[wIdx], winStrkClrs[wIdx], winRectDimOpen[wIdx], winRectDimClose[wIdx], winDescr[wIdx]);
+		dispWinFrames[wIdx] = new myBoids3DWin(pa, this, wIdx, fIdx);
 
 		//specify windows that cannot be shown simultaneously here
 		initXORWins(new int[]{show3DWin,show2DWin}, new int[]{disp3DResIDX, disp2DResIDX});
