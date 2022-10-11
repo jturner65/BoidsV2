@@ -288,7 +288,7 @@ public class myBoids3DWin extends myDispWindow {
 		//p.popStyle();
 	}//drawFlockMenu
 	
-	
+	@Override
 	public void drawCustMenuObjs(){
 		pa.pushMatState();	
 		//all flock menu drawing within push mat call
@@ -310,30 +310,30 @@ public class myBoids3DWin extends myDispWindow {
 		int flIDX = idx/32, mask = 1<<(idx%32);
 		privFlags[flIDX] = (val ?  privFlags[flIDX] | mask : privFlags[flIDX] & ~mask);
 		switch(idx){
-			case debugAnimIDX 			: {break;}//msgObj.dispInfoMessage(className, "xxx","debugAnimIDX " + val + " : " + getPrivFlags(idx) + "|"+ mask);  break;}		
-			case drawBoids			    : {break;}//msgObj.dispInfoMessage(className, "xxx","drawBoids		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case drawScaledBoids		: {break;}//msgObj.dispInfoMessage(className, "xxx","drawScaledBoids		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}		
+			case debugAnimIDX 			: {break;}
+			case drawBoids			    : {break;}
+			case drawScaledBoids		: {break;}		
 			case clearPath			    : {
 				//TODO this needs to change how it works so that initialization doesn't call my_procApplet before it is ready
 				//pa.setClearBackgroundEveryStep( !val);//turn on or off background clearing in main window
 				break;}
-			case showVel			    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","showVel		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case attractMode			: {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","attractMode	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case showFlkMbrs 		    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","showFlkMbrs 	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case flkCenter 			    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","flkCenter 	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case flkVelMatch 		    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","flkVelMatch 	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case flkAvoidCol 		    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","flkAvoidCol 	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case flkWander 			    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","flkWander 	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case flkAvoidPred		    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","flkAvoidPred	 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case flkHunt			    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","flkHunt		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case flkHunger			    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","flkHunger		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case flkSpawn			    : {break;}//msgObj.dispInfoMessage(className, "setPrivFlags","flkSpawn		 " + val+ " : " + getPrivFlags(idx) + "|"+ mask );break;}
-			case modDelT	 			: {break;}	//whether to keep delT fixed or to modify it based on frame rate (to fight lag)
-			case flkCyclesFrc			: {break;}//whether or not current species scales force output cyclically with animation (pumping motion)
+			case showVel			    : {break;}
+			case attractMode			: {break;}
+			case showFlkMbrs 		    : {break;}
+			case flkCenter 			    : {break;}
+			case flkVelMatch 		    : {break;}
+			case flkAvoidCol 		    : {break;}
+			case flkWander 			    : {break;}
+			case flkAvoidPred		    : {break;}
+			case flkHunt			    : {break;}
+			case flkHunger			    : {break;}
+			case flkSpawn			    : {break;}
+			case modDelT	 			: {break;}
+			case flkCyclesFrc			: {break;}
 			case viewFromBoid		    : {
 				super.setFlags(drawMseEdge,!val);//if viewing from boid, then don't show mse edge, and vice versa
 				break;}	//whether viewpoint is from a boid's perspective or global
-			case useOrigDistFuncs 	    : {//msgObj.dispInfoMessage(className, "setPrivFlags","useOrigDistFuncs " + val + " : " + getPrivFlags(idx) + "|"+ mask);
+			case useOrigDistFuncs 	    : {
 				if(flocks == null){break;}
 				for(int i =0; i<flocks.length; ++i){
 					flockVars[i].setDefaultWtVals(val);}
