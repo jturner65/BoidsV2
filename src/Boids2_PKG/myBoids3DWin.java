@@ -14,6 +14,7 @@ import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
 import base_UI_Objects.windowUI.base.base_UpdateFromUIData;
 import base_UI_Objects.windowUI.base.myDispWindow;
 import base_UI_Objects.windowUI.drawnObjs.myDrawnSmplTraj;
+import base_UI_Objects.windowUI.uiObjs.GUIObj_Type;
 import base_UI_Objects.GUI_AppManager;
 import base_UI_Objects.my_procApplet;
 import base_Utils_Objects.io.messaging.MsgCodes;
@@ -367,11 +368,11 @@ public class myBoids3DWin extends myDispWindow {
 		//	the 3rd elem is label for object
 		//	the 4th element is boolean array of {treat as int, has list values, value is sent to owning window}
 	
-		tmpUIObjArray.put(gIDX_TimeStep,  new Object[] {new double[]{0,1.0f,.0001f}, .1, "Time Step", new boolean[]{false, false, true}});   				//uiTrainDataFrmtIDX                                                                        
-		tmpUIObjArray.put(gIDX_NumFlocks, new Object[] {new double[]{1,MaxNumFlocks,1.0f}, 1.0, "# of Flocks", new boolean[]{true, false, true}});   				//uiTrainDataFrmtIDX                                                                        
-		tmpUIObjArray.put(gIDX_BoidType,  new Object[] {new double[]{0,boidTypeNames.length-1,1.1f}, 0.0, "Flock Species", new boolean[]{true, true, true}} );   				//uiTrainDataFrmtIDX                                                                        
-		tmpUIObjArray.put(gIDX_FlockToObs,new Object[] {new double[]{0,flkNames.length-1,1.1f}, 0.0, "Flock To Watch", new boolean[]{true, true, true}} );   				//uiTrainDataFrmtIDX                                                                        
-		tmpUIObjArray.put(gIDX_BoidToObs, new Object[] {new double[]{0,initNumBoids-1,1.0f}, 0.0, "Boid To Board", new boolean[]{true, false, true}} );   				//uiTrainDataFrmtIDX                                                                        
+		tmpUIObjArray.put(gIDX_TimeStep,  new Object[] {new double[]{0,1.0f,.0001f}, .1, "Time Step", GUIObj_Type.FloatVal, new boolean[]{true}});   				//uiTrainDataFrmtIDX                                                                        
+		tmpUIObjArray.put(gIDX_NumFlocks, new Object[] {new double[]{1,MaxNumFlocks,1.0f}, 1.0, "# of Flocks", GUIObj_Type.IntVal, new boolean[]{true}});   				//uiTrainDataFrmtIDX                                                                        
+		tmpUIObjArray.put(gIDX_BoidType,  new Object[] {new double[]{0,boidTypeNames.length-1,1.1f}, 0.0, "Flock Species", GUIObj_Type.ListVal, new boolean[]{true}} );   				//uiTrainDataFrmtIDX                                                                        
+		tmpUIObjArray.put(gIDX_FlockToObs,new Object[] {new double[]{0,flkNames.length-1,1.1f}, 0.0, "Flock To Watch", GUIObj_Type.ListVal, new boolean[]{true}} );   				//uiTrainDataFrmtIDX                                                                        
+		tmpUIObjArray.put(gIDX_BoidToObs, new Object[] {new double[]{0,initNumBoids-1,1.0f}, 0.0, "Boid To Board", GUIObj_Type.IntVal, new boolean[]{true}} );   				//uiTrainDataFrmtIDX                                                                        
 	}
 	//when flockToWatch changes, reset maxBoidToWatch value
 	private void setMaxUIBoidToWatch(int flkIdx){guiObjs[gIDX_BoidToObs].setNewMax(flocks[flkIdx].boidFlock.size()-1);setUIWinVals(gIDX_BoidToObs);}	
