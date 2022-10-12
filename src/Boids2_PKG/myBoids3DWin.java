@@ -190,9 +190,6 @@ public class myBoids3DWin extends myDispWindow {
 		return null;
 	}
 
-	@Override
-	protected void buildUIUpdateStruct_Indiv(TreeMap<Integer, Integer> intValues, TreeMap<Integer, Float> floatValues,TreeMap<Integer, Boolean> boolValues) {}
-	
 	//simple render objects - spheres
 	private void initSimpleBoids(){
 		sphrRndrTmpl = new mySphereRndrObj[MaxNumFlocks];
