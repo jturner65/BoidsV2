@@ -185,11 +185,19 @@ public class myBoids3DWin extends myDispWindow {
 		setFlags(useCustCam, true);
 		return new int[] {drawBoids, attractMode, useTorroid};
 	}
+	/**
+	 * This function would provide an instance of the override class for base_UpdateFromUIData, which would
+	 * be used to communicate changes in UI settings directly to the value consumers.
+	 */
 	@Override
 	protected base_UpdateFromUIData buildUIDataUpdateObject() {
 		return null;
 	}
-
+	/**
+	 * This function is called on ui value update, to pass new ui values on to window-owned consumers
+	 */
+	protected final void updateCalcObjUIVals() {}
+	
 	//simple render objects - spheres
 	private void initSimpleBoids(){
 		sphrRndrTmpl = new mySphereRndrObj[MaxNumFlocks];
