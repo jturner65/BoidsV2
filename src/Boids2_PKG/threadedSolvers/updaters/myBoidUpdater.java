@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
 
-import Boids2_PKG.myBoidFlock;
-import Boids2_PKG.myBoids3DWin;
-import Boids2_PKG.boids.myBoid;
+import Boids2_PKG.flocks.myBoidFlock;
+import Boids2_PKG.flocks.boids.myBoid;
+import Boids2_PKG.ui.myBoids3DWin;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;

@@ -1,7 +1,8 @@
-package Boids2_PKG;
+package Boids2_PKG.flocks;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import Boids2_PKG.ui.myBoids3DWin;
 import base_UI_Objects.windowUI.base.myDispWindow;
 import base_Math_Objects.MyMathUtils;
 

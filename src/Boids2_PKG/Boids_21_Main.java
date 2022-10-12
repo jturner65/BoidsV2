@@ -1,5 +1,6 @@
 package Boids2_PKG;
 
+import Boids2_PKG.ui.myBoids3DWin;
 import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
 import base_UI_Objects.GUI_AppManager;
 import base_UI_Objects.windowUI.base.myDispWindow;

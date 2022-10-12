@@ -1,4 +1,4 @@
-package Boids2_PKG;
+package Boids2_PKG.ui;
 
 import java.io.File;
 import java.util.*;
@@ -6,6 +6,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import Boids2_PKG.flocks.myBoidFlock;
+import Boids2_PKG.flocks.myFlkVars;
 import Boids2_PKG.renderedObjs.myBoatRndrObj;
 import Boids2_PKG.renderedObjs.myJFishRndrObj;
 import Boids2_PKG.renderedObjs.mySphereRndrObj;

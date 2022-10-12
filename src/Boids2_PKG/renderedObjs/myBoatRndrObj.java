@@ -1,16 +1,16 @@
 package Boids2_PKG.renderedObjs;
 
-import Boids2_PKG.myBoids3DWin;
-import Boids2_PKG.boids.myBoid;
+import Boids2_PKG.flocks.boids.myBoid;
 import Boids2_PKG.renderedObjs.base.myRenderObj;
+import Boids2_PKG.ui.myBoids3DWin;
 import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
-import base_UI_Objects.my_procApplet;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
-import processing.core.PShape;
+import base_UI_Objects.my_procApplet;
 //import processing.core.PImage;
 import processing.core.PConstants;
+import processing.core.PShape;
 
 //build a registered pre-rendered instantiatable object for each objRep - speeds up display by orders of magnitude
 public class myBoatRndrObj extends myRenderObj {

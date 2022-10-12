@@ -1,4 +1,4 @@
-package Boids2_PKG;
+package Boids2_PKG.flocks;
 
 //import java.util.SortedMap;
 
@@ -9,19 +9,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 
-import Boids2_PKG.boids.myBoid;
+import Boids2_PKG.flocks.boids.myBoid;
 import Boids2_PKG.renderedObjs.base.myRenderObj;
 import Boids2_PKG.threadedSolvers.forceSolvers.myLinForceSolver;
 import Boids2_PKG.threadedSolvers.forceSolvers.myOrigForceSolver;
-import Boids2_PKG.threadedSolvers.initializers.myInitPredPreyMaps;
 import Boids2_PKG.threadedSolvers.initializers.myBoidValsResetter;
+import Boids2_PKG.threadedSolvers.initializers.myInitPredPreyMaps;
 import Boids2_PKG.threadedSolvers.updaters.myBoidUpdater;
+import Boids2_PKG.ui.myBoids3DWin;
 import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
+import base_Math_Objects.vectorObjs.floats.myPointf;
+import base_Math_Objects.vectorObjs.floats.myVectorf;
 import base_UI_Objects.GUI_AppManager;
 import base_UI_Objects.windowUI.base.myDispWindow;
 import base_Utils_Objects.io.messaging.MsgCodes;
-import base_Math_Objects.vectorObjs.floats.myPointf;
-import base_Math_Objects.vectorObjs.floats.myVectorf;
 
 public class myBoidFlock {
 	public IRenderInterface p;	
