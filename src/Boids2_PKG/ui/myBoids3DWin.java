@@ -397,9 +397,10 @@ public class myBoids3DWin extends myDispWindow {
 	 * Only called if data changed!
 	 * @param UIidx Index of gui obj with new data
 	 * @param ival integer value of new data
+	 * @param oldVal integer value of old data in UIUpdater
 	 */
 	@Override
-	protected final void setUI_IntValsCustom(int UIidx, int ival) {
+	protected final void setUI_IntValsCustom(int UIidx, int ival, int oldVal) {
 		switch(UIidx){	
 			case gIDX_NumFlocks		:{
 				numFlocks = ival; 
@@ -415,7 +416,6 @@ public class myBoids3DWin extends myDispWindow {
 				setMaxUIBoidToWatch(flockToWatch);
 				break;}
 			case gIDX_ModNumBoids  	:{	
-				msgObj.dispInfoMessage(className,  "setUI_IntValsCustom", "Modifying flock vals by "+ ival);
 				flocks[flockToWatch].modNumBoids(ival);
 				break;}
 			case gIDX_BoidToObs 	:{
@@ -434,9 +434,10 @@ public class myBoids3DWin extends myDispWindow {
 	 * Only called if data changed!
 	 * @param UIidx Index of gui obj with new data
 	 * @param val float value of new data
+	 * @param oldVal float value of old data in UIUpdater
 	 */
 	@Override
-	protected final void setUI_FloatValsCustom(int UIidx, float val) {
+	protected final void setUI_FloatValsCustom(int UIidx, float val, float oldVal) {
 		switch(UIidx){		
 		case gIDX_TimeStep 			:{curTimeStep = val;break;}
 		default : {
