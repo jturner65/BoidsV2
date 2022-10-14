@@ -62,14 +62,14 @@ public class myBoid {
 	public final int type,gender;//,bodyColor;													//for spawning gender = 0 == female, 1 == male;
 	public static final int O_FWD = 0, O_RHT = 1,  O_UP = 2;
 		
-	public ConcurrentSkipListMap<Float, myBoid> neighbors,			//sorted map of neighbors to this boid
-									preyFlk,				//sorted map of prey near this boid
-									ptnWife;				//sorted map of potential mates near this boid
+	public ConcurrentSkipListMap<Float, myBoid> neighbors,	//sorted by distance map of neighbors to this boid
+									preyFlk,				//sorted by distance map of prey near this boid
+									ptnWife;				//sorted by distance map of potential mates near this boid
 	
-	public ConcurrentSkipListMap<Float, myPointf> neighLoc,			//boid mapped to location used for distance calc
-										colliderLoc,					//boid mapped to location used for distance calc
-										predFlkLoc,						//boid mapped to location used for distance calc
-										preyFlkLoc;						//boid mapped to location used for distance calc
+	public ConcurrentSkipListMap<Float, myPointf> neighLoc,	//boid mapped to location used for distance calc
+										colliderLoc,		//boid mapped to location used for distance calc
+										predFlkLoc,			//boid mapped to location used for distance calc
+										preyFlkLoc;			//boid mapped to location used for distance calc
 			
 	public myBoid(IRenderInterface _p, myBoids3DWin _win, myBoidFlock _f,  myPointf _coords, int _type){
 		ID = IDcount++;		p = _p;		f = _f; type=_type; //win = _win;	
@@ -344,7 +344,7 @@ public class myBoid {
 	}//animIncr		
 	
 	public String toString(){
-		String result = "ID : " + ID + " Type : "+f.win.flkNames[type]+" | Mass : " + mass + " | Spawn CD "+spawnCntr + " | Starve CD " + starveCntr+"\n";
+		String result = "ID : " + ID + " Type : "+f.win.getFlkName(type)+" | Mass : " + mass + " | Spawn CD "+spawnCntr + " | Starve CD " + starveCntr+"\n";
 		result+=" | location : " + coords + " | velocity : " + velocity + " | forces : " + forces +"\n" ;
 		//if(p.flags[p.debugMode]){result +="\nOrientation : UP : "+orientation[O_UP] + " | FWD : "+orientation[O_FWD] + " | RIGHT : "+orientation[O_RHT] + "\n";}
 		int num =neighbors.size();

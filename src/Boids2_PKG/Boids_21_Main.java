@@ -148,7 +148,7 @@ public class Boids_21_Main extends GUI_AppManager {
 	protected void initProgram_Indiv() {	}
 
 	@Override
-	public String[] getMouseOverSelBtnNames() {
+	public String[] getMouseOverSelBtnLabels() {
 		return new String[0];
 	}
 

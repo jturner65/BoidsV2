@@ -1,7 +1,8 @@
 package Boids2_PKG.ui;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -13,16 +14,16 @@ import Boids2_PKG.renderedObjs.myJFishRndrObj;
 import Boids2_PKG.renderedObjs.mySphereRndrObj;
 import Boids2_PKG.renderedObjs.base.myRenderObj;
 import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
-import base_UI_Objects.windowUI.base.base_UpdateFromUIData;
-import base_UI_Objects.windowUI.base.myDispWindow;
-import base_UI_Objects.windowUI.drawnObjs.myDrawnSmplTraj;
-import base_UI_Objects.windowUI.uiObjs.GUIObj_Type;
-import base_UI_Objects.GUI_AppManager;
-import base_UI_Objects.my_procApplet;
-import base_Utils_Objects.io.messaging.MsgCodes;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
 import base_Math_Objects.vectorObjs.doubles.myVector;
 import base_Math_Objects.vectorObjs.floats.myPointf;
+import base_UI_Objects.GUI_AppManager;
+import base_UI_Objects.my_procApplet;
+import base_UI_Objects.windowUI.uiData.UIDataUpdater;
+import base_UI_Objects.windowUI.base.myDispWindow;
+import base_UI_Objects.windowUI.drawnObjs.myDrawnSmplTraj;
+import base_UI_Objects.windowUI.uiObjs.GUIObj_Type;
+import base_Utils_Objects.io.messaging.MsgCodes;
 import processing.core.PImage;
 
 public class myBoids3DWin extends myDispWindow {
@@ -33,11 +34,12 @@ public class myBoids3DWin extends myDispWindow {
 		gIDX_NumFlocks		= 1,
 		gIDX_BoidType		= 2,
 		gIDX_FlockToObs		= 3,
-		gIDX_BoidToObs		= 4;
+		gIDX_ModNumBoids	= 4,
+		gIDX_BoidToObs		= 5;
 
-	public final int numGUIObjs = 5;											//# of gui objects for ui
+	public final int numGUIObjs = 6;											//# of gui objects for ui
 	
-	public float timeStepMult = 1.0f;													//multiplier to modify timestep to make up for lag
+	private float timeStepMult = 1.0f;													//multiplier to modify timestep to make up for lag
 	
 	//private child-class flags - window specific
 	public static final int 
@@ -68,29 +70,29 @@ public class myBoids3DWin extends myDispWindow {
 	
 	private static final int numPrivFlags = 21;
 
-	public final int MaxNumBoids = 15000;		//max # of boids per flock
-	public final int initNumBoids = 500;		//initial # of boids per flock
+	private final int MaxNumBoids = 15000;		//max # of boids per flock
+	private final int initNumBoids = 500;		//initial # of boids per flock
 	
 //	// structure holding boid flocks and the rendered versions of them - move to myRenderObj?
 	//only 5 different flocks will display nicely on side menu
-	public String[] flkNames = new String[]{"Privateers", "Pirates", "Corsairs", "Marauders", "Freebooters"};
-	public float[] flkRadMults = {1.0f, 0.5f, 0.25f, 0.75f, 0.66f, 0.33f};
+	private String[] flkNames = new String[]{"Privateers", "Pirates", "Corsairs", "Marauders", "Freebooters"};
+	private float[] flkRadMults = {1.0f, 0.5f, 0.25f, 0.75f, 0.66f, 0.33f};
 	
 	///////////
 	//graphical constructs for pirate boids 
 	///////////
-	public PImage[] flkSails;						//image sigils for sails
+	private PImage[] flkSails;						//image sigils for sails
 	private final float bdgSizeX_base = 15, bdgSizeY = 15;			//badge size
 	private float[] bdgSizeX;
 
 	private myPointf[][] mnBdgBox;
 	private static final myPointf[] mnUVBox = new myPointf[]{new myPointf(0,0,0),new myPointf(1,0,0),new myPointf(1,1,0),new myPointf(0,1,0)};
 	
-	public String[] boidTypeNames = new String[]{"Pirate Boats", "Jellyfish"};
+	private String[] boidTypeNames = new String[]{"Pirate Boats", "Jellyfish"};
 	//whether this boid exhibits cyclic motion
-	public boolean[] boidCyclesFrc = new boolean[]{false, true};
+	private boolean[] boidCyclesFrc = new boolean[]{false, true};
 	
-	public final int MaxNumFlocks = flkNames.length, numBoidTypes = boidTypeNames.length;			//max # of flocks we'll support, # of different kinds of boid species
+	private final int MaxNumFlocks = flkNames.length;			//max # of flocks we'll support
 	//array of template objects to render
 	//need individual array for each type of object, sphere (simplified) render object
 	private myRenderObj[] rndrTmpl,//set depending on UI choice for complex rndr obj 
@@ -102,13 +104,12 @@ public class myBoids3DWin extends myDispWindow {
 	private ConcurrentSkipListMap<String, myRenderObj[]> cmplxRndrTmpls;
 	
 	//current values
-	public int numFlocks = 1;						
+	private double curTimeStep = .1;
+	private int numFlocks = 1;						
 	public myBoidFlock[] flocks;
 	private myFlkVars[] flockVars;
-	public int curFlock = 0;
-	public ArrayList<Float[]> flkVarClkRes;
 	//idxs of flock and boid to assign camera to if we are watching from "on deck"
-	public int flockToWatch, boidToWatch;
+	private int flockToWatch, boidToWatch;
 	//offset to bottom of custom window menu 
 	private float custMenuOffset;
 	
@@ -192,8 +193,8 @@ public class myBoids3DWin extends myDispWindow {
 	 * be used to communicate changes in UI settings directly to the value consumers.
 	 */
 	@Override
-	protected base_UpdateFromUIData buildUIDataUpdateObject() {
-		return null;
+	protected UIDataUpdater buildUIDataUpdateObject() {
+		return new myBoidsUIDataUpdater(this);
 	}
 	/**
 	 * This function is called on ui value update, to pass new ui values on to window-owned consumers
@@ -260,7 +261,6 @@ public class myBoids3DWin extends myDispWindow {
 		setMaxUIFlockToWatch();
 		flocks = new myBoidFlock[numFlocks];
 		flockVars = new myFlkVars[numFlocks];
-		flkVarClkRes = new ArrayList<Float[]>();
 		for(int i =0; i<flocks.length; ++i){
 			// ??? 
 			// flockVars[i] = new myFlkVars(this, flkNames[i],(float)ThreadLocalRandom.current().nextDouble(0.65, 1.0));
@@ -269,9 +269,13 @@ public class myBoids3DWin extends myDispWindow {
 			flocks[i].initFlock();
 		}
 
-		//rndrTmpl = getCurRndrObjAra();
-		for(int i =0; i<flocks.length; ++i){flocks[i].setPredPreyTmpl((((i+flocks.length)+1)%flocks.length), (((i+flocks.length)-1)%flocks.length), rndrTmpl[i], sphrRndrTmpl[i]);}	
-	}
+		int predIDX, preyIDX;
+		for(int i =0; i<flocks.length; ++i){
+			predIDX = (((i+flocks.length)+1)%flocks.length);
+			preyIDX = (((i+flocks.length)-1)%flocks.length);
+			flocks[i].setPredPreyTmpl(flocks[predIDX], flocks[preyIDX], rndrTmpl[i], sphrRndrTmpl[i]);
+		}	
+	}//initFlocks
 
 	public int getFlkFlagsInt(){		return privFlags[0];} //get first 32 flag settings
 	
@@ -358,6 +362,7 @@ public class myBoids3DWin extends myDispWindow {
 	 * @return
 	 */	
 	public myFlkVars getFlkVars(int flockIDX) {return flockVars[flockIDX];}
+	public String getFlkName(int flockIDX) {return flkNames[flockIDX];}
 	
 	//initialize structure to hold modifiable menu regions
 	@Override
@@ -375,53 +380,81 @@ public class myBoids3DWin extends myDispWindow {
 		//	the 3rd elem is label for object
 		//	the 4th element is boolean array of {treat as int, has list values, value is sent to owning window}
 	
-		tmpUIObjArray.put(gIDX_TimeStep,  new Object[] {new double[]{0,1.0f,.0001f}, .1, "Time Step", GUIObj_Type.FloatVal, new boolean[]{true}});   				//uiTrainDataFrmtIDX                                                                        
-		tmpUIObjArray.put(gIDX_NumFlocks, new Object[] {new double[]{1,MaxNumFlocks,1.0f}, 1.0, "# of Flocks", GUIObj_Type.IntVal, new boolean[]{true}});   				//uiTrainDataFrmtIDX                                                                        
-		tmpUIObjArray.put(gIDX_BoidType,  new Object[] {new double[]{0,boidTypeNames.length-1,1.1f}, 0.0, "Flock Species", GUIObj_Type.ListVal, new boolean[]{true}} );   				//uiTrainDataFrmtIDX                                                                        
-		tmpUIObjArray.put(gIDX_FlockToObs,new Object[] {new double[]{0,flkNames.length-1,1.1f}, 0.0, "Flock To Watch", GUIObj_Type.ListVal, new boolean[]{true}} );   				//uiTrainDataFrmtIDX                                                                        
-		tmpUIObjArray.put(gIDX_BoidToObs, new Object[] {new double[]{0,initNumBoids-1,1.0f}, 0.0, "Boid To Board", GUIObj_Type.IntVal, new boolean[]{true}} );   				//uiTrainDataFrmtIDX                                                                        
+		tmpUIObjArray.put(gIDX_TimeStep,  new Object[]{new double[]{0,1.0f,.0001f}, .1, "Time Step", GUIObj_Type.FloatVal, new boolean[]{true}});   				//uiTrainDataFrmtIDX                                                                        
+		tmpUIObjArray.put(gIDX_NumFlocks, new Object[]{new double[]{1,MaxNumFlocks,1.0f}, 1.0, "# of Flocks", GUIObj_Type.IntVal, new boolean[]{true}});   				//uiTrainDataFrmtIDX                                                                        
+		tmpUIObjArray.put(gIDX_BoidType,  new Object[]{new double[]{0,boidTypeNames.length-1,1.1f}, 0.0, "Flock Species", GUIObj_Type.ListVal, new boolean[]{true}} );   				//uiTrainDataFrmtIDX                                                                        
+		tmpUIObjArray.put(gIDX_FlockToObs,new Object[]{new double[]{0,flkNames.length-1,1.1f}, 0.0, "Flock To Watch", GUIObj_Type.ListVal, new boolean[]{true}} );   				//uiTrainDataFrmtIDX                                                                        
+		tmpUIObjArray.put(gIDX_ModNumBoids, new Object[]{new double[]{-50,50,1.0f}, 0.0, "Modify Flock Pop", GUIObj_Type.IntVal, new boolean[]{true}});   				//uiTrainDataFrmtIDX                                                                        
+		tmpUIObjArray.put(gIDX_BoidToObs, new Object[]{new double[]{0,initNumBoids-1,1.0f}, 0.0, "Boid To Board", GUIObj_Type.IntVal, new boolean[]{true}} );   				//uiTrainDataFrmtIDX                                                                        
 	}
 	//when flockToWatch changes, reset maxBoidToWatch value
 	private void setMaxUIBoidToWatch(int flkIdx){guiObjs[gIDX_BoidToObs].setNewMax(flocks[flkIdx].boidFlock.size()-1);setUIWinVals(gIDX_BoidToObs);}	
 	private void setMaxUIFlockToWatch(){guiObjs[gIDX_FlockToObs].setNewMax(numFlocks - 1);	setUIWinVals(gIDX_FlockToObs);}		
+	
+	/**
+	 * Called if int-handling guiObjs[UIidx] (int or list) has new data which updated UI adapter. 
+	 * Intended to support custom per-object handling by owning window.
+	 * Only called if data changed!
+	 * @param UIidx Index of gui obj with new data
+	 * @param ival integer value of new data
+	 */
 	@Override
-	protected void setUIWinVals(int UIidx) {
-		float val = (float)guiObjs[UIidx].getVal();
-		//int ival = (int)val;
-		switch(UIidx){		
-		case gIDX_TimeStep 			:{
-			if(val != uiVals[UIidx]){uiVals[UIidx] = val;}
-			break;}
-		case gIDX_NumFlocks			:{
-			if(val != uiVals[UIidx]){uiVals[UIidx] = val; numFlocks = (int)val; initFlocks(); }
-			break;}
-		case gIDX_BoidType:{
-			if(val != uiVals[UIidx]){
-				uiVals[UIidx] = val; 
-				int bIdx = (int)val;
-				rndrTmpl = cmplxRndrTmpls.get(boidTypeNames[bIdx]);
-				setPrivFlags( flkCyclesFrc, boidCyclesFrc[bIdx]);//set whether this flock cycles animation/force output
+	protected final void setUI_IntValsCustom(int UIidx, int ival) {
+		switch(UIidx){	
+			case gIDX_NumFlocks		:{
+				numFlocks = ival; 
 				initFlocks(); 
-			}
-			break;}
-		case gIDX_FlockToObs 			:{
-			if(val != uiVals[UIidx]){uiVals[UIidx] = val; flockToWatch = (int)val; setMaxUIBoidToWatch(flockToWatch);}
-			break;}
-		case gIDX_BoidToObs 			:{
-			if(val != uiVals[UIidx]){uiVals[UIidx] = val; boidToWatch = (int)val;}
-			break;}
-
-		default : {break;}
+				break;}
+			case gIDX_BoidType		:{
+				rndrTmpl = cmplxRndrTmpls.get(boidTypeNames[ival]);
+				setPrivFlags( flkCyclesFrc, boidCyclesFrc[ival]);//set whether this flock cycles animation/force output
+				initFlocks(); 
+				break;}
+			case gIDX_FlockToObs 	:{
+				flockToWatch = ival; 
+				setMaxUIBoidToWatch(flockToWatch);
+				break;}
+			case gIDX_ModNumBoids  	:{	
+				msgObj.dispInfoMessage(className,  "setUI_IntValsCustom", "Modifying flock vals by "+ ival);
+				flocks[flockToWatch].modNumBoids(ival);
+				break;}
+			case gIDX_BoidToObs 	:{
+				boidToWatch = ival;
+				break;}		
+			default : {
+				msgObj.dispWarningMessage(className, "setUI_IntValsCustom", "No int-defined gui object mapped to idx :"+UIidx);
+				break;
+			}				
 		}
-	}
+	}//setUI_IntValsCustom
+
+	/**
+	 * Called if float-handling guiObjs[UIidx] has new data which updated UI adapter.  
+	 * Intended to support custom per-object handling by owning window.
+	 * Only called if data changed!
+	 * @param UIidx Index of gui obj with new data
+	 * @param val float value of new data
+	 */
+	@Override
+	protected final void setUI_FloatValsCustom(int UIidx, float val) {
+		switch(UIidx){		
+		case gIDX_TimeStep 			:{curTimeStep = val;break;}
+		default : {
+			msgObj.dispWarningMessage(className, "setUI_FloatValsCustom", "No float-defined gui object mapped to idx :"+UIidx);
+			break;}
+		}				
+	}//setUI_FloatValsCustom	
 	
 	public double getTimeStep(){
-		return uiVals[gIDX_TimeStep] * timeStepMult;
+		return curTimeStep * timeStepMult;
 	}
-
-	@Override
-	public void initDrwnTrajIndiv(){}
+	/**
+	 * Once boid count has been modified, reset mod UI obj
+	 */
+	public void clearModNumBoids() {	resetUIObj(gIDX_ModNumBoids);}
 	
+	@Override
+	public void initDrwnTrajIndiv(){}	
 	//overrides function in base class mseClkDisp
 	@Override
 	public void drawTraj3D(float animTimeMod,myPoint trans){}//drawTraj3D	
@@ -548,8 +581,7 @@ public class myBoids3DWin extends myDispWindow {
 	protected void hndlMouseRelIndiv() {
 		//release always clears mod variable
 		flkVarIDX = -1;
-		flkVarObjIDX = -1;
-		
+		flkVarObjIDX = -1;		
 	}
 	@Override
 	protected void endShiftKeyI() {}
@@ -711,7 +743,7 @@ public class myBoids3DWin extends myDispWindow {
 	protected void setVisScreenDimsPriv() {}
 
 	@Override
-	protected void setCustMenuBtnNames() {}
+	protected void setCustMenuBtnLabels() {}
 
 	@Override
 	public void processTrajIndiv(myDrawnSmplTraj drawnTraj) {}

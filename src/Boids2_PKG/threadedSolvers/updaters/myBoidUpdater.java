@@ -162,7 +162,7 @@ public class myBoidUpdater implements Callable<Boolean> {
 			for(myBoid b : bAra){//check every boid to reproduce
 				if(!b.bd_flags[myBoid.isDead]){		reproduce(b);			}
 			}
-			for(myBoid b : bAra){//update spa
+			for(myBoid b : bAra){//update spawn counter
 				if(!b.bd_flags[myBoid.isDead]){		b.updateSpawnCntr();	}
 			}
 		}

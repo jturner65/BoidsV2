@@ -54,6 +54,11 @@ public class myBoidFlock {
 	public List<Future<Boolean>> callFwdSimFutures, callUpdFutures, callInitFutures, callResetBoidFutures;
 	public List<Callable<Boolean>> callFwdBoidCalcs, callUbdBoidCalcs, callInitBoidCalcs, callResetBoidCalcs;
 	
+	/**
+	 * Set via UI to add or remove boids on next cycle
+	 */
+	private int numBoidsToChange = 0;
+	
 	private final int numThrds;
 	protected ExecutorService th_exec;	//to access multithreading - instance from calling program
 	//flock-specific data
@@ -101,9 +106,9 @@ public class myBoidFlock {
 		buildThreadFrames();
 	}//initFlock - run after each flock has been constructed
 	
-	public void setPredPreyTmpl(int predIDX, int preyIDX, myRenderObj _tmpl, myRenderObj _sphrTmpl){
-		predFlock = win.flocks[predIDX];//flock 0 preys on flock 2, is preyed on by flock 1
-		preyFlock = win.flocks[preyIDX];	
+	public void setPredPreyTmpl(myBoidFlock _predFlock, myBoidFlock _preyFlock, myRenderObj _tmpl, myRenderObj _sphrTmpl){
+		predFlock = _predFlock;	//flock 0 preys on flock last, is preyed on by flock 1
+		preyFlock = _preyFlock;	
 		tmpl = _tmpl;
 		sphTmpl = _sphrTmpl;
 	}//set after init - all flocks should be made
@@ -114,27 +119,27 @@ public class myBoidFlock {
 	public float calcRandLocation(float randNum1, float randNum2, float sqDim, float mathCalc, float mult){return ((sqDim/2.0f) + (randNum2 * (sqDim/3.0f) * mathCalc * mult));}
 	public myPointf randBoidStLoc(){		return new myPointf(ThreadLocalRandom.current().nextFloat()*AppMgr.gridDimX,ThreadLocalRandom.current().nextFloat()*AppMgr.gridDimY,ThreadLocalRandom.current().nextFloat()*AppMgr.gridDimZ);	}
 	
-	public void setNumBoids(int _numBoids){
+	private void setNumBoids(int _numBoids){
 		numBoids = _numBoids;
 		nearCount = (int) Math.max(Math.min(nearMinCnt,numBoids), numBoids*nearPct); 		
 	}
 	
-	//adjust boid population by m
-	public void modBoidPop(int m){
-		if(m>0){if(boidFlock.size() >= win.MaxNumBoids) {return;}for(int i=0;i<m;++i){ addBoid();}} 
-		else { int n=-1*m; n = (n>numBoids-1 ? numBoids-1 : n);for(int i=0;i<n;++i){removeBoid();}}
-	}//modBoidPop
+	/**
+	 * Add or subtract boids based on UI input
+	 * @param modAmt how many boids to add or subtract
+	 */
+	public void modNumBoids(int modAmt) {numBoidsToChange = modAmt;}
 	
-	public myBoid addBoid(){	return addBoid(randBoidStLoc());	}	
-	public myBoid addBoid(myPointf stLoc){
+	protected myBoid addBoid(){	return addBoid(randBoidStLoc());	}	
+	protected myBoid addBoid(myPointf stLoc){
 		myBoid tmp = new myBoid(p, win, this, stLoc, type); 
 		boidFlock.add(tmp);
 		setNumBoids(boidFlock.size());
 		return tmp;
 	}//addBoid	
 	
-	public void removeBoid(){removeBoid(boidFlock.size()-1);}
-	public void removeBoid(int idx){
+	protected void removeBoid(){removeBoid(boidFlock.size()-1);}
+	protected void removeBoid(int idx){
 		if(idx<0){return;}	
 		boidFlock.remove(idx);
 		setNumBoids(boidFlock.size());
@@ -258,6 +263,16 @@ public class myBoidFlock {
         	if(b.bd_flags[myBoid.isDead]){       		removeBoid(c);       	}
         	else if(b.hadAChild(birthLoc,bVelFrc)){  		myBoid tmpBby = addBoid(birthLoc[0]); tmpBby.initNewborn(bVelFrc);   	}
         } 	
+        //Handle adding/removing new boids from UI input
+        if (numBoidsToChange != 0) {
+        	//will be positive for addition
+        	for(int i=0;i<numBoidsToChange; ++i) {        		addBoid();        	}
+        	//will be negative for removal
+        	for(int i=numBoidsToChange;i<0; ++i) {        		removeBoid();        	}
+        	numBoidsToChange = 0;
+        	win.clearModNumBoids();
+        }
+        //Do this after all boids have been added/removed
 		buildThreadFrames();
 	}
 	
