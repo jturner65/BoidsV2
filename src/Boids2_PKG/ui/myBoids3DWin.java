@@ -70,7 +70,7 @@ public class myBoids3DWin extends myDispWindow {
 	
 	private static final int numPrivFlags = 21;
 
-	private final int MaxNumBoids = 15000;		//max # of boids per flock
+	public final int MaxNumBoids = 15000;		//max # of boids per flock
 	private final int initNumBoids = 500;		//initial # of boids per flock
 	
 //	// structure holding boid flocks and the rendered versions of them - move to myRenderObj?
@@ -364,7 +364,19 @@ public class myBoids3DWin extends myDispWindow {
 	public myFlkVars getFlkVars(int flockIDX) {return flockVars[flockIDX];}
 	public String getFlkName(int flockIDX) {return flkNames[flockIDX];}
 	
-	//initialize structure to hold modifiable menu regions
+	/**
+	 * Build all UI objects to be shown in left side bar menu for this window.  This is the first child class function called by initThisWin
+	 * @param tmpUIObjArray : map of object data, keyed by UI object idx, with array values being :                    
+	 *           the first element double array of min/max/mod values                                                   
+	 *           the 2nd element is starting value                                                                      
+	 *           the 3rd elem is label for object                                                                       
+	 *           the 4th element is object type (GUIObj_Type enum)
+	 *           the 5th element is boolean array of : (unspecified values default to false)
+	 *           	{value is sent to owning window, 
+	 *           	value is sent on any modifications (while being modified, not just on release), 
+	 *           	changes to value must be explicitly sent to consumer (are not automatically sent)}    
+	 * @param tmpListObjVals
+	 */
 	@Override
 	protected void setupGUIObjsAras(TreeMap<Integer, Object[]> tmpUIObjArray, TreeMap<Integer, String[]> tmpListObjVals){	
 		//build list select box values
@@ -372,14 +384,7 @@ public class myBoids3DWin extends myDispWindow {
 		
 		tmpListObjVals.put(gIDX_BoidType, boidTypeNames);
 		tmpListObjVals.put(gIDX_FlockToObs, flkNames);
-		
-		//tmpBtnNamesArray.add(new Object[]{"Building SOM","Build SOM ",buildSOMExe});
-		//object array of elements of following format  : 
-		//	the first element double array of min/max/mod values
-		//	the 2nd element is starting value
-		//	the 3rd elem is label for object
-		//	the 4th element is boolean array of {treat as int, has list values, value is sent to owning window}
-	
+			
 		tmpUIObjArray.put(gIDX_TimeStep,  new Object[]{new double[]{0,1.0f,.0001f}, .1, "Time Step", GUIObj_Type.FloatVal, new boolean[]{true}});   				//uiTrainDataFrmtIDX                                                                        
 		tmpUIObjArray.put(gIDX_NumFlocks, new Object[]{new double[]{1,MaxNumFlocks,1.0f}, 1.0, "# of Flocks", GUIObj_Type.IntVal, new boolean[]{true}});   				//uiTrainDataFrmtIDX                                                                        
 		tmpUIObjArray.put(gIDX_BoidType,  new Object[]{new double[]{0,boidTypeNames.length-1,1.1f}, 0.0, "Flock Species", GUIObj_Type.ListVal, new boolean[]{true}} );   				//uiTrainDataFrmtIDX                                                                        
