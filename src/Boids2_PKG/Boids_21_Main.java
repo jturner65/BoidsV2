@@ -14,7 +14,7 @@ public class Boids_21_Main extends GUI_AppManager {
 	//project-specific variables
 	public String prjNmLong = "Boids Version 2.0", prjNmShrt = "Boids2";
 
-	//don't use sphere background for this program
+	//use sphere background for this program
 	private boolean useSphereBKGnd = true;	
 	
 	private final int
