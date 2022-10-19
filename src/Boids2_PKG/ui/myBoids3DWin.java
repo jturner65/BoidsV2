@@ -611,10 +611,15 @@ public class myBoids3DWin extends myDispWindow {
 	@Override
 	protected void showMe() {}
 
-	@Override  
-	protected void launchMenuBtnHndlr(int funcRow, int btn) {
-		msgObj.dispMessage(className,"launchMenuBtnHndlr","Begin requested action", MsgCodes.info4);
-		
+	/**
+	 * type is row of buttons (1st idx in curCustBtn array) 2nd idx is btn
+	 * @param funcRow idx for button row
+	 * @param btn idx for button within row (column)
+	 * @param label label for this button (for display purposes)
+	 */
+	@Override
+	protected final void launchMenuBtnHndlr(int funcRow, int btn, String label){
+		msgObj.dispMessage(className, "launchMenuBtnHndlr", "Begin requested action : Click '" + label +"' (Row:"+(funcRow+1)+"|Col:"+btn+") in " + name, MsgCodes.info4);
 		switch(funcRow) {
 		case 0 : {
 			msgObj.dispMessage(className,"launchMenuBtnHndlr","Clicked Btn row : Aux Func 1 | Btn : " + btn, MsgCodes.info4);
