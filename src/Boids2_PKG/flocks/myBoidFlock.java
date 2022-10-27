@@ -1,7 +1,5 @@
 package Boids2_PKG.flocks;
 
-//import java.util.SortedMap;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
