@@ -19,7 +19,7 @@ import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
 import base_UI_Objects.GUI_AppManager;
-import base_UI_Objects.windowUI.base.myDispWindow;
+import base_UI_Objects.windowUI.base.Base_DispWindow;
 import base_Utils_Objects.io.messaging.MsgCodes;
 
 public class myBoidFlock {
@@ -66,7 +66,7 @@ public class myBoidFlock {
 		p = _p; win=_win;	
 		flv = _flv;
 		name = flv.typeName; 
-		AppMgr = myDispWindow.AppMgr;	
+		AppMgr = Base_DispWindow.AppMgr;	
 		type = _type;
 		th_exec = win.getTh_Exec();
 		int numThrdsAvail = AppMgr.getNumThreadsAvailable();

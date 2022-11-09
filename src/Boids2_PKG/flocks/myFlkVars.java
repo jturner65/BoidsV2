@@ -3,7 +3,7 @@ package Boids2_PKG.flocks;
 import java.util.concurrent.ThreadLocalRandom;
 
 import Boids2_PKG.ui.myBoids3DWin;
-import base_UI_Objects.windowUI.base.myDispWindow;
+import base_UI_Objects.windowUI.base.Base_DispWindow;
 import base_Math_Objects.MyMathUtils;
 
 
@@ -68,7 +68,7 @@ public class myFlkVars {
 	
 	//set initial values
 	public void initFlockVals(float nRadMult, float _spnPct){
-		predRad = MyMathUtils.min(MyMathUtils.min(myDispWindow.AppMgr.gridDimY, myDispWindow.AppMgr.gridDimZ), myDispWindow.AppMgr.gridDimX);					//radius to avoid pred/find prey	
+		predRad = MyMathUtils.min(MyMathUtils.min(Base_DispWindow.AppMgr.gridDimY, Base_DispWindow.AppMgr.gridDimZ), Base_DispWindow.AppMgr.gridDimX);					//radius to avoid pred/find prey	
 		nghbrRadMax = predRad*neighborMult;
 		nghbrRad = nghbrRadMax*nRadMult;
 		colRad  = nghbrRad*.1f;

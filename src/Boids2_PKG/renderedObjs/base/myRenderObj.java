@@ -1,7 +1,7 @@
 package Boids2_PKG.renderedObjs.base;
 
 import base_UI_Objects.my_procApplet;
-import base_UI_Objects.windowUI.base.myDispWindow;
+import base_UI_Objects.windowUI.base.Base_DispWindow;
 import Boids2_PKG.renderedObjs.myRndrObjClr;
 import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
 import base_Math_Objects.MyMathUtils;
@@ -12,7 +12,7 @@ import processing.core.PConstants;
 
 public abstract class myRenderObj {
 	protected static IRenderInterface p;	
-	protected myDispWindow win;
+	protected Base_DispWindow win;
 	protected static final float pi3rds = MyMathUtils.PI_F/3.0f, pi4thrds = 4*pi3rds, pi100th = .01f*MyMathUtils.PI_F, pi6ths = .5f*pi3rds;
 	//individual objRep-type pshapes	
 	protected PShape objRep;										//1 shape for each type of objRep
@@ -21,7 +21,7 @@ public abstract class myRenderObj {
 	protected myRndrObjClr flockColor;
 	protected float emitMod = 1.0f;
 	//class to allow for prebuilding complex rendered representations of boids as pshapes
-	public myRenderObj(IRenderInterface _p, myDispWindow _win, int _type) {
+	public myRenderObj(IRenderInterface _p, Base_DispWindow _win, int _type) {
 		p=_p; win=_win; type = _type;
 		setObjMade(initGeometry());
 	}

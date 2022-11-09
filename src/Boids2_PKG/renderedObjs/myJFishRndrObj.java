@@ -5,7 +5,7 @@ import Boids2_PKG.renderedObjs.base.myRenderObj;
 import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
 import base_Math_Objects.MyMathUtils;
 import base_UI_Objects.my_procApplet;
-import base_UI_Objects.windowUI.base.myDispWindow;
+import base_UI_Objects.windowUI.base.Base_DispWindow;
 import processing.core.PConstants;
 import processing.core.PShape;
 
@@ -36,7 +36,7 @@ public class myJFishRndrObj extends myRenderObj {
 	private static final float strkWt = .1f;
 	private static final float shn = 5.0f;
 
-	public myJFishRndrObj(IRenderInterface _p, myDispWindow _win, int _type)  {	
+	public myJFishRndrObj(IRenderInterface _p, Base_DispWindow _win, int _type)  {	
 		super(_p, _win, _type);	 
 		emitMod = .85f;
 	}//ctor

@@ -3,8 +3,8 @@ package Boids2_PKG;
 import Boids2_PKG.ui.myBoids3DWin;
 import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
 import base_UI_Objects.GUI_AppManager;
-import base_UI_Objects.windowUI.base.myDispWindow;
-import base_UI_Objects.windowUI.sidebar.mySideBarMenu;
+import base_UI_Objects.windowUI.base.Base_DispWindow;
+import base_UI_Objects.windowUI.sidebar.SidebarMenu;
 /**
  * Flocking boids sim version 2.1
  * @author john turner
@@ -54,7 +54,6 @@ public class Boids_21_Main extends GUI_AppManager {
 	
 	@Override
 	protected void setBkgrnd(){
-		//TODO move to myDispWindow	
 		if(useSphereBKGnd) { pa.setBkgndSphere();	} else {pa.setRenderBackground(bground[0],bground[1],bground[2],bground[3]);		}
 	}
 
@@ -220,7 +219,7 @@ public class Boids_21_Main extends GUI_AppManager {
 	@Override
 	public void handleShowWin(int btn, int val, boolean callFlags) {
 		if(!callFlags){//called from setflags - only sets button state in UI to avoid infinite loop
-			setMenuBtnState(mySideBarMenu.btnShowWinIdx,btn, val);
+			setMenuBtnState(SidebarMenu.btnShowWinIdx,btn, val);
 		} else {//called from clicking on buttons in UI
 			//val is btn state before transition 
 			boolean bVal = (val == 1?  false : true);
@@ -239,7 +238,7 @@ public class Boids_21_Main extends GUI_AppManager {
 	//address all flag-setting here, so that if any special cases need to be addressed they can be
 	protected void setVisFlag_Indiv(int idx, boolean val ){
 		switch (idx){
-			case showUIMenu 	    : { dispWinFrames[dispMenuIDX].setFlags(myDispWindow.showIDX,val);    break;}											//whether or not to show the main ui window (sidebar)			
+			case showUIMenu 	    : { dispWinFrames[dispMenuIDX].setFlags(Base_DispWindow.showIDX,val);    break;}											//whether or not to show the main ui window (sidebar)			
 			case show3DWin		: {setWinFlagsXOR(disp3DResIDX, val); break;}
 			case show2DWin		: {setWinFlagsXOR(disp2DResIDX, val); break;}
 			default : {break;}

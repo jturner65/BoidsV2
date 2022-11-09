@@ -12,7 +12,7 @@ import base_Math_Objects.vectorObjs.doubles.myPoint;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
 import base_UI_Objects.GUI_AppManager;
-import base_UI_Objects.windowUI.base.myDispWindow;
+import base_UI_Objects.windowUI.base.Base_DispWindow;
 
 /**
  * class defining a creature object for flocking
@@ -73,7 +73,7 @@ public class myBoid {
 			
 	public myBoid(IRenderInterface _p, myBoids3DWin _win, myBoidFlock _f,  myPointf _coords, int _type){
 		ID = IDcount++;		p = _p;		f = _f; type=_type; //win = _win;	
-		AppMgr = myDispWindow.AppMgr;
+		AppMgr = Base_DispWindow.AppMgr;
 		initbd_flags();
 		rotVec = myVectorf.RIGHT.cloneMe(); 			//initial setup
 		orientation = new myVectorf[3];

@@ -20,13 +20,13 @@ import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_UI_Objects.GUI_AppManager;
 import base_UI_Objects.my_procApplet;
 import base_UI_Objects.windowUI.uiData.UIDataUpdater;
-import base_UI_Objects.windowUI.base.myDispWindow;
-import base_UI_Objects.windowUI.drawnObjs.myDrawnSmplTraj;
-import base_UI_Objects.windowUI.uiObjs.GUIObj_Type;
+import base_UI_Objects.windowUI.base.Base_DispWindow;
+import base_UI_Objects.windowUI.drawnObjs.DrawnSimpleTraj;
+import base_UI_Objects.windowUI.uiObjs.base.GUIObj_Type;
 import base_Utils_Objects.io.messaging.MsgCodes;
 import processing.core.PImage;
 
-public class myBoids3DWin extends myDispWindow {
+public class myBoids3DWin extends Base_DispWindow {
 	
 	//idxs - need one per object
 	public final static int
@@ -294,9 +294,9 @@ public class myBoids3DWin extends myDispWindow {
 		pa.translate(bdgSizeX[i]+3,bdgSizeY+6);
 		//p.setColorValFill(flkMenuClr);
 		rndrTmpl[i].setMenuColor();
-		pa.showText(fvData[0],0,-myDispWindow.yOff*.5f);pa.translate(0,myDispWindow.yOff*.75f);
+		pa.showText(fvData[0],0,-Base_DispWindow.yOff*.5f);pa.translate(0,Base_DispWindow.yOff*.75f);
 		pa.translate(-bdgSizeX[i]-3,0);
-		for(int j=1;j<fvData.length; ++j){pa.showText(fvData[j],0,-myDispWindow.yOff*.5f);pa.translate(0,myDispWindow.yOff*.75f);}	
+		for(int j=1;j<fvData.length; ++j){pa.showText(fvData[j],0,-Base_DispWindow.yOff*.5f);pa.translate(0,Base_DispWindow.yOff*.75f);}	
 		//p.popStyle();
 	}//drawFlockMenu
 	
@@ -757,14 +757,17 @@ public class myBoids3DWin extends myDispWindow {
 	protected void setCustMenuBtnLabels() {}
 
 	@Override
-	public void processTrajIndiv(myDrawnSmplTraj drawnTraj) {}
-
-	@Override
 	public void hndlFileLoad(File file, String[] vals, int[] stIdx) {}
 
 	@Override
 	public ArrayList<String> hndlFileSave(File file) {		
 		return null;
+	}
+
+	@Override
+	public void processTrajIndiv(DrawnSimpleTraj drawnTraj) {
+		// TODO Auto-generated method stub
+		
 	}
 }//class myBoids3DWin
 
