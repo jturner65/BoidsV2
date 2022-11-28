@@ -82,7 +82,9 @@ public class myJFishRndrObj extends myRenderObj {
 		flockColor = allFlockColors[type];
 	}
 	
-	//builds geometry for object to be instanced - only perform once per object type 
+	/**
+	 * builds geometry for object to be instanced - only perform once per object type 
+	 */
 	@Override
 	protected void initObjGeometry() {
 		//make all bodies of a cycle of animation - make instances in buildObj
