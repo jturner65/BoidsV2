@@ -1,6 +1,6 @@
 package Boids2_PKG.renderedObjs;
 
-import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
+import base_Render_Interface.IRenderInterface;
 import base_UI_Objects.my_procApplet;
 import processing.core.PShape;
 

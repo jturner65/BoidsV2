@@ -2,7 +2,7 @@ package Boids2_PKG.renderedObjs;
 
 import Boids2_PKG.flocks.boids.myBoid;
 import Boids2_PKG.renderedObjs.base.myRenderObj;
-import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
+import base_Render_Interface.IRenderInterface;
 import base_Math_Objects.MyMathUtils;
 import base_UI_Objects.my_procApplet;
 import base_UI_Objects.windowUI.base.Base_DispWindow;

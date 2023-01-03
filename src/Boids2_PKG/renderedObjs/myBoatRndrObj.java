@@ -3,7 +3,7 @@ package Boids2_PKG.renderedObjs;
 import Boids2_PKG.flocks.boids.myBoid;
 import Boids2_PKG.renderedObjs.base.myRenderObj;
 import Boids2_PKG.ui.myBoids3DWin;
-import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
+import base_Render_Interface.IRenderInterface;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;

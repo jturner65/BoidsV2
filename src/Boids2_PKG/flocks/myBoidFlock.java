@@ -15,7 +15,7 @@ import Boids2_PKG.threadedSolvers.initializers.myBoidValsResetter;
 import Boids2_PKG.threadedSolvers.initializers.myInitPredPreyMaps;
 import Boids2_PKG.threadedSolvers.updaters.myBoidUpdater;
 import Boids2_PKG.ui.myBoids3DWin;
-import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
+import base_Render_Interface.IRenderInterface;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
 import base_UI_Objects.GUI_AppManager;

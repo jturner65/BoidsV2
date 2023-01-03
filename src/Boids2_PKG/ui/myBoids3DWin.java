@@ -13,7 +13,7 @@ import Boids2_PKG.renderedObjs.myBoatRndrObj;
 import Boids2_PKG.renderedObjs.myJFishRndrObj;
 import Boids2_PKG.renderedObjs.mySphereRndrObj;
 import Boids2_PKG.renderedObjs.base.myRenderObj;
-import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
+import base_Render_Interface.IRenderInterface;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
 import base_Math_Objects.vectorObjs.doubles.myVector;
 import base_Math_Objects.vectorObjs.floats.myPointf;

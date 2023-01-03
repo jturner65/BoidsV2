@@ -1,7 +1,7 @@
 package Boids2_PKG.renderedObjs;
 
 import Boids2_PKG.renderedObjs.base.myRenderObj;
-import base_JavaProjTools_IRender.base_Render_Interface.IRenderInterface;
+import base_Render_Interface.IRenderInterface;
 import base_UI_Objects.windowUI.base.Base_DispWindow;
 import processing.core.PConstants;
 
