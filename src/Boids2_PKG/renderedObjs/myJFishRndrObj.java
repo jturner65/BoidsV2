@@ -16,7 +16,7 @@ public class myJFishRndrObj extends myRenderObj {
 	private static boolean made;
 	
 	private static PShape[][] bodyAra = new PShape[5][];
-	private int numTentacles = 5;
+	//private int numTentacles = 5;
 	
 	//primary object color (same across all types of boids); 
 	private static myRndrObjClr mainColor;	

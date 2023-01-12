@@ -1,5 +1,8 @@
 package Boids2_PKG;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 import Boids2_PKG.ui.myBoids3DWin;
 import base_Render_Interface.IRenderInterface;
 import base_UI_Objects.GUI_AppManager;
@@ -12,8 +15,9 @@ import base_UI_Objects.windowUI.sidebar.SidebarMenu;
 
 public class Boids_21_Main extends GUI_AppManager {
 	//project-specific variables
-	public String prjNmLong = "Boids Version 2.0", prjNmShrt = "Boids2";
-
+	public final String prjNmLong = "Boids Version 2.0";
+	public final String prjNmShrt = "Boids2";
+	public final String projDesc = "Multiple boid flock predator/prey simulation";
 	//use sphere background for this program
 	private boolean useSphereBKGnd = true;	
 	
@@ -36,10 +40,18 @@ public class Boids_21_Main extends GUI_AppManager {
 	    Boids_21_Main.invokeProcessingMain(me, passedArgs);
 	 }
 	
-	@Override
-	protected void setRuntimeArgsVals(String[] _passedArgs) {
-	}
+	protected Boids_21_Main(){super();}
 	
+	/**
+	 * Set various relevant runtime arguments in argsMap
+	 * @param _passedArgs command-line arguments
+	 */
+	@Override
+	protected TreeMap<String,Object> setRuntimeArgsVals(Map<String, Object> _passedArgsMap) {
+
+		return (TreeMap<String, Object>) _passedArgsMap;
+	}
+
 	@Override
 	protected void setSmoothing() {		pa.setSmoothing(0);		}
 	/**
@@ -51,6 +63,13 @@ public class Boids_21_Main extends GUI_AppManager {
 	 */
 	@Override
 	protected int setAppWindowDimRestrictions() {	return 1;}	
+	
+	@Override
+	public String getPrjNmShrt() {return prjNmShrt;}
+	@Override
+	public String getPrjNmLong() {return prjNmLong;}
+	@Override
+	public String getPrjDescr() {return projDesc;}
 	
 	@Override
 	protected void setBkgrnd(){
@@ -150,11 +169,6 @@ public class Boids_21_Main extends GUI_AppManager {
 	public String[] getMouseOverSelBtnLabels() {
 		return new String[0];
 	}
-
-	@Override
-	protected String getPrjNmLong() {	return prjNmLong;}
-	@Override
-	protected String getPrjNmShrt() {	return prjNmShrt;}
 	
 	@Override
 	protected void handleKeyPress(char key, int keyCode) {
