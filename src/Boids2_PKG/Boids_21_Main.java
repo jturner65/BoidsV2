@@ -98,12 +98,12 @@ public class Boids_21_Main extends GUI_AppManager {
 	}
 	
 	@Override
-	protected void initMainFlags_Indiv() {
-		setMainFlagToShow_debugMode(false);
-		setMainFlagToShow_saveAnim(true); 
-		setMainFlagToShow_runSim(true);
-		setMainFlagToShow_singleStep(true);
-		setMainFlagToShow_showRtSideMenu(true);		
+	protected void initBaseFlags_Indiv() {
+		setBaseFlagToShow_debugMode(false);
+		setBaseFlagToShow_saveAnim(true); 
+		setBaseFlagToShow_runSim(true);
+		setBaseFlagToShow_singleStep(true);
+		setBaseFlagToShow_showRtSideMenu(true);		
 	}
 
 	@Override
@@ -114,10 +114,10 @@ public class Boids_21_Main extends GUI_AppManager {
 				_winDescr = new String[] {"", "Multi Flock Predator/Prey Boids 3D Simulation","Multi Flock Predator/Prey Boids 2D Simulation"};
 		initWins(numWins,_winTitles, _winDescr);
 		//call for menu window
-		buildInitMenuWin(showUIMenu);
+		buildInitMenuWin();
 		//instanced window dimensions when open and closed - only showing 1 open at a time
-		float[] _dimOpen  =  new float[]{menuWidth, 0, pa.getWidth()-menuWidth,  pa.getHeight()}, _dimClosed  =  new float[]{menuWidth, 0, hideWinWidth,  pa.getHeight()};	
-		System.out.println("Width : " + pa.getWidth() + " | Height : " +  pa.getHeight());
+		float[] _dimOpen  = getDefaultWinDimOpen(), 
+				_dimClosed  = getDefaultWinDimClosed();	
 		int wIdx = dispMenuIDX,fIdx=showUIMenu;
 		//new mySideBarMenu(this, winTitles[wIdx], fIdx, winFillClrs[wIdx], winStrkClrs[wIdx], winRectDimOpen[wIdx], winRectDimClose[wIdx], winDescr[wIdx]);
 		//Builds sidebar menu button config
