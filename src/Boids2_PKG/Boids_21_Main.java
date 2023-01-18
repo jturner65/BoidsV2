@@ -1,7 +1,6 @@
 package Boids2_PKG;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.HashMap;
 
 import Boids2_PKG.ui.myBoids3DWin;
 import base_Render_Interface.IRenderInterface;
@@ -47,9 +46,8 @@ public class Boids_21_Main extends GUI_AppManager {
 	 * @param _passedArgs command-line arguments
 	 */
 	@Override
-	protected TreeMap<String,Object> setRuntimeArgsVals(Map<String, Object> _passedArgsMap) {
-
-		return (TreeMap<String, Object>) _passedArgsMap;
+	protected HashMap<String,Object> setRuntimeArgsVals(HashMap<String, Object> _passedArgsMap) {
+		return  _passedArgsMap;
 	}
 
 	@Override
@@ -158,9 +156,6 @@ public class Boids_21_Main extends GUI_AppManager {
 		setVisFlag(showUIMenu, true);					//show input UI menu	
 		setVisFlag(show3DWin, true);
 	}
-
-	@Override
-	protected void initVisProg_Indiv() {}
 
 	@Override
 	protected void initProgram_Indiv() {	}

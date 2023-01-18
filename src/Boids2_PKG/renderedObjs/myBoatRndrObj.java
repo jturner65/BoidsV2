@@ -20,7 +20,7 @@ public class myBoatRndrObj extends myRenderObj {
 	//precalc consts
 	private static final int numOars = 5;
 	//objRep geometry/construction variables
-	private final static myPointf[][] boatVerts = new myPointf[5][12];						//seed points to build object 	
+	private static final myPointf[][] boatVerts = new myPointf[5][12];						//seed points to build object 	
 	private static myPointf[][] boatRndr;													//points of hull
 	private static myPointf[] pts3, pts5, pts7;	
 		
@@ -28,7 +28,7 @@ public class myBoatRndrObj extends myRenderObj {
 	private static PShape[] oars;										//1 array for each type of objRep, 1 element for each animation frame of oar motion
 	private static myPointf[] uvAra;
 	//common initial transformation vector used in boat construction
-	private final static myVectorf transYup1 = new myVectorf(0,1,0);
+	private static final myVectorf transYup1 = new myVectorf(0,1,0);
 	
 	//private PImage sailTexture;
 	
