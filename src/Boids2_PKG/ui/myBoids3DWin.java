@@ -619,7 +619,6 @@ public class myBoids3DWin extends Base_DispWindow {
 	 */
 	@Override
 	protected final void launchMenuBtnHndlr(int funcRow, int btn, String label){
-		msgObj.dispMessage(className, "launchMenuBtnHndlr", "Begin requested action : Click '" + label +"' (Row:"+(funcRow+1)+"|Col:"+btn+") in " + name, MsgCodes.info4);
 		switch(funcRow) {
 		case 0 : {
 			msgObj.dispMessage(className,"launchMenuBtnHndlr","Clicked Btn row : Aux Func 1 | Btn : " + btn, MsgCodes.info4);
@@ -697,17 +696,18 @@ public class myBoids3DWin extends Base_DispWindow {
 					break;}	
 			}
 			break;}//row 2 of menu side bar buttons
+		default : {
+			msgObj.dispWarningMessage(className,"launchMenuBtnHndlr","Clicked Unknown Btn row : " + funcRow +" | Btn : " + btn);
+			break;
+		}
 		}			
 	}
 	
 	@Override
-	public final void handleSideMenuMseOvrDispSel(int btn, boolean val) {
-		
-		
-	}
+	public final void handleSideMenuMseOvrDispSel(int btn, boolean val) {}
+	
 	@Override
-	public final void handleSideMenuDebugSelEnable(int btn) {
-		msgObj.dispMessage(className, "handleSideMenuDebugSelEnable","Click Debug functionality on in " + name + " : btn : " + btn, MsgCodes.info4);
+	protected final void handleSideMenuDebugSelEnable(int btn) {
 		switch (btn) {
 			case 0: {				break;			}
 			case 1: {				break;			}
@@ -720,12 +720,10 @@ public class myBoids3DWin extends Base_DispWindow {
 				break;
 			}
 		}
-		msgObj.dispMessage(className, "handleSideMenuDebugSelEnable", "End Debug functionality on selection.",MsgCodes.info4);
 	}
 	
 	@Override
-	public final void handleSideMenuDebugSelDisable(int btn) {
-		msgObj.dispMessage(className, "handleSideMenuDebugSelDisable","Click Debug functionality off in " + name + " : btn : " + btn, MsgCodes.info4);
+	protected final void handleSideMenuDebugSelDisable(int btn) {
 		switch (btn) {
 			case 0: {				break;			}
 			case 1: {				break;			}
@@ -738,7 +736,6 @@ public class myBoids3DWin extends Base_DispWindow {
 			break;
 			}
 		}
-		msgObj.dispMessage(className, "handleSideMenuDebugSelDisable", "End Debug functionality off selection.",MsgCodes.info4);
 	}
 
 
