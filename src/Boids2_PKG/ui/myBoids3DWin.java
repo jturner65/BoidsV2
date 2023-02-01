@@ -183,9 +183,9 @@ public class myBoids3DWin extends Base_DispWindow {
 	@Override
 	protected int[] getFlagIDXsToInitToTrue() {
 		//this window is runnable
-		setFlags(isRunnable, true);
+		dispFlags.setIsRunnable(true);
 		//this window uses a customizable camera
-		setFlags(useCustCam, true);
+		dispFlags.setUseCustCam(true);
 		return new int[] {drawBoids, attractMode, useTorroid};
 	}
 	/**
@@ -264,14 +264,14 @@ public class myBoids3DWin extends Base_DispWindow {
 		for(int i =0; i<flocks.length; ++i){
 			// ??? 
 			// flockVars[i] = new myFlkVars(this, flkNames[i],(float)ThreadLocalRandom.current().nextDouble(0.65, 1.0));
-			flockVars[i] = new myFlkVars(this, flkNames[i], flkRadMults[i]);
+			flockVars[i] = new myFlkVars(flkNames[i], flkRadMults[i]);
 			flocks[i] = new myBoidFlock(pa,this,flockVars[i],initNumBoids,i);
 			flocks[i].initFlock();
 		}
 
 		int predIDX, preyIDX;
 		for(int i =0; i<flocks.length; ++i){
-			predIDX = (((i+flocks.length)+1)%flocks.length);
+			predIDX = ((i+1)%flocks.length);
 			preyIDX = (((i+flocks.length)-1)%flocks.length);
 			flocks[i].setPredPreyTmpl(flocks[predIDX], flocks[preyIDX], rndrTmpl[i], sphrRndrTmpl[i]);
 		}	
@@ -279,25 +279,26 @@ public class myBoids3DWin extends Base_DispWindow {
 
 	public int getFlkFlagsInt(){		return privFlags[0];} //get first 32 flag settings
 	
-	private void drawMenuBadge(myPointf[] ara, myPointf[] uvAra, int type) {
+	public void drawMenuBadge(myPointf[] ara, myPointf[] uvAra, int type) {
 		pa.gl_beginShape(); 
 		((my_procApplet)pa).texture(flkSails[type]);
 		for(int i=0;i<ara.length;++i){	((my_procApplet)pa).vTextured(ara[i], uvAra[i].y, uvAra[i].x);} 
 		pa.gl_endShape(true);
 	}//
 	
+	private static final float fvDataTxtStY = -Base_DispWindow.yOff*.5f;
+	private static final float fvDataNewLineY = Base_DispWindow.yOff*.75f;
+	
 	public void drawFlockMenu(int i, int numBoids){
-		String fvData[] = flockVars[i].getData(numBoids);
-		//p.pushStyle();
 		pa.translate(0,-bdgSizeY-6);
 		drawMenuBadge(mnBdgBox[i],mnUVBox,i);
 		pa.translate(bdgSizeX[i]+3,bdgSizeY+6);
 		//p.setColorValFill(flkMenuClr);
 		rndrTmpl[i].setMenuColor();
-		pa.showText(fvData[0],0,-Base_DispWindow.yOff*.5f);pa.translate(0,Base_DispWindow.yOff*.75f);
+		String fvData[] = flockVars[i].getData(numBoids);
+		pa.showText(fvData[0],0, fvDataTxtStY);pa.translate(0,fvDataNewLineY);
 		pa.translate(-bdgSizeX[i]-3,0);
-		for(int j=1;j<fvData.length; ++j){pa.showText(fvData[j],0,-Base_DispWindow.yOff*.5f);pa.translate(0,Base_DispWindow.yOff*.75f);}	
-		//p.popStyle();
+		for(int j=1;j<fvData.length; ++j){pa.showText(fvData[j],0,fvDataTxtStY);pa.translate(0,fvDataNewLineY);}
 	}//drawFlockMenu
 	
 	@Override
@@ -343,7 +344,7 @@ public class myBoids3DWin extends Base_DispWindow {
 			case modDelT	 			: {break;}
 			case flkCyclesFrc			: {break;}
 			case viewFromBoid		    : {
-				super.setFlags(drawMseEdge,!val);//if viewing from boid, then don't show mse edge, and vice versa
+				dispFlags.setDrawMseEdge(!val);//if viewing from boid, then don't show mse edge, and vice versa
 				break;}	//whether viewpoint is from a boid's perspective or global
 			case useOrigDistFuncs 	    : {
 				if(flocks == null){break;}
@@ -501,7 +502,7 @@ public class myBoids3DWin extends Base_DispWindow {
 		for(int i =0; i<flocks.length; ++i){flocks[i].clearOutBoids();}			//clear boid accumulators of neighbors, preds and prey 
 		for(int i =0; i<flocks.length; ++i){flocks[i].initAllMaps();}
 		boolean checkForce = (AppMgr.mouseIsClicked()) && (!AppMgr.shiftIsPressed());
-		if(getFlags(useOrigDistFuncs)){for(int i =0; i<flocks.length; ++i){flocks[i].moveBoidsOrigMultTH(checkForce);}} 
+		if(getPrivFlags(useOrigDistFuncs)){for(int i =0; i<flocks.length; ++i){flocks[i].moveBoidsOrigMultTH(checkForce);}} 
 		else {					for(int i =0; i<flocks.length; ++i){flocks[i].moveBoidsLinMultTH(checkForce);}}
 		for(int i =0; i<flocks.length; ++i){flocks[i].updateBoidMovement();}//setMaxUIBoidToWatch(i);}	
 		for(int i =0; i<flocks.length; ++i){flocks[i].finalizeBoids();setMaxUIBoidToWatch(i);}	
@@ -515,7 +516,12 @@ public class myBoids3DWin extends Base_DispWindow {
 		return false;
 	}
 
-	//handle click in menu region - return idx of mod obj or -1
+	/**
+	 * handle click in menu region - return idx of mod obj or -1
+	 * @param mouseX
+	 * @param mouseY
+	 * @return
+	 */
 	private int handleFlkMenuClick(int mouseX, int mouseY){
 		int vIdx = -1;
 		//float mod = 0;
@@ -578,7 +584,7 @@ public class myBoids3DWin extends Base_DispWindow {
 		flockVars[flkIDX].modFlkVal(flkValIDX, mod);		
 		//msgObj.dispInfoMessage("myBoidFlock","handleFlkMenuDrag","Flock : " + name + " flkVar IDX : " + flkVarIDX + " mod amt : " + mod);		
 		return res;
-	}//handleFlkMenuClick
+	}//handleFlkMenuDrag
 	
 	@Override
 	protected void snapMouseLocs(int oldMouseX, int oldMouseY, int[] newMouseLoc) {}	

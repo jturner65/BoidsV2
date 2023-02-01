@@ -1,16 +1,18 @@
 package Boids2_PKG.flocks;
 
+import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
-import Boids2_PKG.ui.myBoids3DWin;
 import base_UI_Objects.windowUI.base.Base_DispWindow;
 import base_Math_Objects.MyMathUtils;
 
 
-//struct-type class to hold flocking variables for a specific flock
-public class myFlkVars {
-	public myBoids3DWin win;
-	
+/**
+ * struct-type class to hold flocking variables for a specific flock
+ * @author John Turner
+ *
+ */
+public class myFlkVars {	
 	private final float neighborMult = .5f;							//multiplier for neighborhood consideration against zone size - all rads built off this
 	
 	public float dampConst = .01f;				//multiplier for damping force, to slow boats down if nothing else acting on them
@@ -18,11 +20,11 @@ public class myFlkVars {
 	public float nghbrRad,									//radius of the creatures considered to be neighbors
 					colRad,										//radius of creatures to be considered for colision avoidance
 					velRad,										//radius of creatures to be considered for velocity matching
-					predRad,									//radius for creature to be considered for pred/prey
+					predRad,									//radius for creature to be considered for pred/prey (to start avoiding or to chase)
 					spawnPct,									//% chance to reproduce given the boids breech the required radius
 					spawnRad,									//distance to spawn * mass
 					killPct,									//% chance to kill prey creature
-					killRad;									//radius to kill * mass (distance required to make kill attempt)
+					killRad;									//distance to kill * mass (distance required to make kill attempt)
 	
 	public int spawnFreq, 									//# of cycles that must pass before can spawn again
 				eatFreq;								 		//# cycles w/out food until starve to death
@@ -53,13 +55,12 @@ public class myFlkVars {
 			MinWtAra = new float[]{.01f, .01f, .01f, .01f, .001f, .001f},			
 			MaxSpAra = new float[]{1,10000,100000},								
 			MinSpAra = new float[]{.001f, 100, 100},			
-			MaxHuntAra = new float[]{.1f,10000,100000},							
-			MinHuntAra = new float[]{.00001f, 10, 100};	
+			MaxHuntAra = new float[]{.1f,10000,100000},					//max values for kill%, predation						
+			MinHuntAra = new float[]{.0001f, 10, 100};	
 	
 	public final String typeName;
 	
-	public myFlkVars(myBoids3DWin _win, String _flockName, float _nRadMult) {
-		win = _win;
+	public myFlkVars(String _flockName, float _nRadMult) {
 		typeName = _flockName;
 		initFlockVals(_nRadMult, .05f);
 	}//ctor
@@ -68,7 +69,8 @@ public class myFlkVars {
 	
 	//set initial values
 	public void initFlockVals(float nRadMult, float _spnPct){
-		predRad = MyMathUtils.min(MyMathUtils.min(Base_DispWindow.AppMgr.gridDimY, Base_DispWindow.AppMgr.gridDimZ), Base_DispWindow.AppMgr.gridDimX);					//radius to avoid pred/find prey	
+		//radius to avoid pred/find prey
+		predRad = MyMathUtils.min(MyMathUtils.min(Base_DispWindow.AppMgr.gridDimY, Base_DispWindow.AppMgr.gridDimZ), Base_DispWindow.AppMgr.gridDimX);						
 		nghbrRadMax = predRad*neighborMult;
 		nghbrRad = nghbrRadMax*nRadMult;
 		colRad  = nghbrRad*.1f;
@@ -104,11 +106,10 @@ public class myFlkVars {
 		switch(wIdx){
 		//hierarchy - if neighbor then col and vel, if col then 
 			case 0  : {
-				//win.getMsgObj().dispInfoMessage("myFlkVars","modFlkVal","nghbrRad : " + nghbrRad + " max : " + nghbrRadMax + " mod : " + mod);
 				nghbrRad = modVal(nghbrRad, .1f*nghbrRadMax, nghbrRadMax, mod);
 				fixNCVRads(true, true);				
-				break;}			//flck radius
-			case 1  : {colRad = modVal(colRad, .05f*nghbrRad, .9f*nghbrRad, mod);fixNCVRads(false, true);break;}	//avoid radius
+				break;}			//flock radius
+			case 1  : {colRad = modVal(colRad, .05f*nghbrRad, .9f*nghbrRad, mod);fixNCVRads(false, true);break;}	//avoid friends radius
 			case 2  : {velRad = modVal(velRad, colRad, .9f*nghbrRad, mod);break;}			//vel match radius
 			
 			case 3  : 						//3-8 are the 6 force weights
@@ -116,7 +117,7 @@ public class myFlkVars {
 			case 5  : 
 			case 6  : 
 			case 7  : 
-			case 8  : {modFlkWt(wIdx-3,mod*.01f);break;}						//3-9 are the 6 force weights
+			case 8  : {modFlkWt(wIdx-3,mod*.01f);break;}						//3-8 are the 6 force weights
 			
 			case 9  : {spawnPct = modVal(spawnPct, MinSpAra[0], MaxSpAra[0], mod*.001f); break;}
 			case 10 : {spawnRad = modVal(spawnRad, MinSpAra[1], MaxSpAra[1], mod);break;}
@@ -131,8 +132,8 @@ public class myFlkVars {
 	
 	//call after neighborhood, collision or avoidance radii have been modified
 	private void fixNCVRads(boolean modC, boolean modV){
-		if(modC){colRad = Math.min(Math.max(colRad,.05f*nghbrRad),.9f*nghbrRad);}//when neighbor rad modded	
-		if(modV){velRad = Math.min(Math.max(colRad,velRad),.9f*nghbrRad);}//when col or neighbor rad modded
+		if(modC){colRad = MyMathUtils.min(MyMathUtils.max(colRad,.05f*nghbrRad),.9f*nghbrRad);}//when neighbor rad modded	
+		if(modV){velRad = MyMathUtils.min(MyMathUtils.max(colRad,velRad),.9f*nghbrRad);}//when col or neighbor rad modded
 	}
 	
 	private int modVal(int val, float min, float max, int mod){	int oldVal = val;val += mod;if(!(MyMathUtils.inRange(val, min, max))){val = oldVal;} return val;}	
@@ -146,34 +147,37 @@ public class myFlkVars {
 		if(!(MyMathUtils.inRange(wts[wIdx], MinWtAra[wIdx], MaxWtAra[wIdx]))){this.wts[wIdx] = oldVal;}		
 	}
 
-	//used to display flock-specific values
-	public String[] getData(int numBoids){
+	private String[] getInfoForFlkVars(String _prefix) {
 		String res[] = new String[]{
-		 "" + numBoids + " " + typeName + " Lim: V: ["+String.format("%.2f", (minVelMag))+"," + String.format("%.2f", (maxVelMag))+"] M ["+ String.format("%.2f", (massForType[0])) + "," + String.format("%.2f", (massForType[1]))+"]" ,
-		 "Radius : Fl : "+String.format("%.2f",nghbrRad)+ " |  Avd : "+String.format("%.2f",colRad)+" |  VelMatch : "+ String.format("%.2f",velRad),
-		// "           "+(nghbrRad > 10 ?(nghbrRad > 100 ? "":" "):"  ")+String.format("%.2f",nghbrRad)+" | "+(colRad > 10 ?(colRad > 100 ? "":" "):"  ")+String.format("%.2f",colRad)+" | "+(velRad > 10 ?(velRad > 100 ? "":" "):"  ")+ String.format("%.2f",velRad),
-		 "Wts: Ctr |  Avoid | VelM | Wndr | AvPrd | Chase" ,
-		 "     "+String.format("%.2f", wts[wFrcCtr])
-				+"  |  "+String.format("%.2f", wts[wFrcAvd])
-				+"  |  "+String.format("%.2f", wts[wFrcVel])
-				+"  |  "+String.format("%.2f", wts[wFrcWnd])
-				+"  |  "+String.format("%.2f", wts[wFrcAvdPred])
-				+"  |  "+String.format("%.2f", wts[wFrcChsPrey]),
-		"          		% success |  radius  |  # cycles.",
-		"Spawning : "+(spawnPct > .1f ? "" : " ")+String.format("%.2f", (spawnPct*100))+" | "+(spawnRad > 10 ?(spawnRad > 100 ? "":" "):"  ")+String.format("%.2f", spawnRad)+" | "+spawnFreq,
-		"Hunting   :  "+(killPct > .1f ? "" : " ")+String.format("%.2f", (killPct*100))+" | "+(predRad > 10 ?(predRad > 100 ? "":" "):"  ")+String.format("%.2f", predRad)+" | "+eatFreq,	
-		" "};	
-		return res;
+				 _prefix + typeName + " Lim: V: ["+String.format("%.2f", (minVelMag))+"," + String.format("%.2f", (maxVelMag))+"] M ["+ String.format("%.2f", (massForType[0])) + "," + String.format("%.2f", (massForType[1]))+"]" ,
+				 "Radius : Fl : "+String.format("%.2f",nghbrRad)+ " |  Avd : "+String.format("%.2f",colRad)+" |  VelMatch : "+ String.format("%.2f",velRad),
+				// "           "+(nghbrRad > 10 ?(nghbrRad > 100 ? "":" "):"  ")+String.format("%.2f",nghbrRad)+" | "+(colRad > 10 ?(colRad > 100 ? "":" "):"  ")+String.format("%.2f",colRad)+" | "+(velRad > 10 ?(velRad > 100 ? "":" "):"  ")+ String.format("%.2f",velRad),
+				 "Wts: Ctr |  Avoid | VelM | Wndr | AvPrd | Chase" ,
+				 "     "+String.format("%.2f", wts[wFrcCtr])
+						+"  |  "+String.format("%.2f", wts[wFrcAvd])
+						+"  |  "+String.format("%.2f", wts[wFrcVel])
+						+"  |  "+String.format("%.2f", wts[wFrcWnd])
+						+"  |  "+String.format("%.2f", wts[wFrcAvdPred])
+						+"  |  "+String.format("%.2f", wts[wFrcChsPrey]),
+				"          		% success |  radius  |  # cycles.",
+				"Spawning : "+(spawnPct > .1f ? "" : " ")+String.format("%.2f", (spawnPct*100))+" | "+(spawnRad > 10 ?(spawnRad > 100 ? "":" "):"  ")+String.format("%.2f", spawnRad)+" | "+spawnFreq,
+				"Hunting   :  "+(killPct > .1f ? "" : " ")+String.format("%.2f", (killPct*100))+" | "+(predRad > 10 ?(predRad > 100 ? "":" "):"  ")+String.format("%.2f", predRad)+" | "+eatFreq,	
+				" "};	
+				return res;
 	}
 	
-	public String toString(){
-		String res = "Flock Vars for " + typeName + " \n";
-//		for(int f=0;f<this.numFlocks;++f){
-//			String[] flkStrs = getData(f);
-//			for(int s=0; s<flkStrs.length; ++s){res+=flkStrs+"\n";}
-//			res+="\tFlock info :\n";
-//			//res+="\t"+flocks[f];			
-//		}		
-		return res;
+	/**
+	 * used to display flock-specific values
+	 * @param numBoids number of boids of this flock currently existing
+	 * @return
+	 */
+	public String[] getData(int numBoids){
+		return getInfoForFlkVars("" + numBoids + " ");
 	}
-}
+	
+	@Override
+	public String toString(){
+		String[] resAra = getInfoForFlkVars("Flock Vars for ");
+		return Arrays.toString(resAra);
+	}
+}//class myFlkVars 
