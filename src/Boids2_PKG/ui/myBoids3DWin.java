@@ -24,6 +24,7 @@ import base_UI_Objects.windowUI.base.Base_DispWindow;
 import base_UI_Objects.windowUI.drawnTrajectories.DrawnSimpleTraj;
 import base_UI_Objects.windowUI.uiObjs.base.GUIObj_Type;
 import base_Utils_Objects.io.messaging.MsgCodes;
+import base_Utils_Objects.tools.flags.Base_BoolFlags;
 import processing.core.PImage;
 
 public class myBoids3DWin extends Base_DispWindow {
@@ -43,7 +44,7 @@ public class myBoids3DWin extends Base_DispWindow {
 	
 	//private child-class flags - window specific
 	public static final int 
-			debugAnimIDX 		= 0,						//debug
+			//debug is 0
 			isMTCapableIDX 		= 1,			//whether this machine supports multiple threads
 			drawBoids			= 2,			//whether to draw boids or draw spheres (renders faster)
 			drawScaledBoids 	= 3,			//whether to draw boids scaled by their mass
@@ -131,7 +132,7 @@ public class myBoids3DWin extends Base_DispWindow {
 	//initialize all private-flag based UI buttons here - called by base class
 	public int initAllPrivBtns(ArrayList<Object[]> tmpBtnNamesArray){
 										//needs to be in order of privModFlgIdxs
-		tmpBtnNamesArray.add(new Object[] {"Debugging", "Enable Debug", debugAnimIDX});
+		tmpBtnNamesArray.add(new Object[] {"Debugging", "Enable Debug", Base_BoolFlags.debugIDX});
 		tmpBtnNamesArray.add(new Object[] {"Drawing Boids", "Drawing Spheres", drawBoids});
 		tmpBtnNamesArray.add(new Object[] {"Scale Boids' Sizes", "Boids Same Size", drawScaledBoids});
 		tmpBtnNamesArray.add(new Object[] {"Showing Boid Path", "Hiding Boid Path", clearPath});
@@ -165,10 +166,10 @@ public class myBoids3DWin extends Base_DispWindow {
 		//want # of usable background threads.  Leave 2 for primary process (and potential draw loop)
 		numUsableThreads = Runtime.getRuntime().availableProcessors() - 2;
 		//set if this is multi-threaded capable - need more than 1 outside of 2 primary threads (i.e. only perform multithreaded calculations if 4 or more threads are available on host)
-		setPrivFlags(isMTCapableIDX, numUsableThreads>1);
+		privFlags.setFlag(isMTCapableIDX, numUsableThreads>1);
 		
 		//th_exec = Executors.newCachedThreadPool();// Executors.newFixedThreadPool(numUsableThreads);
-		if(getPrivFlags(isMTCapableIDX)) {
+		if(privFlags.getFlag(isMTCapableIDX)) {
 			//th_exec = Executors.newFixedThreadPool(numUsableThreads+1);//fixed is better in that it will not block on the draw - this seems really slow on the prospect mapping
 			th_exec = Executors.newCachedThreadPool();// this is performing much better even though it is using all available threads
 		} else {//setting this just so that it doesn't fail somewhere - won't actually be exec'ed
@@ -234,19 +235,19 @@ public class myBoids3DWin extends Base_DispWindow {
 	
 	//turn on/off all flocking control boolean variables
 	public void setFlocking(boolean val){
-		setPrivFlags(flkCenter, val);
-		setPrivFlags(flkVelMatch, val);
-		setPrivFlags(flkAvoidCol, val);
-		setPrivFlags(flkWander, val);
+		privFlags.setFlag(flkCenter, val);
+		privFlags.setFlag(flkVelMatch, val);
+		privFlags.setFlag(flkAvoidCol, val);
+		privFlags.setFlag(flkWander, val);
 	}
 	
 	public void setHunting(boolean val){
 		//should generally only be enabled if multiple flocks present
 		//TODO set up to enable single flock to cannibalize
-		setPrivFlags(flkAvoidPred, val);
-		setPrivFlags(flkHunt, val);
-		setPrivFlags(flkHunger, val);
-		setPrivFlags(flkSpawn, val);		
+		privFlags.setFlag(flkAvoidPred, val);
+		privFlags.setFlag(flkHunt, val);
+		privFlags.setFlag(flkHunger, val);
+		privFlags.setFlag(flkSpawn, val);		
 	}//setHunting
 
 	
@@ -277,7 +278,7 @@ public class myBoids3DWin extends Base_DispWindow {
 		}	
 	}//initFlocks
 
-	public int getFlkFlagsInt(){		return privFlags[0];} //get first 32 flag settings
+	public int getFlkFlagsInt(){		return privFlags.getFlagsAsInt(0);} //get first 32 flag settings
 	
 	public void drawMenuBadge(myPointf[] ara, myPointf[] uvAra, int type) {
 		pa.gl_beginShape(); 
@@ -317,13 +318,12 @@ public class myBoids3DWin extends Base_DispWindow {
 		flocks[flockToWatch].boidFlock.get(boidToWatch).setBoatCam(rx,ry,dz);
 	}
 	
+	/**
+	 * Handle application-specific flag setting
+	 */
 	@Override
-	//set flag values and execute special functionality for this sequencer
-	public void setPrivFlags(int idx, boolean val){
-		int flIDX = idx/32, mask = 1<<(idx%32);
-		privFlags[flIDX] = (val ?  privFlags[flIDX] | mask : privFlags[flIDX] & ~mask);
+	public void handlePrivFlags_Indiv(int idx, boolean val, boolean oldVal){
 		switch(idx){
-			case debugAnimIDX 			: {break;}
 			case drawBoids			    : {break;}
 			case drawScaledBoids		: {break;}		
 			case clearPath			    : {
@@ -356,6 +356,20 @@ public class myBoids3DWin extends Base_DispWindow {
 			case isMTCapableIDX			: {break;}
 		}		
 	}//setPrivFlags		
+
+	/**
+	 * UI code-level Debug mode functionality. Called only from flags structure
+	 * @param val
+	 */
+	@Override
+	public void handleDebugMode(boolean val) {}
+	
+	/**
+	 * Application-specific Debug mode functionality (application-specific). Called only from privflags structure
+	 * @param val
+	 */
+	@Override
+	public void handlePrivFlagsDebugMode(boolean val) {	}
 	
 	/**
 	 * Return the current flock vars for the flock specified by flockIDX
@@ -414,7 +428,7 @@ public class myBoids3DWin extends Base_DispWindow {
 				break;}
 			case gIDX_BoidType		:{
 				rndrTmpl = cmplxRndrTmpls.get(boidTypeNames[ival]);
-				setPrivFlags( flkCyclesFrc, boidCyclesFrc[ival]);//set whether this flock cycles animation/force output
+				privFlags.setFlag( flkCyclesFrc, boidCyclesFrc[ival]);//set whether this flock cycles animation/force output
 				initFlocks(); 
 				break;}
 			case gIDX_FlockToObs 	:{
@@ -468,7 +482,7 @@ public class myBoids3DWin extends Base_DispWindow {
 	//set camera to either be global or from pov of one of the boids
 	@Override
 	protected void setCameraIndiv(float[] camVals){
-		if (getPrivFlags(viewFromBoid)){	setBoidCam(rx,ry,dz);		}
+		if (privFlags.getFlag(viewFromBoid)){	setBoidCam(rx,ry,dz);		}
 		else {	
 			pa.setCameraWinVals(camVals);//(camVals[0],camVals[1],camVals[2],camVals[3],camVals[4],camVals[5],camVals[6],camVals[7],camVals[8]);      
 			// puts origin of all drawn objects at screen center and moves forward/away by dz
@@ -498,11 +512,11 @@ public class myBoids3DWin extends Base_DispWindow {
 	@Override
 	protected boolean simMe(float modAmtSec) {//run simulation
 		//scale timestep to account for lag of rendering if set in booleans		
-		timeStepMult = getPrivFlags(modDelT) ?  modAmtSec * 30.0f : 1.0f;
+		timeStepMult = privFlags.getFlag(modDelT) ?  modAmtSec * 30.0f : 1.0f;
 		for(int i =0; i<flocks.length; ++i){flocks[i].clearOutBoids();}			//clear boid accumulators of neighbors, preds and prey 
 		for(int i =0; i<flocks.length; ++i){flocks[i].initAllMaps();}
 		boolean checkForce = (AppMgr.mouseIsClicked()) && (!AppMgr.shiftIsPressed());
-		if(getPrivFlags(useOrigDistFuncs)){for(int i =0; i<flocks.length; ++i){flocks[i].moveBoidsOrigMultTH(checkForce);}} 
+		if(privFlags.getFlag(useOrigDistFuncs)){for(int i =0; i<flocks.length; ++i){flocks[i].moveBoidsOrigMultTH(checkForce);}} 
 		else {					for(int i =0; i<flocks.length; ++i){flocks[i].moveBoidsLinMultTH(checkForce);}}
 		for(int i =0; i<flocks.length; ++i){flocks[i].updateBoidMovement();}//setMaxUIBoidToWatch(i);}	
 		for(int i =0; i<flocks.length; ++i){flocks[i].finalizeBoids();setMaxUIBoidToWatch(i);}	
