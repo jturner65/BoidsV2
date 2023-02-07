@@ -8,7 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import Boids2_PKG.flocks.myBoidFlock;
 import Boids2_PKG.flocks.myFlkVars;
 import Boids2_PKG.flocks.boids.myBoid;
-import Boids2_PKG.ui.myBoids3DWin;
+import Boids2_PKG.ui.Boids_3DWin;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
@@ -39,14 +39,14 @@ public abstract class myFwdForceSolver implements Callable<Boolean> {
         flkCyclesFrc = 7;
 	
 	public static final int[] stFlagIDXs = new int[]{
-		myBoids3DWin.flkCenter,
-		myBoids3DWin.flkVelMatch,
-		myBoids3DWin.flkAvoidCol,
-		myBoids3DWin.flkWander,
-		myBoids3DWin.flkAvoidPred,
-		myBoids3DWin.flkHunt,
-		myBoids3DWin.attractMode,
-		myBoids3DWin.flkCyclesFrc};
+		Boids_3DWin.flkCenter,
+		Boids_3DWin.flkVelMatch,
+		Boids_3DWin.flkAvoidCol,
+		Boids_3DWin.flkWander,
+		Boids_3DWin.flkAvoidPred,
+		Boids_3DWin.flkHunt,
+		Boids_3DWin.attractMode,
+		Boids_3DWin.flkCyclesFrc};
 	
 	private boolean addFrc;
 

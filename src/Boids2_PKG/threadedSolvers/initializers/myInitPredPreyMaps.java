@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import Boids2_PKG.flocks.myBoidFlock;
 import Boids2_PKG.flocks.myFlkVars;
 import Boids2_PKG.flocks.boids.myBoid;
-import Boids2_PKG.ui.myBoids3DWin;
+import Boids2_PKG.ui.Boids_3DWin;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_UI_Objects.GUI_AppManager;
 
@@ -31,7 +31,7 @@ public class myInitPredPreyMaps implements Callable<Boolean> {
 			doHunt 		= 1,
 			doSpawn 	= 2;
 	
-	public final int[] stFlagIDXs = new int[]{myBoids3DWin.useTorroid, myBoids3DWin.flkHunt, myBoids3DWin.flkSpawn};
+	public final int[] stFlagIDXs = new int[]{Boids_3DWin.useTorroid, Boids_3DWin.flkHunt, Boids_3DWin.flkSpawn};
 
 	public myInitPredPreyMaps(GUI_AppManager _AppMgr, myBoidFlock _f, myBoidFlock _pry, myBoidFlock _prd, myFlkVars _fv, int _flagInt, List<myBoid> _bAra) {
 		AppMgr = _AppMgr;	f = _f; flv = _fv; pry=_pry; prd=_prd; bAra=_bAra; type = f.type;
@@ -142,22 +142,6 @@ public class myInitPredPreyMaps implements Callable<Boolean> {
 			_src.preyFlk.put(distSq, prey);	
 		}	
 	}	
-//	//need to check 2 flocks for pred - this will make sure any predators or prey at the same distance as other preds/prey will get moved a bit further away(instead of colliding)
-//	private Float chkPutDistInMapBoid(ConcurrentSkipListMap<Float, myBoid> smap,ConcurrentSkipListMap<Float, myBoid> dmap, Float distSq, myBoid _sboid, myBoid _dboid){
-//		myBoid chks4d = smap.get(distSq),
-//				chkd4s = dmap.get(distSq);
-//		//int iter=0;
-//		while((chks4d != null) || (chkd4s != null)){
-//			//replace chk	if not null
-//			distSq *= 1.0000001;//mod distance some tiny amount
-//			chks4d = smap.get(distSq);
-//			chkd4s = dmap.get(distSq);
-//			//System.out.println("chkPutDistInMap collision : " + distSq + " iter : " + iter++ );
-//		}
-//		chks4d = smap.put(distSq, _dboid);	
-//		chkd4s = dmap.put(distSq, _sboid);
-//		return distSq;
-//	}//chkDistInMap
 	
 	/**
 	 * check if src boid map or tar boid map contain passed dist already

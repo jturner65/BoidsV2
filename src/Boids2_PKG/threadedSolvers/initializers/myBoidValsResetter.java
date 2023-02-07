@@ -5,10 +5,14 @@ import java.util.concurrent.Callable;
 
 import Boids2_PKG.flocks.myBoidFlock;
 import Boids2_PKG.flocks.boids.myBoid;
-import Boids2_PKG.ui.myBoids3DWin;
+import Boids2_PKG.ui.Boids_3DWin;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 
-//reset all values at start of timestep
+/**
+ * reset all values at start of timestep
+ * @author John Turner
+ *
+ */
 public class myBoidValsResetter implements Callable<Boolean> {
 	public List<myBoid> bAra;								//boid ara being worked on
 	public myBoidFlock f, pry;
@@ -17,7 +21,7 @@ public class myBoidValsResetter implements Callable<Boolean> {
 	public final int 		
 			doHunt 		= 0,		//idxs in local flags array
 			doSpawn 	= 1;
-	public final int[] stFlagIDXs = new int[]{myBoids3DWin.flkHunt, myBoids3DWin.flkSpawn};
+	public final int[] stFlagIDXs = new int[]{Boids_3DWin.flkHunt, Boids_3DWin.flkSpawn};
 
 	public myBoidValsResetter(myBoidFlock _f,myBoidFlock _pry,int _flagInt,  List<myBoid> _bAra) {
 		f = _f; pry = _pry; bAra=_bAra;

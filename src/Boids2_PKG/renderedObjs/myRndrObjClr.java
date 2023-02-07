@@ -4,8 +4,12 @@ import base_Render_Interface.IRenderInterface;
 import base_UI_Objects.my_procApplet;
 import processing.core.PShape;
 
-//class that will hold the relevant information for a particular color 
-//configuration for rendering, with functions to render to a PShape, as well as a passed PApplet instance
+/**
+ * class that will hold the relevant information for a particular color. 
+ * configuration for rendering, with functions to render to a PShape, as well as a passed IRenderInterface
+ * @author John Turner
+ *
+ */
 public class myRndrObjClr{
 	protected static IRenderInterface p;	
 	protected final static int[] tmpInit = new int[]{255,255,255,255};

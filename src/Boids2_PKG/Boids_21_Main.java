@@ -2,16 +2,17 @@ package Boids2_PKG;
 
 import java.util.HashMap;
 
-import Boids2_PKG.ui.myBoids3DWin;
+import Boids2_PKG.ui.Boids_2DWin;
+import Boids2_PKG.ui.Boids_3DWin;
 import base_Render_Interface.IRenderInterface;
 import base_UI_Objects.GUI_AppManager;
 import base_UI_Objects.windowUI.sidebar.SidebarMenu;
 import base_Utils_Objects.io.messaging.MsgCodes;
+
 /**
  * Flocking boids sim version 2.1
  * @author john turner
  */
-
 public class Boids_21_Main extends GUI_AppManager {
 	//project-specific variables
 	public final String prjNmLong = "Boids Version 2.0";
@@ -19,7 +20,11 @@ public class Boids_21_Main extends GUI_AppManager {
 	public final String projDesc = "Multiple boid flock predator/prey simulation";
 	//use sphere background for this program
 	private boolean useSphereBKGnd = true;	
-	
+	/**
+	 * size of 3d grid cube side
+	 */
+	private final int GridDim_3D = 1500;
+		
 	private final int
 		showUIMenu = 0,
 		show3DWin = 1,
@@ -100,7 +105,7 @@ public class Boids_21_Main extends GUI_AppManager {
 	@Override
 	protected void setup_Indiv() {
 		//modify default grid dims to be 1500x1500x1500
-		setDesired3DGridDims(1500);
+		setDesired3DGridDims(GridDim_3D);
 		//TODO move to window to set up specific background for each different "scene" type
 		//PImage bgrndTex = loadImage("bkgrndTex.jpg");
 		//PImage bgrndTex = loadImage("sky_1.jpg");
@@ -154,10 +159,10 @@ public class Boids_21_Main extends GUI_AppManager {
 		//			//display window initialization	
 		wIdx = disp3DResIDX; fIdx = show3DWin;
 		setInitDispWinVals(wIdx, _dimOpen, _dimClosed,new boolean[]{false,true,true,true}, new int[]{255,255,255,255},new int[]{0,0,0,255},new int[]{180,180,180,255},new int[]{100,100,100,255}); 
-		dispWinFrames[wIdx] = new myBoids3DWin(pa, this, wIdx, fIdx);
+		dispWinFrames[wIdx] = new Boids_3DWin(pa, this, wIdx, fIdx);
 		wIdx = disp2DResIDX; fIdx = show2DWin;
 		setInitDispWinVals(wIdx, _dimOpen, _dimClosed,new boolean[]{false,false,true,false}, new int[]{50,40,20,255}, new int[]{255,255,255,255},new int[]{180,180,180,255},new int[]{100,100,100,255});
-		dispWinFrames[wIdx] = new myBoids3DWin(pa, this, wIdx, fIdx);
+		dispWinFrames[wIdx] = new Boids_2DWin(pa, this, wIdx, fIdx);
 
 		//specify windows that cannot be shown simultaneously here
 		initXORWins(new int[]{show3DWin,show2DWin}, new int[]{disp3DResIDX, disp2DResIDX});

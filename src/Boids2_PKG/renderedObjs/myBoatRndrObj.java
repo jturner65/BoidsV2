@@ -2,17 +2,20 @@ package Boids2_PKG.renderedObjs;
 
 import Boids2_PKG.flocks.boids.myBoid;
 import Boids2_PKG.renderedObjs.base.myRenderObj;
-import Boids2_PKG.ui.myBoids3DWin;
+import Boids2_PKG.ui.base.Base_BoidsWindow;
 import base_Render_Interface.IRenderInterface;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
 import base_UI_Objects.my_procApplet;
-//import processing.core.PImage;
 import processing.core.PConstants;
 import processing.core.PShape;
 
-//build a registered pre-rendered instantiatable object for each objRep - speeds up display by orders of magnitude
+/**
+ * build a registered pre-rendered instantiatable object for each objRep - speeds up display by orders of magnitude
+ * @author John Turner
+ *
+ */
 public class myBoatRndrObj extends myRenderObj {
 	//all boid obj types need this
 	//if overall geometry has been made or not
@@ -55,7 +58,7 @@ public class myBoatRndrObj extends myRenderObj {
 	private static final float shn = 5.0f;
 	
 	
-	public myBoatRndrObj(IRenderInterface _p, myBoids3DWin _win, int _type) {	
+	public myBoatRndrObj(IRenderInterface _p, Base_BoidsWindow _win, int _type) {	
 		super(_p, _win, _type);	 
 	}//ctor
 	
@@ -169,6 +172,8 @@ public class myBoatRndrObj extends myRenderObj {
 		for(int j = 0; j < 27; ++j){
 			btPt = buildQuadShape( transVec2, 1, btPt, boatRndr);
 		}		
+		objRep.rotate(MyMathUtils.HALF_PI_F,1,0,0);
+		objRep.rotate(MyMathUtils.HALF_PI_F,0,1,0);
 	}//buildShape
 	//end inherited from myRenderObj
 
@@ -218,7 +223,10 @@ public class myBoatRndrObj extends myRenderObj {
 			transVec1.set((transVec.x)+dirMult*1.5f, transVec.y, (transVec.z)+ d+disp);//sh.translate((transVec.x)+dirMult*1.5f, transVec.y, (transVec.z)+ d+disp);
 			rotAra2 = new float[]{(float) ca, 0,0,dirMult};
 			rotAra3 = new float[]{(float) (sa*.5f), 1,0, 0};			
-			oars[animIdx].addChild(buildPole(1,clr,.1f, 6, false, transVec1, new myVectorf(1,1,1), rotAra1, new myVectorf(0,0,0), rotAra2, new myVectorf(0,0,0), rotAra3));			
+			oars[animIdx].addChild(buildPole(1,clr,.1f, 6, false, transVec1, new myVectorf(1,1,1), rotAra1, new myVectorf(0,0,0), rotAra2, new myVectorf(0,0,0), rotAra3));	
+			//fix orientation of oars
+			oars[animIdx].rotate(MyMathUtils.HALF_PI_F,1,0,0);
+			oars[animIdx].rotate(MyMathUtils.HALF_PI_F,0,1,0);
 			disp+=distMod;
 		}			
 	}//buildOars

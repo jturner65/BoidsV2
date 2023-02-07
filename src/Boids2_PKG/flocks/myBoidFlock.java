@@ -14,7 +14,8 @@ import Boids2_PKG.threadedSolvers.forceSolvers.myOrigForceSolver;
 import Boids2_PKG.threadedSolvers.initializers.myBoidValsResetter;
 import Boids2_PKG.threadedSolvers.initializers.myInitPredPreyMaps;
 import Boids2_PKG.threadedSolvers.updaters.myBoidUpdater;
-import Boids2_PKG.ui.myBoids3DWin;
+import Boids2_PKG.ui.Boids_3DWin;
+import Boids2_PKG.ui.base.Base_BoidsWindow;
 import base_Render_Interface.IRenderInterface;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
@@ -24,7 +25,7 @@ import base_Utils_Objects.io.messaging.MsgCodes;
 
 public class myBoidFlock {
 	public IRenderInterface p;	
-	public myBoids3DWin win;
+	public Base_BoidsWindow win;
 	public static GUI_AppManager AppMgr;
 	public String name;
 	public int numBoids;
@@ -62,7 +63,7 @@ public class myBoidFlock {
 	//flock-specific data
 	//private int flkMenuClr;//color of menu	
 	
-	public myBoidFlock(IRenderInterface _p, myBoids3DWin _win, myFlkVars _flv, int _numBoids, int _type){
+	public myBoidFlock(IRenderInterface _p, Base_BoidsWindow _win, myFlkVars _flv, int _numBoids, int _type){
 		p = _p; win=_win;	
 		flv = _flv;
 		name = flv.typeName; 
@@ -94,11 +95,13 @@ public class myBoidFlock {
 	}//myBoidFlock constructor
 	//init bflk_flags state machine
 	
-	//public void initbflk_flags(boolean initVal){bflk_flags = new boolean[numbflk_flags];for(int i=0;i<numbflk_flags;++i){bflk_flags[i]=initVal;}}
+	/**
+	 * Initialize flock by creating boids
+	 */
 	public void initFlock(){
 		boidFlock = new ArrayList<myBoid>(numBoids);
 		for(int c = 0; c < numBoids; ++c){
-			boidFlock.add( new myBoid(p, win,this,randBoidStLoc(), type));
+			boidFlock.add( new myBoid(p, this, randBoidStLoc(), type));
 		}
 		setNumBoids(boidFlock.size());
 		buildThreadFrames();
@@ -130,7 +133,7 @@ public class myBoidFlock {
 	
 	protected myBoid addBoid(){	return addBoid(randBoidStLoc());	}	
 	protected myBoid addBoid(myPointf stLoc){
-		myBoid tmp = new myBoid(p, win, this, stLoc, type); 
+		myBoid tmp = new myBoid(p, this, stLoc, type); 
 		boidFlock.add(tmp);
 		setNumBoids(boidFlock.size());
 		return tmp;
@@ -147,23 +150,22 @@ public class myBoidFlock {
 	public void scatterBoids() {for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).coords.set(randBoidStLoc());}}//	randInit
 	public void drawBoids(){
 		boolean debugAnim = win.privFlags.getIsDebug(), 
-				showVel = win.privFlags.getFlag(myBoids3DWin.showVel);
+				showVel = win.privFlags.getFlag(Boids_3DWin.showVel);
 
-		if(win.privFlags.getFlag(myBoids3DWin.drawBoids)){//broken apart to minimize if checks - only potentially 2 per flock per frame instead of thousands
-			if (win.privFlags.getFlag(myBoids3DWin.drawScaledBoids)) {
-				if(debugAnim){		for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeDbgFrameScaled();}}
-				else if (showVel){	for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeAndVelScaled();}}
-				else {				for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeScaled();}}				
+		if(win.privFlags.getFlag(Boids_3DWin.drawBoids)){//broken apart to minimize if checks - only potentially 2 per flock per frame instead of thousands
+			if (win.privFlags.getFlag(Boids_3DWin.drawScaledBoids)) {
+				if(debugAnim){		for(myBoid b : boidFlock){b.drawMeDbgFrameScaled();}}
+				else if (showVel){	for(myBoid b : boidFlock){b.drawMeAndVelScaled();}}
+				else {				for(myBoid b : boidFlock){b.drawMeScaled();}}				
 			} else {
-				if(debugAnim){		for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeDbgFrame();}}
-				else if (showVel){	for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeAndVel();}}
-				else {				for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMe();}}
+				if(debugAnim){		for(myBoid b : boidFlock){b.drawMeDbgFrame();}}
+				else if (showVel){	for(myBoid b : boidFlock){b.drawMeAndVel();}}
+				else {				for(myBoid b : boidFlock){b.drawMe();}}
 			}
 		} else {
-			for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawMeBall(debugAnim,showVel);  }
-			if(win.privFlags.getFlag(myBoids3DWin.showFlkMbrs)){
-				for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawClosestPrey();  }
-				for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).drawClosestPredator();  }
+			for(myBoid b : boidFlock){b.drawMeBall(debugAnim,showVel);  }
+			if(win.privFlags.getFlag(Boids_3DWin.showFlkMbrs)){
+				for(myBoid b : boidFlock){b.drawClosestPrey();b.drawClosestPredator();}
 			}
 		}
 	}//drawBoids

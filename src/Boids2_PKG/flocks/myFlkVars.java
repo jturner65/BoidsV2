@@ -99,7 +99,11 @@ public class myFlkVars {
 	}
 	
 
-	//handles all modification of flock values from ui - wIdx is manufactured based on location in ui click area
+	/**
+	 * handles all modification of flock values from ui - wIdx is manufactured based on location in ui click area
+	 * @param wIdx
+	 * @param mod
+	 */
 	public void modFlkVal(int wIdx, float mod){
 		//win.getMsgObj().dispInfoMessage("myFlkVars","modFlkVal","Attempt to modify flock : " + flock.name + " value : " + wIdx + " by " + mod);
 		if(wIdx==-1){return;}
@@ -109,8 +113,8 @@ public class myFlkVars {
 				nghbrRad = modVal(nghbrRad, .1f*nghbrRadMax, nghbrRadMax, mod);
 				fixNCVRads(true, true);				
 				break;}			//flock radius
-			case 1  : {colRad = modVal(colRad, .05f*nghbrRad, .9f*nghbrRad, mod);fixNCVRads(false, true);break;}	//avoid friends radius
-			case 2  : {velRad = modVal(velRad, colRad, .9f*nghbrRad, mod);break;}			//vel match radius
+			case 1  : {colRad = modVal(colRad, .05f*nghbrRad, .9f*nghbrRadMax, mod);fixNCVRads(false, true);break;}	//avoid friends radius
+			case 2  : {velRad = modVal(velRad, colRad, .9f*nghbrRadMax, mod);break;}			//vel match radius
 			
 			case 3  : 						//3-8 are the 6 force weights
 			case 4  : 

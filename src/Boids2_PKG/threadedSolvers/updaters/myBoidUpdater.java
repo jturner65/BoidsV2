@@ -6,7 +6,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import Boids2_PKG.flocks.myBoidFlock;
 import Boids2_PKG.flocks.boids.myBoid;
-import Boids2_PKG.ui.myBoids3DWin;
+import Boids2_PKG.ui.Boids_3DWin;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
@@ -28,9 +28,9 @@ public class myBoidUpdater implements Callable<Boolean> {
         flkSpawn		= 2;
 	
 	public static final int[] stFlagIDXs = new int[]{
-		myBoids3DWin.flkHunt,
-		myBoids3DWin.flkHunger,
-		myBoids3DWin.flkSpawn};	
+		Boids_3DWin.flkHunt,
+		Boids_3DWin.flkHunger,
+		Boids_3DWin.flkSpawn};	
 	
 	public myBoidUpdater(GUI_AppManager _AppMgr, myBoidFlock _f, int _flagInt,  List<myBoid> _bAra){
 		f=_f; bAra=_bAra;AppMgr=_AppMgr;

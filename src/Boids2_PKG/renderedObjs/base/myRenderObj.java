@@ -203,7 +203,22 @@ public abstract class myRenderObj {
 		return sh;
 	}
 	
-	//build a pole
+	/**
+	 * build a pole
+	 * @param poleNum
+	 * @param clr
+	 * @param rad
+	 * @param height
+	 * @param drawBottom
+	 * @param transVec
+	 * @param scaleVec
+	 * @param rotAra
+	 * @param trans2Vec
+	 * @param rotAra2
+	 * @param trans3Vec
+	 * @param rotAra3
+	 * @return
+	 */
 	protected PShape buildPole(int poleNum, myRndrObjClr clr, float rad, float height, boolean drawBottom, myVectorf transVec, myVectorf scaleVec, float[] rotAra, myVectorf trans2Vec, float[] rotAra2, myVectorf trans3Vec, float[] rotAra3){
 		float theta, rsThet, rcThet, rsThet2, rcThet2;
 		int numTurns = 6;

@@ -3,11 +3,9 @@ package Boids2_PKG.flocks.boids;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ThreadLocalRandom;
 
-import Boids2_PKG.Boids_21_Main;
 import Boids2_PKG.flocks.myBoidFlock;
-import Boids2_PKG.ui.myBoids3DWin;
+import Boids2_PKG.ui.Boids_3DWin;
 import base_Render_Interface.IRenderInterface;
-import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
@@ -21,7 +19,7 @@ import base_UI_Objects.windowUI.base.Base_DispWindow;
 public class myBoid {
 	public static IRenderInterface p;
 	public static GUI_AppManager AppMgr;
-	public myBoidFlock f;
+	public myBoidFlock flk;
 	
 	public int ID;
 	public static int IDcount = 0;
@@ -70,9 +68,9 @@ public class myBoid {
 										colliderLoc,		//boid mapped to location used for distance calc
 										predFlkLoc,			//boid mapped to location used for distance calc
 										preyFlkLoc;			//boid mapped to location used for distance calc
-			
-	public myBoid(IRenderInterface _p, myBoids3DWin _win, myBoidFlock _f,  myPointf _coords, int _type){
-		ID = IDcount++;		p = _p;		f = _f; type=_type; //win = _win;	
+	
+	public myBoid(IRenderInterface _p, myBoidFlock _f,  myPointf _coords, int _type){
+		ID = IDcount++;		p = _p;		flk = _f; type=_type; 
 		AppMgr = Base_DispWindow.AppMgr;
 		initbd_flags();
 		rotVec = myVectorf.RIGHT.cloneMe(); 			//initial setup
@@ -100,11 +98,10 @@ public class myBoid {
 		colliderLoc = new ConcurrentSkipListMap<Float, myPointf>();
 		predFlkLoc	= new ConcurrentSkipListMap<Float, myPointf>();
 		preyFlkLoc	= new ConcurrentSkipListMap<Float, myPointf>();
-
 	}//constructor
 	
 	public void setInitState(){
-		mass=f.flv.getInitMass();
+		mass=flk.flv.getInitMass();
 		scaleBt = new myVectorf(scMult);					//for rendering different sized boids
 		scaleBt._mult(mass);		
 		//init starve counter with own mass
@@ -147,7 +144,7 @@ public class myBoid {
 	}	
 	public int resetCntrs(int cntrBseVal, float mod){return (int)(cntrBseVal*(1+mod));}
 	//only reset spawn counters once boid has spawned
-	public void hasSpawned(){spawnCntr = resetCntrs(f.flv.spawnFreq,ThreadLocalRandom.current().nextFloat()); bd_flags[canSpawn] = false;}
+	public void hasSpawned(){spawnCntr = resetCntrs(flk.flv.spawnFreq,ThreadLocalRandom.current().nextFloat()); bd_flags[canSpawn] = false;}
 	public boolean canSpawn(){return bd_flags[canSpawn];}
 	//update spawn counters
 	public void updateSpawnCntr(){
@@ -160,10 +157,10 @@ public class myBoid {
 		--starveCntr;
 		if (starveCntr<=0){killMe("Starvation");}//if can get hungry then can starve to death
 		//bd_flags[isHungry] = (bd_flags[isHungry] || (p.random(f.flv.eatFreq)>=starveCntr)); //once he's hungry he stays hungry unless he eats (hungry set to false elsewhere)
-		bd_flags[isHungry] = (bd_flags[isHungry] || (ThreadLocalRandom.current().nextInt(f.flv.eatFreq)>=starveCntr)); //once he's hungry he stays hungry unless he eats (hungry set to false elsewhere)
+		bd_flags[isHungry] = (bd_flags[isHungry] || (ThreadLocalRandom.current().nextInt(flk.flv.eatFreq)>=starveCntr)); //once he's hungry he stays hungry unless he eats (hungry set to false elsewhere)
 	}	
-	public void eat(float tarMass){	starveCntr = resetCntrs(f.flv.eatFreq,tarMass);bd_flags[isHungry]=false;}
-	public boolean canSprint(){return (starveCntr > .25f*f.flv.eatFreq);}
+	public void eat(float tarMass){	starveCntr = resetCntrs(flk.flv.eatFreq,tarMass);bd_flags[isHungry]=false;}
+	public boolean canSprint(){return (starveCntr > .25f*flk.flv.eatFreq);}
 	public boolean isHungry(){return bd_flags[isHungry];}
 	//init bd_flags state machine
 	public void initbd_flags(){bd_flags = new boolean[numbd_flags];for(int i=0;i<numbd_flags;++i){bd_flags[i]=false;}}
@@ -176,8 +173,7 @@ public class myBoid {
 	//align the boid along the current orientation matrix
 	private void alignBoid(){
 		rotVec.set(O_axisAngle[1],O_axisAngle[2],O_axisAngle[3]);
-		//TODO change f.delT to get value from win UI input
-		float rotAngle = (float) (oldRotAngle + ((O_axisAngle[0]-oldRotAngle) * f.delT));
+		float rotAngle = (float) (oldRotAngle + ((O_axisAngle[0]-oldRotAngle) * flk.delT));
 		p.rotate(rotAngle,rotVec.x, rotVec.y, rotVec.z);
 		oldRotAngle = rotAngle;
 	}//alignBoid	
@@ -206,7 +202,7 @@ public class myBoid {
 	
 	private void drawTmpl() {
 		p.pushMatState();
-		f.tmpl.drawMe(animAraIDX, ID);
+		flk.tmpl.drawMe(animAraIDX, ID);
 		p.popMatState();
 	}
 	
@@ -215,8 +211,6 @@ public class myBoid {
 		p.pushMatState();
 			p.translate(coords.x,coords.y,coords.z);		//move to location
 			alignBoid();
-			p.rotate(MyMathUtils.HALF_PI_F,1,0,0);
-			p.rotate(MyMathUtils.HALF_PI_F,0,1,0);
 			drawTmpl();		
 		p.popMatState();
 		animIncr();
@@ -228,8 +222,6 @@ public class myBoid {
 			drawMyVec(rotVec, IRenderInterface.gui_Black,4.0f);
 			AppMgr.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);
 			alignBoid();
-			p.rotate(MyMathUtils.HALF_PI_F,1,0,0);
-			p.rotate(MyMathUtils.HALF_PI_F,0,1,0);
 			drawTmpl();
 		p.popMatState();
 		animIncr();		
@@ -240,20 +232,15 @@ public class myBoid {
 			p.translate(coords.x,coords.y,coords.z);		//move to location
 			drawMyVec(velocity, IRenderInterface.gui_Magenta,.5f);
 			alignBoid();
-			p.rotate(MyMathUtils.HALF_PI_F,1,0,0);
-			p.rotate(MyMathUtils.HALF_PI_F,0,1,0);
 			drawTmpl();
 		p.popMatState();
 		animIncr();		
 	}
 	
-	//draw this body on mesh
 	public void drawMeScaled(){
 		p.pushMatState();
 			p.translate(coords.x,coords.y,coords.z);		//move to location
 			alignBoid();
-			p.rotate(MyMathUtils.HALF_PI_F,1,0,0);
-			p.rotate(MyMathUtils.HALF_PI_F,0,1,0);
 			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
 			drawTmpl();
 		p.popMatState();
@@ -266,8 +253,6 @@ public class myBoid {
 			drawMyVec(rotVec, IRenderInterface.gui_Black,4.0f);
 			AppMgr.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);
 			alignBoid();
-			p.rotate(MyMathUtils.HALF_PI_F,1,0,0);
-			p.rotate(MyMathUtils.HALF_PI_F,0,1,0);
 			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
 			drawTmpl();
 		p.popMatState();
@@ -279,8 +264,6 @@ public class myBoid {
 			p.translate(coords.x,coords.y,coords.z);		//move to location
 			drawMyVec(velocity, IRenderInterface.gui_Magenta,.5f);
 			alignBoid();
-			p.rotate(MyMathUtils.HALF_PI_F,1,0,0);
-			p.rotate(MyMathUtils.HALF_PI_F,0,1,0);
 			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
 			drawTmpl();
 		p.popMatState();
@@ -295,7 +278,7 @@ public class myBoid {
 			if(debugAnim){drawMyVec(rotVec, IRenderInterface.gui_Black,4.0f);
 			AppMgr.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
 			if(showVel){drawMyVec(velocity, IRenderInterface.gui_DarkMagenta,.5f);}
-			f.sphTmpl.drawMe(animAraIDX, ID);
+			flk.sphTmpl.drawMe(animAraIDX, ID);
 		p.popMatState();
 		//animIncr();
 	}//drawme 
@@ -303,20 +286,20 @@ public class myBoid {
 	public void drawClosestPrey(){
 		if(this.preyFlkLoc.size() == 0){return;}
 		myPointf tmp = this.preyFlkLoc.firstEntry().getValue();
-		int clr1 = IRenderInterface.gui_Red, clr2 = Boids_21_Main.gui_boatBody1 + ((type +3 - 1)%3);
+		int clr1 = IRenderInterface.gui_Red, clr2 = IRenderInterface.gui_White;
 		drawClosestOther(tmp, clr1, clr2);
 	}
 	
 	public void drawClosestPredator(){
 		if(this.predFlkLoc.size() == 0){return;}
 		myPointf tmp = this.predFlkLoc.firstEntry().getValue();
-		int clr1 = IRenderInterface.gui_Cyan, clr2 = Boids_21_Main.gui_boatBody1 + ((type +3 + 1)%3);
+		int clr1 = IRenderInterface.gui_Cyan, clr2 = IRenderInterface.gui_White;
 		drawClosestOther(tmp, clr1, clr2);
 	}	
 	
 	private void drawClosestOther(myPointf tmp, int stClr, int endClr){
 		p.pushMatState();
-			p.setStrokeWt(1.0f);
+			p.setStrokeWt(3.0f);
 			//p.setColorValStroke(stClr);
 			p.drawLine(coords, tmp,stClr,endClr );
 			//p.line(coords, tmp);
@@ -329,7 +312,7 @@ public class myBoid {
 	}		
 	//public double calcBobbing(){		return 2*(p.cos(.01f*animCntr));	}		//bobbing motion
 	
-	public void drawMyVec(myVectorf v, int clr, float sw){
+	protected void drawMyVec(myVectorf v, int clr, float sw){
 		p.pushMatState();
 			p.setColorValStroke(clr, 255);
 			p.setStrokeWt(sw);
@@ -344,20 +327,20 @@ public class myBoid {
 	}//animIncr		
 	
 	public String toString(){
-		String result = "ID : " + ID + " Type : "+f.win.getFlkName(type)+" | Mass : " + mass + " | Spawn CD "+spawnCntr + " | Starve CD " + starveCntr+"\n";
+		String result = "ID : " + ID + " Type : "+flk.win.getFlkName(type)+" | Mass : " + mass + " | Spawn CD "+spawnCntr + " | Starve CD " + starveCntr+"\n";
 		result+=" | location : " + coords + " | velocity : " + velocity + " | forces : " + forces +"\n" ;
 		//if(p.flags[p.debugMode]){result +="\nOrientation : UP : "+orientation[O_UP] + " | FWD : "+orientation[O_FWD] + " | RIGHT : "+orientation[O_RHT] + "\n";}
 		int num =neighbors.size();
 		result += "# neighbors : "+ num + (num==0 ? "\n" : " | Neighbor IDs : \n");
-		if(f.win.privFlags.getFlag(myBoids3DWin.showFlkMbrs)){	for(Float bd_K : neighbors.keySet()){result+="\tNeigh ID : "+neighbors.get(bd_K).ID + " dist from me : " + bd_K+"\n";}}
+		if(flk.win.privFlags.getFlag(Boids_3DWin.showFlkMbrs)){	for(Float bd_K : neighbors.keySet()){result+="\tNeigh ID : "+neighbors.get(bd_K).ID + " dist from me : " + bd_K+"\n";}}
 		num = colliderLoc.size();
 		result += "# too-close neighbors : "+ num + (num==0 ? "\n" : " | Colliders IDs : \n");
-		if(f.win.privFlags.getFlag(myBoids3DWin.showFlkMbrs)){for(Float bd_K : colliderLoc.keySet()){result+="\tDist from me : " + bd_K+"\n";}}
+		if(flk.win.privFlags.getFlag(Boids_3DWin.showFlkMbrs)){for(Float bd_K : colliderLoc.keySet()){result+="\tDist from me : " + bd_K+"\n";}}
 		result += "# predators : "+ num + (num==0 ? "\n" : " | Predator IDs : \n");
-		if(f.win.privFlags.getFlag(myBoids3DWin.showFlkMbrs)){for(Float bd_K : predFlkLoc.keySet()){result+="\tDist from me : " + bd_K+"\n";}}
+		if(flk.win.privFlags.getFlag(Boids_3DWin.showFlkMbrs)){for(Float bd_K : predFlkLoc.keySet()){result+="\tDist from me : " + bd_K+"\n";}}
 		num = preyFlk.size();
 		result += "# prey : "+ num + (num==0 ? "\n" : " | Prey IDs : \n");
-		if(f.win.privFlags.getFlag(myBoids3DWin.showFlkMbrs)){for(Float bd_K : preyFlk.keySet()){result+="\tPrey ID : "+preyFlk.get(bd_K).ID + " dist from me : " + bd_K+"\n";}}
+		if(flk.win.privFlags.getFlag(Boids_3DWin.showFlkMbrs)){for(Float bd_K : preyFlk.keySet()){result+="\tPrey ID : "+preyFlk.get(bd_K).ID + " dist from me : " + bd_K+"\n";}}
 		return result;
 	}	
 }//myBoid class
