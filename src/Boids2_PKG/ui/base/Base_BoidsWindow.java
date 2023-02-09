@@ -189,6 +189,22 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 */
 	protected abstract int initAllPrivBtns_Indiv(ArrayList<Object[]> tmpBtnNamesArray);
 	
+	/**
+	 * Initialize any UI control flags appropriate for all boids window applications
+	 */
+	@Override
+	protected final void initDispFlags() {
+		//this window is runnable
+		dispFlags.setIsRunnable(true);
+		//this window uses a customizable camera
+		dispFlags.setUseCustCam(true);		
+		initDispFlags_Indiv();
+	}
+	/**
+	 * Initialize any UI control flags appropriate for specific instanced boids window
+	 */
+	protected abstract void initDispFlags_Indiv();
+	
 	@Override
 	protected void initMe() {
 		//called once
@@ -222,10 +238,6 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 
 	@Override
 	protected int[] getFlagIDXsToInitToTrue() {
-		//this window is runnable
-		dispFlags.setIsRunnable(true);
-		//this window uses a customizable camera
-		dispFlags.setUseCustCam(true);
 		return getFlagIDXsToInitToTrue_Indiv(new int[] {drawBoids, attractMode, useTorroid});
 	}
 	
@@ -366,7 +378,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	}//drawFlockMenu
 	
 	@Override
-	public void drawCustMenuObjs(){
+	public void drawCustMenuObjs(float animTimeMod){
 		pa.pushMatState();	
 		//all flock menu drawing within push mat call
 		pa.translate(5,custMenuOffset+yOff);

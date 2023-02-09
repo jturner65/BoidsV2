@@ -29,6 +29,10 @@ public class Boids_2DWin extends Base_BoidsWindow {
 	}
 
 	@Override
+	protected void initDispFlags_Indiv() {		
+	}
+	
+	@Override
 	protected void initMe_IndivPost() {
 	}
 	
@@ -110,4 +114,4 @@ public class Boids_2DWin extends Base_BoidsWindow {
 		// TODO :Switch to handle Instance-specific UIidxs
 		return false;
 	}
-}//class
+}//class Boids_2DWin

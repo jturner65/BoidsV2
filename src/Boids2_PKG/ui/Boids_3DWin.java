@@ -29,9 +29,10 @@ public class Boids_3DWin extends Base_BoidsWindow {
 	}
 
 	@Override
-	protected void initMe_IndivPost() {
-	}
-	
+	protected void initMe_IndivPost() {}
+
+	@Override
+	protected void initDispFlags_Indiv() {}
 	/**
 	 * Add instance-specific private flags to init to true to those from base class
 	 * @param baseFlags base class flags to init to true - add to this array
@@ -110,4 +111,5 @@ public class Boids_3DWin extends Base_BoidsWindow {
 		// TODO :Switch to handle Instance-specific UIidxs
 		return false;
 	}
-}//class myBoids3DWin
+
+}//class Boids_3DWin
