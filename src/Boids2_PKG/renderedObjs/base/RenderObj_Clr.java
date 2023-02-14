@@ -1,4 +1,4 @@
-package Boids2_PKG.renderedObjs;
+package Boids2_PKG.renderedObjs.base;
 
 import base_Render_Interface.IRenderInterface;
 import base_UI_Objects.my_procApplet;
@@ -10,7 +10,7 @@ import processing.core.PShape;
  * @author John Turner
  *
  */
-public class myRndrObjClr{
+public class RenderObj_Clr{
 	protected static IRenderInterface p;	
 	protected final static int[] tmpInit = new int[]{255,255,255,255};
 	//alpha values for fill and stroke colors
@@ -32,7 +32,7 @@ public class myRndrObjClr{
 	
 	protected static final int numFlags = 6;
 	
-	public myRndrObjClr(IRenderInterface _p){
+	public RenderObj_Clr(IRenderInterface _p){
 		p=_p;
 		shininess = 1.0f;
 		strkWt = 1.0f;

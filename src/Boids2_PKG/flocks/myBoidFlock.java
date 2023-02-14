@@ -8,7 +8,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 
 import Boids2_PKG.flocks.boids.myBoid;
-import Boids2_PKG.renderedObjs.base.myRenderObj;
+import Boids2_PKG.renderedObjs.base.Base_RenderObj;
 import Boids2_PKG.threadedSolvers.forceSolvers.myLinForceSolver;
 import Boids2_PKG.threadedSolvers.forceSolvers.myOrigForceSolver;
 import Boids2_PKG.threadedSolvers.initializers.myBoidValsResetter;
@@ -47,7 +47,7 @@ public class myBoidFlock {
 	public int curFlagState;					//holds current state of first 32 flags from win/UI
 	
 	public final int type, mtFrameSize = 100;		//mtFrameSize is # of boids per thread
-	public myRenderObj tmpl, sphTmpl;				//template to render boid; simplified sphere template
+	public Base_RenderObj tmpl, sphTmpl;				//template to render boid; simplified sphere template
 	public myBoidFlock preyFlock, predFlock;		//direct reference to flock that is my prey and my predator -- set in main program after init is called
 	
 	public List<Future<Boolean>> callFwdSimFutures, callUpdFutures, callInitFutures, callResetBoidFutures;
@@ -107,7 +107,7 @@ public class myBoidFlock {
 		buildThreadFrames();
 	}//initFlock - run after each flock has been constructed
 	
-	public void setPredPreyTmpl(myBoidFlock _predFlock, myBoidFlock _preyFlock, myRenderObj _tmpl, myRenderObj _sphrTmpl){
+	public void setPredPreyTmpl(myBoidFlock _predFlock, myBoidFlock _preyFlock, Base_RenderObj _tmpl, Base_RenderObj _sphrTmpl){
 		predFlock = _predFlock;	//flock 0 preys on flock last, is preyed on by flock 1
 		preyFlock = _preyFlock;	
 		tmpl = _tmpl;

@@ -9,10 +9,10 @@ import java.util.concurrent.Executors;
 
 import Boids2_PKG.flocks.myBoidFlock;
 import Boids2_PKG.flocks.myFlkVars;
-import Boids2_PKG.renderedObjs.myBoatRndrObj;
-import Boids2_PKG.renderedObjs.myJFishRndrObj;
-import Boids2_PKG.renderedObjs.mySphereRndrObj;
-import Boids2_PKG.renderedObjs.base.myRenderObj;
+import Boids2_PKG.renderedObjs.Boat_RenderObj;
+import Boids2_PKG.renderedObjs.JFish_RenderObj;
+import Boids2_PKG.renderedObjs.Sphere_RenderObj;
+import Boids2_PKG.renderedObjs.base.Base_RenderObj;
 import Boids2_PKG.ui.myBoidsUIDataUpdater;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
 import base_Math_Objects.vectorObjs.doubles.myVector;
@@ -116,13 +116,13 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	protected final int MaxNumFlocks = flkNames.length;			//max # of flocks we'll support
 	//array of template objects to render
 	//need individual array for each type of object, sphere (simplified) render object
-	protected myRenderObj[] rndrTmpl,//set depending on UI choice for complex rndr obj 
+	protected Base_RenderObj[] rndrTmpl,//set depending on UI choice for complex rndr obj 
 		boatRndrTmpl,
 		jellyFishRndrTmpl,
 		//add more rendr obj arrays here
 		sphrRndrTmpl;//simplified rndr obj (sphere)
 	
-	protected ConcurrentSkipListMap<String, myRenderObj[]> cmplxRndrTmpls;
+	protected ConcurrentSkipListMap<String, Base_RenderObj[]> cmplxRndrTmpls;
 	
 	/**
 	 * multiplier to modify timestep to make up for lag
@@ -265,18 +265,18 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 * simple render object templates - spheres
 	 */
 	protected void initSimpleBoids(){
-		sphrRndrTmpl = new mySphereRndrObj[MaxNumFlocks];
-		for(int i=0; i<MaxNumFlocks; ++i){		sphrRndrTmpl[i] = new mySphereRndrObj((my_procApplet) pa, this, i);	}
+		sphrRndrTmpl = new Sphere_RenderObj[MaxNumFlocks];
+		for(int i=0; i<MaxNumFlocks; ++i){		sphrRndrTmpl[i] = new Sphere_RenderObj((my_procApplet) pa, this, i);	}
 	}
 	
 	/**
 	 * initialize all instances of boat boid models/templates - called 1 time
 	 */
 	protected void initBoidRndrObjs(){
-		cmplxRndrTmpls = new ConcurrentSkipListMap<String, myRenderObj[]> (); 
+		cmplxRndrTmpls = new ConcurrentSkipListMap<String, Base_RenderObj[]> (); 
 		flkSails = new PImage[MaxNumFlocks];
-		boatRndrTmpl = new myBoatRndrObj[MaxNumFlocks];
-		jellyFishRndrTmpl = new myJFishRndrObj[MaxNumFlocks];
+		boatRndrTmpl = new Boat_RenderObj[MaxNumFlocks];
+		jellyFishRndrTmpl = new JFish_RenderObj[MaxNumFlocks];
 		bdgSizeX = new float[MaxNumFlocks];
 		mnBdgBox = new myPointf[MaxNumFlocks][];
 		for(int i=0; i<MaxNumFlocks; ++i){	
@@ -288,8 +288,8 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 			mnBdgBox[i] = new myPointf[]{new myPointf(0,0,0),new myPointf(0,bdgSizeY,0),new myPointf(bdgSizeX[i],bdgSizeY,0),new myPointf(bdgSizeX[i],0,0)};
 			
 			//build boat render object for each individual flock type
-			boatRndrTmpl[i] = new myBoatRndrObj(pa, this, i);			
-			jellyFishRndrTmpl[i] = new myJFishRndrObj((my_procApplet) pa, this, i);
+			boatRndrTmpl[i] = new Boat_RenderObj(pa, this, i);			
+			jellyFishRndrTmpl[i] = new JFish_RenderObj((my_procApplet) pa, this, i);
 		}
 		cmplxRndrTmpls.put(boidTypeNames[0], boatRndrTmpl);
 		cmplxRndrTmpls.put(boidTypeNames[1], jellyFishRndrTmpl);

@@ -1,11 +1,11 @@
 package Boids2_PKG.renderedObjs;
 
-import Boids2_PKG.renderedObjs.base.myRenderObj;
+import Boids2_PKG.renderedObjs.base.Base_RenderObj;
 import base_Render_Interface.IRenderInterface;
 import base_UI_Objects.windowUI.base.Base_DispWindow;
 import processing.core.PConstants;
 
-public class mySphereRndrObj extends myRenderObj {
+public class Sphere_RenderObj extends Base_RenderObj {
 	//if overall geometry has been made or not
 	private static boolean made;
 	//divisors for stroke color from fill color
@@ -19,7 +19,7 @@ public class mySphereRndrObj extends myRenderObj {
 	private static final float strkWt = 1.0f;
 	private static final float shn = 5.0f;
 
-	public mySphereRndrObj(IRenderInterface _p, Base_DispWindow _win, int _type) {	
+	public Sphere_RenderObj(IRenderInterface _p, Base_DispWindow _win, int _type) {	
 		super(_p, _win, _type);	
 	}//ctor
 	

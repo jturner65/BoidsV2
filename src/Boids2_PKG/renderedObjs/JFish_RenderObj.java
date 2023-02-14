@@ -1,7 +1,8 @@
 package Boids2_PKG.renderedObjs;
 
 import Boids2_PKG.flocks.boids.myBoid;
-import Boids2_PKG.renderedObjs.base.myRenderObj;
+import Boids2_PKG.renderedObjs.base.Base_RenderObj;
+import Boids2_PKG.renderedObjs.base.RenderObj_Clr;
 import base_Render_Interface.IRenderInterface;
 import base_Math_Objects.MyMathUtils;
 import base_UI_Objects.my_procApplet;
@@ -10,7 +11,7 @@ import processing.core.PConstants;
 import processing.core.PShape;
 
 //jellyfish pshape, with multiple component shapes that are animated
-public class myJFishRndrObj extends myRenderObj {
+public class JFish_RenderObj extends Base_RenderObj {
 	//static vals set in here because we want boid "species"-wide color settings
 	//if overall geometry has been made or not
 	private static boolean made;
@@ -19,9 +20,9 @@ public class myJFishRndrObj extends myRenderObj {
 	//private int numTentacles = 5;
 	
 	//primary object color (same across all types of boids); 
-	private static myRndrObjClr mainColor;	
+	private static RenderObj_Clr mainColor;	
 	
-	private static myRndrObjClr[] allFlockColors = new myRndrObjClr[5];
+	private static RenderObj_Clr[] allFlockColors = new RenderObj_Clr[5];
 	//base IDX - this is idx to main color for all jellyfish
 	private static final int baseFishIDX = 0;
 	//divisors for stroke color from fill color
@@ -36,7 +37,7 @@ public class myJFishRndrObj extends myRenderObj {
 	private static final float strkWt = .1f;
 	private static final float shn = 5.0f;
 
-	public myJFishRndrObj(IRenderInterface _p, Base_DispWindow _win, int _type)  {	
+	public JFish_RenderObj(IRenderInterface _p, Base_DispWindow _win, int _type)  {	
 		super(_p, _win, _type);	 
 		emitMod = .85f;
 	}//ctor

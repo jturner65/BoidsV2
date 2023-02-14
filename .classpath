@@ -22,5 +22,4 @@
 	<classpathentry kind="lib" path="libs/processing/jogl-all-natives-macos-x86_64.jar"/>
 	<classpathentry kind="lib" path="libs/processing/jogl-all-natives-windows-amd64.jar"/>
 	<classpathentry kind="output" path="bin"/>
-	<referencedentry kind="lib" path="libs/processing/core.jar" sourcepath="E:/Eclipse Workspace/eclipse workspace/processing4/core"/>
 </classpath>

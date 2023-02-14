@@ -1,13 +1,14 @@
 package Boids2_PKG.renderedObjs;
 
 import Boids2_PKG.flocks.boids.myBoid;
-import Boids2_PKG.renderedObjs.base.myRenderObj;
-import Boids2_PKG.ui.base.Base_BoidsWindow;
+import Boids2_PKG.renderedObjs.base.Base_RenderObj;
+import Boids2_PKG.renderedObjs.base.RenderObj_Clr;
 import base_Render_Interface.IRenderInterface;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
 import base_UI_Objects.my_procApplet;
+import base_UI_Objects.windowUI.base.Base_DispWindow;
 import processing.core.PConstants;
 import processing.core.PShape;
 
@@ -16,7 +17,7 @@ import processing.core.PShape;
  * @author John Turner
  *
  */
-public class myBoatRndrObj extends myRenderObj {
+public class Boat_RenderObj extends Base_RenderObj {
 	//all boid obj types need this
 	//if overall geometry has been made or not
 	private static boolean made;
@@ -28,18 +29,24 @@ public class myBoatRndrObj extends myRenderObj {
 	private static myPointf[] pts3, pts5, pts7;	
 		
 	//extra pshapes for this object
-	private static PShape[] oars;										//1 array for each type of objRep, 1 element for each animation frame of oar motion
-	private static myPointf[] uvAra;
+	//1 array for each type of objRep, 1 element for each animation frame of oar motion
+	private static PShape[] oars;										
+	//UV ara shaped like sail
+	private static final myPointf[] uvAra = new myPointf[]{
+			new myPointf(0,0,0),new myPointf(0,1,0),
+			new myPointf(.375f,.9f,0),new myPointf(.75f,.9f,0),
+			new myPointf(1,1,0),new myPointf(1,0,0),
+			new myPointf(.75f,.1f,1.5f),new myPointf(.375f,.1f,1.5f)};
 	//common initial transformation vector used in boat construction
-	private static final myVectorf transYup1 = new myVectorf(0,1,0);
+	private static final myPointf transYup1 = new myPointf(0,1,0);
 	
 	//private PImage sailTexture;
 	
 	//colors for boat reps of boids
 	//primary object color (same across all types of boids); individual type colors defined in instance class
-	private static myRndrObjClr mainColor;	
+	private static RenderObj_Clr mainColor;	
 	
-	private static myRndrObjClr[] allFlockColors = new myRndrObjClr[5];
+	private static RenderObj_Clr[] allFlockColors = new RenderObj_Clr[5];
 	//base IDX - this is main color for all boats
 	private static final int baseBoatIDX = 0;
 	//divisors for stroke color from fill color
@@ -58,7 +65,7 @@ public class myBoatRndrObj extends myRenderObj {
 	private static final float shn = 5.0f;
 	
 	
-	public myBoatRndrObj(IRenderInterface _p, Base_BoidsWindow _win, int _type) {	
+	public Boat_RenderObj(IRenderInterface _p, Base_DispWindow _win, int _type) {	
 		super(_p, _win, _type);	 
 	}//ctor
 	
@@ -128,11 +135,6 @@ public class myBoatRndrObj extends myRenderObj {
 		pts7 = buildSailPtAra(7);
 		//build boat body arrays
 		initBoatBody();	
-		//UV ara shaped like sail
-		uvAra = new myPointf[]{new myPointf(0,0,0),new myPointf(0,1,0),
-				new myPointf(.375f,.9f,0),new myPointf(.75f,.9f,0),
-				new myPointf(1,1,0),new myPointf(1,0,0),
-				new myPointf(.75f,.1f,1.5f),new myPointf(.375f,.1f,1.5f)};
 		//create pshape groups of oars, for each frame of animation, shared across all instances
 		oars = new PShape[myBoid.numAnimFrames];
 		float animRatio = myBoid.maxAnimCntr/(1.0f*myBoid.numAnimFrames);
@@ -189,12 +191,16 @@ public class myBoatRndrObj extends myRenderObj {
 				new myPointf(-3f,len*.1f,1.5f),new myPointf(-1.5f,len*.1f,1.5f)};
 		return res;
 	}
-	//build masts and oars(multiple orientations in a list to just show specific frames)
-	private void initBoatMasts(myRndrObjClr clr){	
-		myVectorf[] trans1Ara = new myVectorf[]{new myVectorf(0, 3.5f, -3),new myVectorf(0, 1.25f, 1),new myVectorf(0, 2.2f, 5),new myVectorf(0, 2.3f, 7)},
-				scale1Ara = new myVectorf[]{new myVectorf(.95f,.85f,1),new myVectorf(1.3f,1.2f,1),new myVectorf(1f,.9f,1),new myVectorf(1,1,1)};
+
+	/**
+	 * build masts and oars(multiple orientations in a list to just show specific frames)
+	 * @param clr
+	 */
+	private void initBoatMasts(RenderObj_Clr clr){	
+		myPointf[] trans1Ara = new myPointf[]{new myPointf(0, 3.5f, -3),new myPointf(0, 1.25f, 1),new myPointf(0, 2.2f, 5),new myPointf(0, 2.3f, 7)},
+				scale1Ara = new myPointf[]{new myPointf(.95f,.85f,1),new myPointf(1.3f,1.2f,1),new myPointf(1f,.9f,1),new myVectorf(1,1,1)};
 		
-		float[][] rot1Ara = new float[][]{new float[]{0,0,0,0},new float[]{0,0,0,0},new float[]{0,0,0,0},new float[]{pi3rds, 1, 0,0}};
+		float[][] rot1Ara = new float[][]{new float[]{0,0,0,0},new float[]{0,0,0,0},new float[]{0,0,0,0},new float[]{MyMathUtils.THIRD_PI_F, 1, 0,0}};
 		int idx = 0;
 		for(int rep = 0; rep < 3; rep++){buildSail( false, pts7,pts5, (type%2==1), trans1Ara[idx],  scale1Ara[idx]);idx++; }
 		buildSail(true, pts3,pts3, true, trans1Ara[idx],  scale1Ara[idx]);   //
@@ -212,18 +218,25 @@ public class myBoatRndrObj extends myRenderObj {
 		}
 	}//initBoatMasts	
 
-	//build oars to orient in appropriate position for animIdx frame of animation - want all numAnimFrm of animation to cycle
-	private void buildOars(int animIdx, myRndrObjClr clr, float animCntr, float dirMult, myVectorf transVec){
+	/**
+	 * build oars to orient in appropriate position for animIdx frame of animation - want all numAnimFrm of animation to cycle
+	 * @param animIdx
+	 * @param clr
+	 * @param animCntr
+	 * @param dirMult
+	 * @param transVec
+	 */
+	private void buildOars(int animIdx, RenderObj_Clr clr, float animCntr, float dirMult, myPointf transVec){
 		float[] rotAra1 = new float[]{MyMathUtils.HALF_PI_F, 1, 0, 0},
 				rotAra2, rotAra3;
-		myVectorf transVec1 = new myVectorf(0,0,0);
+		myPointf transVec1 = new myPointf(0,0,0);
 		float disp = 0, d=-6, distMod = 10.0f/numOars;
 		for(int i =0; i<numOars;++i){
 			double ca = pi4thrds + .65f*Math.cos(animCntr*pi100th), sa = pi6ths + .65f*Math.sin(((animCntr + i/(1.0f*numOars)))*pi100th);
 			transVec1.set((transVec.x)+dirMult*1.5f, transVec.y, (transVec.z)+ d+disp);//sh.translate((transVec.x)+dirMult*1.5f, transVec.y, (transVec.z)+ d+disp);
 			rotAra2 = new float[]{(float) ca, 0,0,dirMult};
 			rotAra3 = new float[]{(float) (sa*.5f), 1,0, 0};			
-			oars[animIdx].addChild(buildPole(1,clr,.1f, 6, false, transVec1, new myVectorf(1,1,1), rotAra1, new myVectorf(0,0,0), rotAra2, new myVectorf(0,0,0), rotAra3));	
+			oars[animIdx].addChild(buildPole(1,clr,.1f, 6, false, transVec1, new myPointf(1,1,1), rotAra1, new myPointf(0,0,0), rotAra2, new myPointf(0,0,0), rotAra3));	
 			//fix orientation of oars
 			oars[animIdx].rotate(MyMathUtils.HALF_PI_F,1,0,0);
 			oars[animIdx].rotate(MyMathUtils.HALF_PI_F,0,1,0);
@@ -231,7 +244,7 @@ public class myBoatRndrObj extends myRenderObj {
 		}			
 	}//buildOars
 
-	private void build1Sail( boolean renderSigil, myPointf[] pts, myVectorf transVec, myVectorf trans2Vec, myVectorf scaleVec){
+	private void build1Sail( boolean renderSigil, myPointf[] pts, myPointf transVec, myPointf trans2Vec, myPointf scaleVec){
 		PShape sh = makeShape(transVec);
 		sh.scale(scaleVec.x,scaleVec.y,scaleVec.z);
 		sh.translate(0,4.5f,0);
@@ -252,11 +265,11 @@ public class myBoatRndrObj extends myRenderObj {
 		objRep.addChild(sh);			
 	}
 	
-	private void buildSail(boolean frontMast, myPointf[] pts1, myPointf[] pts2, boolean renderSigil, myVectorf transVec, myVectorf scaleVec){
+	private void buildSail(boolean frontMast, myPointf[] pts1, myPointf[] pts2, boolean renderSigil, myPointf transVec, myPointf scaleVec){
 		if(frontMast){
 			PShape sh = makeShape(transYup1);
 			sh.translate(0, 1.3f, 7.0f);
-			sh.rotate(pi3rds, 1, 0,0);
+			sh.rotate(MyMathUtils.THIRD_PI_F, 1, 0,0);
 			sh.translate(0,5,0);
 			sh.rotate(MyMathUtils.HALF_PI_F, 0,0,1 );
 			sh.translate(1,-1.5f,0);			

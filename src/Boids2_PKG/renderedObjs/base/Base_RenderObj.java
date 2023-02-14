@@ -2,7 +2,6 @@ package Boids2_PKG.renderedObjs.base;
 
 import base_UI_Objects.my_procApplet;
 import base_UI_Objects.windowUI.base.Base_DispWindow;
-import Boids2_PKG.renderedObjs.myRndrObjClr;
 import base_Render_Interface.IRenderInterface;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
@@ -10,18 +9,26 @@ import base_Math_Objects.vectorObjs.floats.myVectorf;
 import processing.core.PShape;
 import processing.core.PConstants;
 
-public abstract class myRenderObj {
+/**
+ * Base class describing a rendered mesh object
+ * @author John Turner
+ *
+ */
+public abstract class Base_RenderObj {
 	protected static IRenderInterface p;	
 	protected Base_DispWindow win;
-	protected static final float pi3rds = MyMathUtils.PI_F/3.0f, pi4thrds = 4*pi3rds, pi100th = .01f*MyMathUtils.PI_F, pi6ths = .5f*pi3rds;
+	protected static final float
+		pi4thrds = 4*MyMathUtils.THIRD_PI_F, 
+		pi100th = .01f*MyMathUtils.PI_F, 
+		pi6ths = .5f*MyMathUtils.THIRD_PI_F;
 	//individual objRep-type pshapes	
 	protected PShape objRep;										//1 shape for each type of objRep
 	protected int type;												//type of flock this objRep represents
 	//color defined for this particular boid-type - also query for menu color
-	protected myRndrObjClr flockColor;
+	protected RenderObj_Clr flockColor;
 	protected float emitMod = 1.0f;
 	//class to allow for prebuilding complex rendered representations of boids as pshapes
-	public myRenderObj(IRenderInterface _p, Base_DispWindow _win, int _type) {
+	public Base_RenderObj(IRenderInterface _p, Base_DispWindow _win, int _type) {
 		p=_p; win=_win; type = _type;
 		setObjMade(initGeometry());
 	}
@@ -143,7 +150,7 @@ public abstract class myRenderObj {
 	 * @param initTransVec initial translation
 	 * @return
 	 */
-	protected PShape makeShape(myVectorf initTransVec){
+	protected PShape makeShape(myPointf initTransVec){
 		PShape sh = createBaseShape();
 		sh.translate(initTransVec.x,initTransVec.y,initTransVec.z);		
 		return sh;
@@ -161,13 +168,13 @@ public abstract class myRenderObj {
 	 * @param shn
 	 * @return
 	 */
-	protected myRndrObjClr makeColor(int[] fill, int[] stroke, int[] emit, int[] amb, int[] spec, float divis, float stWt, float shn){
+	protected RenderObj_Clr makeColor(int[] fill, int[] stroke, int[] emit, int[] amb, int[] spec, float divis, float stWt, float shn){
 		for(int j=0;j<3;++j){
 			stroke[j] = (int) (fill[j]/divis);	
 			emit[j] = (int)(emitMod * emit[j]);
 		}
 		stroke[3] = 255;			//stroke alpha
-		myRndrObjClr clr = new myRndrObjClr(p);
+		RenderObj_Clr clr = new RenderObj_Clr(p);
 		clr.setClrVal("fill", fill);
 		clr.setClrVal("stroke", stroke);
 		clr.setClrVal("spec", spec);
@@ -178,8 +185,15 @@ public abstract class myRenderObj {
 		return clr;
 	}
 	
-	//build shape from object points
-	protected int buildQuadShape(myVectorf transVec, int numX, int btPt, myPointf[][] objRndr){
+	/**
+	 * build quad shape from object points
+	 * @param transVec
+	 * @param numX
+	 * @param btPt
+	 * @param objRndr
+	 * @return
+	 */
+	protected int buildQuadShape(myPointf transVec, int numX, int btPt, myPointf[][] objRndr){
 		PShape sh = makeShape(transVec);
 		sh.beginShape(PConstants.QUAD);
 			flockColor.shPaintColors(sh);
@@ -191,8 +205,18 @@ public abstract class myRenderObj {
 		return btPt;
 	}
 	
-	protected PShape setRotVals(myVectorf transVec, myVectorf scaleVec, float[] rotAra, myVectorf trans2Vec, float[] rotAra2, myVectorf trans3Vec, float[] rotAra3){	
-		//sets up initial translation/scale/rotations for poles used as masts or oars
+	/**
+	 * Create a PShape and set it's initial transformations.
+	 * @param transVec First applied transform - initial translation
+	 * @param scaleVec Scale applied after translate
+	 * @param rotAra First applied rotation
+	 * @param trans2Vec 2nd Applied translation
+	 * @param rotAra2 2nd Applied rotation
+	 * @param trans3Vec 3rd Applied translation
+	 * @param rotAra3 3rd Applied rotation
+	 * @return PShape created and transformed using passed transforms
+	 */
+	protected PShape createAndSetInitialTransform(myPointf transVec, myPointf scaleVec, float[] rotAra, myPointf trans2Vec, float[] rotAra2, myPointf trans3Vec, float[] rotAra3){	
 		PShape sh = makeShape(transVec);			
 		sh.scale(scaleVec.x,scaleVec.y,scaleVec.z);
 		sh.rotate(rotAra[0],rotAra[1],rotAra[2],rotAra[3]);
@@ -219,7 +243,13 @@ public abstract class myRenderObj {
 	 * @param rotAra3
 	 * @return
 	 */
-	protected PShape buildPole(int poleNum, myRndrObjClr clr, float rad, float height, boolean drawBottom, myVectorf transVec, myVectorf scaleVec, float[] rotAra, myVectorf trans2Vec, float[] rotAra2, myVectorf trans3Vec, float[] rotAra3){
+	protected PShape buildPole(
+			int poleNum, RenderObj_Clr clr, 
+			float rad, float height, 
+			boolean drawBottom, 
+			myPointf transVec, myPointf scaleVec, float[] rotAra, 
+			myPointf trans2Vec, float[] rotAra2, 
+			myPointf trans3Vec, float[] rotAra3){
 		float theta, rsThet, rcThet, rsThet2, rcThet2;
 		int numTurns = 6;
 		float twoPiOvNumTurns = MyMathUtils.TWO_PI_F/numTurns;
@@ -242,7 +272,7 @@ public abstract class myRenderObj {
 			rsThet2 = rsThetAra[i+1];
 			rcThet2 = rcThetAra[i+1];
 
-			sh = setRotVals(transVec, scaleVec, rotAra, trans2Vec, rotAra2, trans3Vec, rotAra3);
+			sh = createAndSetInitialTransform(transVec, scaleVec, rotAra, trans2Vec, rotAra2, trans3Vec, rotAra3);
 			sh.beginShape(PConstants.QUAD);				      
 				clr.shPaintColors(sh);
 				shgl_vertexf(sh,rsThet, 0, rcThet );
@@ -252,7 +282,7 @@ public abstract class myRenderObj {
 			sh.endShape(PConstants.CLOSE);	
 			shRes.addChild(sh);
 			//caps
-			sh = setRotVals(transVec, scaleVec, rotAra, trans2Vec, rotAra2, trans3Vec, rotAra3);
+			sh = createAndSetInitialTransform(transVec, scaleVec, rotAra, trans2Vec, rotAra2, trans3Vec, rotAra3);
 			sh.beginShape(PConstants.TRIANGLE);				      
 				clr.shPaintColors(sh);
 				shgl_vertexf(sh,rsThet, height, rcThet );
@@ -262,7 +292,7 @@ public abstract class myRenderObj {
 			shRes.addChild(sh);
 			
 			if(drawBottom){
-				sh = setRotVals(transVec, scaleVec, rotAra, trans2Vec, rotAra2, trans3Vec, rotAra3);				
+				sh = createAndSetInitialTransform(transVec, scaleVec, rotAra, trans2Vec, rotAra2, trans3Vec, rotAra3);				
 				sh.beginShape(PConstants.TRIANGLE);
 					clr.shPaintColors(sh);
 					shgl_vertexf(sh,rsThet, 0, rcThet );
