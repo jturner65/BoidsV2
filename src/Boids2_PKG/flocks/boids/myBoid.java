@@ -23,8 +23,6 @@ public class myBoid {
 	
 	public int ID;
 	public static int IDcount = 0;
-	//# of animation frames to be used to cycle 1 motion by render objects
-	public static final int numAnimFrames = 90;
 	
 	public int starveCntr, spawnCntr;
 	public float[] O_axisAngle,															//axis angle orientation of this boid
@@ -43,18 +41,29 @@ public class myBoid {
 	public final static int canSpawn 		= 0,							//whether enough time has passed that this boid can spawn
 						 	isDead			= 1,							//whether this boid is dead
 						 	isHungry		= 2,							//whether this boid is hungry
-						 	hadChild		= 3,							//had a child this cycle, needs to "deliver"
-						 	numbd_flags 	= 4;
+						 	hadChild		= 3;							//had a child this cycle, needs to "deliver"
+	private final static int NumBoidFlags 	= 4;
 	
 	//location to put new child
-	public myPointf birthLoc;
-	//animation controlling variables
-	private float animCntr;
-	public float animPhase;
-	//
-	public int animAraIDX;//index in numAnimFrames-sized array of current animation state
+	public myPointf birthLoc;	
 	
-	public static final float maxAnimCntr = 1000.0f, baseAnimSpd = 1.0f;
+	/**
+	 * animation controlling variables
+	 */	
+	private double animCntr;
+	/**
+	 * Fraction of animation cycle currently at
+	 */
+	public double animPhase;
+	/**
+	 * 
+	 */
+	public static final double maxAnimCntr = 1000.0;
+	/**
+	 * 
+	 */
+	public static final double baseAnimSpd = 1.0;
+	
 	//public final float preCalcAnimSpd;
 	//boat construction variables
 	public final int type,gender;//,bodyColor;													//for spawning gender = 0 == female, 1 == male;
@@ -81,7 +90,6 @@ public class myBoid {
 		//preCalcAnimSpd = (float) ThreadLocalRandom.current().nextDouble(.5f,2.0);		
 		animPhase = (float) ThreadLocalRandom.current().nextDouble(.25f, .75f ) ;//keep initial phase between .25 and .75 so that cyclic-force boids start moving right away
 		animCntr = animPhase * maxAnimCntr;
-		animAraIDX = (int)(animPhase * numAnimFrames);	
 		
 		coords = new myPointf(_coords);	//new myPointf[2]; 
 		velocity = new myVectorf();
@@ -161,9 +169,19 @@ public class myBoid {
 	}	
 	public void eat(float tarMass){	starveCntr = resetCntrs(flk.flv.eatFreq,tarMass);bd_flags[isHungry]=false;}
 	public boolean canSprint(){return (starveCntr > .25f*flk.flv.eatFreq);}
+	
+	/**
+	 * Whether or not we're hungry
+	 * @return
+	 */
 	public boolean isHungry(){return bd_flags[isHungry];}
+	/**
+	 * Whether or not we're dead
+	 * @return
+	 */
+	public boolean isDead() {return bd_flags[isDead];}
 	//init bd_flags state machine
-	public void initbd_flags(){bd_flags = new boolean[numbd_flags];for(int i=0;i<numbd_flags;++i){bd_flags[i]=false;}}
+	public void initbd_flags(){bd_flags = new boolean[NumBoidFlags];for(int i=0;i<NumBoidFlags;++i){bd_flags[i]=false;}}
 	
 	//initialize newborn velocity, forces, and orientation
 	public void initNewborn(myVectorf[] bVelFrc){
@@ -173,7 +191,7 @@ public class myBoid {
 	//align the boid along the current orientation matrix
 	private void alignBoid(){
 		rotVec.set(O_axisAngle[1],O_axisAngle[2],O_axisAngle[3]);
-		float rotAngle = (float) (oldRotAngle + ((O_axisAngle[0]-oldRotAngle) * flk.delT));
+		float rotAngle = (float) (oldRotAngle + ((O_axisAngle[0]-oldRotAngle) * flk.getDeltaT()));
 		p.rotate(rotAngle,rotVec.x, rotVec.y, rotVec.z);
 		oldRotAngle = rotAngle;
 	}//alignBoid	
@@ -202,7 +220,7 @@ public class myBoid {
 	
 	private void drawTmpl() {
 		p.pushMatState();
-		flk.tmpl.drawMe(animAraIDX, ID);
+		flk.getCurrTemplate().drawMe(animPhase, ID);
 		p.popMatState();
 	}
 	
@@ -213,7 +231,7 @@ public class myBoid {
 			alignBoid();
 			drawTmpl();		
 		p.popMatState();
-		animIncr();
+		animIncr(velocity.magn*.1f);
 	}//drawme	
 	
 	public void drawMeDbgFrame(){
@@ -224,7 +242,7 @@ public class myBoid {
 			alignBoid();
 			drawTmpl();
 		p.popMatState();
-		animIncr();		
+		animIncr(velocity.magn*.1f);		
 	}
 	
 	public void drawMeAndVel(){
@@ -234,7 +252,7 @@ public class myBoid {
 			alignBoid();
 			drawTmpl();
 		p.popMatState();
-		animIncr();		
+		animIncr(velocity.magn*.1f);		
 	}
 	
 	public void drawMeScaled(){
@@ -244,7 +262,7 @@ public class myBoid {
 			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
 			drawTmpl();
 		p.popMatState();
-		animIncr();
+		animIncr(velocity.magn*.1f);
 	}//drawme	
 	
 	public void drawMeDbgFrameScaled(){
@@ -256,7 +274,7 @@ public class myBoid {
 			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
 			drawTmpl();
 		p.popMatState();
-		animIncr();		
+		animIncr(velocity.magn*.1f);		
 	}
 	
 	public void drawMeAndVelScaled(){
@@ -267,18 +285,22 @@ public class myBoid {
 			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
 			drawTmpl();
 		p.popMatState();
-		animIncr();		
+		animIncr(velocity.magn*.1f);		
 	}
 	
 	
-	//draw this boid as a ball - replace with sphere render obj 
+	/**
+	 * draw this boid as a ball - replace with sphere render obj 
+	 * @param debugAnim
+	 * @param showVel
+	 */
 	public void drawMeBall(boolean debugAnim, boolean showVel){
 		p.pushMatState();
 			p.translate(coords.x,coords.y,coords.z);		//move to location
 			if(debugAnim){drawMyVec(rotVec, IRenderInterface.gui_Black,4.0f);
 			AppMgr.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
 			if(showVel){drawMyVec(velocity, IRenderInterface.gui_DarkMagenta,.5f);}
-			flk.sphTmpl.drawMe(animAraIDX, ID);
+			flk.getSphereTemplate().drawMe(animPhase, ID);
 		p.popMatState();
 		//animIncr();
 	}//drawme 
@@ -320,11 +342,12 @@ public class myBoid {
 		p.popMatState();	
 	}
 	
-	private void animIncr(){
-		animCntr += (baseAnimSpd + (velocity.magn *.1f));//*preCalcAnimSpd;						//set animMod based on velocity -> 1 + mag of velocity	
-		animPhase = ((animCntr % maxAnimCntr)/maxAnimCntr);									//phase of animation cycle
-		animAraIDX = (int)(animPhase * numAnimFrames);	
+	private void animIncr(float vel){
+		animCntr += (baseAnimSpd + vel);//*preCalcAnimSpd;						//set animMod based on velocity -> 1 + mag of velocity	
+		animCntr %= maxAnimCntr;
+		animPhase = (animCntr/maxAnimCntr);									//phase of animation cycle
 	}//animIncr		
+	
 	
 	public String toString(){
 		String result = "ID : " + ID + " Type : "+flk.win.getFlkName(type)+" | Mass : " + mass + " | Spawn CD "+spawnCntr + " | Starve CD " + starveCntr+"\n";

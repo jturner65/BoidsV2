@@ -15,7 +15,7 @@ import base_Math_Objects.vectorObjs.floats.myPointf;
  */
 public class myBoidValsResetter implements Callable<Boolean> {
 	public List<myBoid> bAra;								//boid ara being worked on
-	public myBoidFlock f, pry;
+	public myBoidFlock f;
 	private int flagInt;						//bitmask of current flags
 	public boolean[] stFlags; // doHunt, doSpawn;							//is torroidal
 	public final int 		
@@ -23,8 +23,8 @@ public class myBoidValsResetter implements Callable<Boolean> {
 			doSpawn 	= 1;
 	public final int[] stFlagIDXs = new int[]{Boids_3DWin.flkHunt, Boids_3DWin.flkSpawn};
 
-	public myBoidValsResetter(myBoidFlock _f,myBoidFlock _pry,int _flagInt,  List<myBoid> _bAra) {
-		f = _f; pry = _pry; bAra=_bAra;
+	public myBoidValsResetter(myBoidFlock _f, int _flagInt,  List<myBoid> _bAra) {
+		f = _f; bAra=_bAra;
 		flagInt = _flagInt;
 		setStFlags();		
 	}
@@ -36,7 +36,7 @@ public class myBoidValsResetter implements Callable<Boolean> {
 	
 	public void run(){	
 		for(myBoid b:bAra){	b.forces.set(myPointf.ZEROPT); b.clearNeighborMaps();	}
-		if (stFlags[doHunt] && (f!=pry)){	for(myBoid b:bAra){b.clearHuntMaps();			}}
+		if (stFlags[doHunt]){	for(myBoid b:bAra){b.clearHuntMaps();			}}
 		if (stFlags[doSpawn]) {	for(myBoid b : bAra){	b.ptnWife.clear();}}	
 	}//run()	
 	

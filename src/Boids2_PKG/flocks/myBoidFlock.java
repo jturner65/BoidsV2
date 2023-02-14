@@ -13,6 +13,7 @@ import Boids2_PKG.threadedSolvers.forceSolvers.myLinForceSolver;
 import Boids2_PKG.threadedSolvers.forceSolvers.myOrigForceSolver;
 import Boids2_PKG.threadedSolvers.initializers.myBoidValsResetter;
 import Boids2_PKG.threadedSolvers.initializers.myInitPredPreyMaps;
+import Boids2_PKG.threadedSolvers.updaters.BoidUpdate_Type;
 import Boids2_PKG.threadedSolvers.updaters.myBoidUpdater;
 import Boids2_PKG.ui.Boids_3DWin;
 import Boids2_PKG.ui.base.Base_BoidsWindow;
@@ -33,7 +34,7 @@ public class myBoidFlock {
 	//private ArrayList<List<myBoid>> boidThrdFrames;			//structure to hold views of boidFlock for each thread operation
 	private List<myBoid>[] boidThrdFrames;			//structure to hold views of boidFlock for each thread operation
 	
-	public float delT;
+	private double delT;
 	
 	public myFlkVars flv;						//flock vars per flock	
 	
@@ -47,7 +48,7 @@ public class myBoidFlock {
 	public int curFlagState;					//holds current state of first 32 flags from win/UI
 	
 	public final int type, mtFrameSize = 100;		//mtFrameSize is # of boids per thread
-	public Base_RenderObj tmpl, sphTmpl;				//template to render boid; simplified sphere template
+	private Base_RenderObj tmpl, sphTmpl;				//template to render boid; simplified sphere template
 	public myBoidFlock preyFlock, predFlock;		//direct reference to flock that is my prey and my predator -- set in main program after init is called
 	
 	public List<Future<Boolean>> callFwdSimFutures, callUpdFutures, callInitFutures, callResetBoidFutures;
@@ -107,7 +108,26 @@ public class myBoidFlock {
 		buildThreadFrames();
 	}//initFlock - run after each flock has been constructed
 	
-	public void setPredPreyTmpl(myBoidFlock _predFlock, myBoidFlock _preyFlock, Base_RenderObj _tmpl, Base_RenderObj _sphrTmpl){
+	/**
+	 * Set the render template to use for this flock
+	 * @param _tmpl
+	 */
+	public void setCurrTemplate(Base_RenderObj _tmpl) {tmpl = _tmpl;}
+	
+	/**
+	 * Retrieve the current template used for boids
+	 * @return
+	 */
+	public Base_RenderObj getCurrTemplate(){return tmpl;}
+	
+	/**
+	 * Retrieve current template used for spherical rep of boids
+	 * @return
+	 */
+	public Base_RenderObj getSphereTemplate() {return sphTmpl;}
+	
+	
+	public void setPredPreySphereTmpl(myBoidFlock _predFlock, myBoidFlock _preyFlock, Base_RenderObj _tmpl, Base_RenderObj _sphrTmpl){
 		predFlock = _predFlock;	//flock 0 preys on flock last, is preyed on by flock 1
 		preyFlock = _preyFlock;	
 		tmpl = _tmpl;
@@ -201,8 +221,11 @@ public class myBoidFlock {
 		}
 	}
 	
+	public List<myBoid>[] getBoidThrdFrames(){return boidThrdFrames;}
 	
-	//clear out all data for each boid
+	/**
+	 * clear out all data for each boid
+	 */
 	public void clearOutBoids(){
 		curFlagState = win.getFlkFlagsInt();
 		//sets current time step from UI
@@ -210,11 +233,13 @@ public class myBoidFlock {
 		callResetBoidCalcs.clear();
 		//find next turn's motion for every creature by finding total force to act on creature
 		for(List<myBoid> subL : boidThrdFrames){
-			callResetBoidCalcs.add(new myBoidValsResetter(this, preyFlock, curFlagState, subL));
+			callResetBoidCalcs.add(new myBoidValsResetter(this, curFlagState, subL));
 		}
-		try {callResetBoidFutures = th_exec.invokeAll(callResetBoidCalcs);for(Future<Boolean> f: callResetBoidFutures) {f.get();}} catch (Exception e) {			e.printStackTrace();}			
+		try {callResetBoidFutures = th_exec.invokeAll(callResetBoidCalcs);for(Future<Boolean> f: callResetBoidFutures) {f.get();}} catch (Exception e) {e.printStackTrace();}			
 	}
-	//build all data structures holding neighbors, pred, prey
+	/**
+	 * build all data structures holding neighbors, pred, prey
+	 */
 	public void initAllMaps(){
 		callInitBoidCalcs.clear();
 		for(List<myBoid> subL : boidThrdFrames){
@@ -223,7 +248,10 @@ public class myBoidFlock {
 		try {callInitFutures = th_exec.invokeAll(callInitBoidCalcs);for(Future<Boolean> f: callInitFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }			
 	}
 	
-	//build forces using linear distance functions
+	/**
+	 * build forces using linear distance functions
+	 * @param addFrc
+	 */
 	public void moveBoidsLinMultTH(boolean addFrc){
 		callFwdBoidCalcs.clear();
 		for(List<myBoid> subL : boidThrdFrames){
@@ -232,7 +260,10 @@ public class myBoidFlock {
 		try {callFwdSimFutures = th_exec.invokeAll(callFwdBoidCalcs);for(Future<Boolean> f: callFwdSimFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }		
 	}
 	
-	//build forces using original boids-style distance functions
+	/**
+	 * build forces using original boids-style distance functions
+	 * @param addFrc
+	 */
 	public void moveBoidsOrigMultTH(boolean addFrc){
 		callFwdBoidCalcs.clear();
 		for(List<myBoid> subL : boidThrdFrames){
@@ -240,13 +271,30 @@ public class myBoidFlock {
 		}
 		try {callFwdSimFutures = th_exec.invokeAll(callFwdBoidCalcs);for(Future<Boolean> f: callFwdSimFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }		
 	}
-	public void updateBoidMovement(){
-		callUbdBoidCalcs.clear();
-		for(List<myBoid> subL : boidThrdFrames){
-			callUbdBoidCalcs.add(new myBoidUpdater(AppMgr, this, curFlagState, subL));
+	
+	/**
+	 * Update boid movement, spawn and hunger state
+	 * @param _state
+	 */
+	public void updateBoidState(BoidUpdate_Type _state){
+		switch (_state) {
+			case Move : {
+				callUbdBoidCalcs.clear();
+				//move boids
+				for(List<myBoid> subL : boidThrdFrames){callUbdBoidCalcs.add(new myBoidUpdater(AppMgr, this, subL));}
+				break;}
+			case Spawn:{
+				for (Callable<Boolean> upd : callUbdBoidCalcs) {((myBoidUpdater) upd).setCurrFunction(BoidUpdate_Type.Spawn);}
+				break;}
+			case Hunger:{ 
+				for (Callable<Boolean> upd : callUbdBoidCalcs) {((myBoidUpdater) upd).setCurrFunction(BoidUpdate_Type.Hunger);}
+				break;}
+			default:{
+				win.getMsgObj().dispErrorMessage("myBoidFlock", "updateBoidState", "Unknown update state :"+_state.toStrBrf()+". Aborting!");
+				return;}
 		}
-		try {callUpdFutures = th_exec.invokeAll(callUbdBoidCalcs);for(Future<Boolean> f: callUpdFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }		    	
-	}//updateBoids	
+		try {callUpdFutures = th_exec.invokeAll(callUbdBoidCalcs);for(Future<Boolean> f: callUpdFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }
+	}//updateBoids
 	
 	public void finalizeBoids(){
     	//update - remove dead, add babies
@@ -272,13 +320,14 @@ public class myBoidFlock {
         	numBoidsToChange = 0;
         	win.clearModNumBoids();
         }
-        //Do this after all boids have been added/removed
+        //Do this after all boids have been added/removed, for next cycle
 		buildThreadFrames();
 	}
 	
 	////////////////
 	// End simulation step functions for flock
 
+	public double getDeltaT() {return delT;}
 
 	public String[] getInfoString(){return this.toString().split("\n",-1);}
 	

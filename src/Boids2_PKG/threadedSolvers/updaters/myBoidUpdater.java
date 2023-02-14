@@ -6,11 +6,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import Boids2_PKG.flocks.myBoidFlock;
 import Boids2_PKG.flocks.boids.myBoid;
-import Boids2_PKG.ui.Boids_3DWin;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
-//import processing.core.PConstants;
 import base_UI_Objects.GUI_AppManager;
 
 public class myBoidUpdater implements Callable<Boolean> {
@@ -19,23 +17,15 @@ public class myBoidUpdater implements Callable<Boolean> {
 	private myBoidFlock f;
 	private final float rt2;
 	private final int O_FWD, O_RHT,  O_UP;
-	private final float epsValCalc, epsValCalcSq, spawnPct, killPct;
-	private int flagInt;						//bitmask of current flags
-	public boolean[] stFlags; 
-	public final int 		
-        flkHunt			= 0,
-        flkHunger 		= 1,
-        flkSpawn		= 2;
+	private final float epsValCalc, epsValCalcSq, spawnPct;
 	
-	public static final int[] stFlagIDXs = new int[]{
-		Boids_3DWin.flkHunt,
-		Boids_3DWin.flkHunger,
-		Boids_3DWin.flkSpawn};	
+	/**
+	 * Type of update to do
+	 */
+	private BoidUpdate_Type updateToDo = BoidUpdate_Type.Move;
 	
-	public myBoidUpdater(GUI_AppManager _AppMgr, myBoidFlock _f, int _flagInt,  List<myBoid> _bAra){
+	public myBoidUpdater(GUI_AppManager _AppMgr, myBoidFlock _f, List<myBoid> _bAra){
 		f=_f; bAra=_bAra;AppMgr=_AppMgr;
-		flagInt = _flagInt;
-		setStFlags();		
 		O_FWD = myBoid.O_FWD;
 		O_RHT = myBoid.O_RHT;  
 		O_UP = myBoid.O_UP;  
@@ -43,13 +33,7 @@ public class myBoidUpdater implements Callable<Boolean> {
 		epsValCalc = MyMathUtils.EPS_F;
 		epsValCalcSq = epsValCalc * epsValCalc;
 		spawnPct = f.flv.spawnPct;
-		killPct = f.flv.killPct;
 	}	
-	//TODO set these externally when/if eventually recycling threads
-	public void setStFlags(){
-		stFlags = new boolean[stFlagIDXs.length];
-		for(int i =0;i<stFlagIDXs.length;++i){stFlags[i] = (((flagInt>>stFlagIDXs[i]) & 1) == 1);} 
-	} 
 
 	public void reproduce(myBoid b){
 		float chance;
@@ -99,11 +83,11 @@ public class myBoidUpdater implements Callable<Boolean> {
 	   return new float[]{angle,tmp.x,tmp.y,tmp.z};
 	}//toAxisAngle
 	
-	private myVectorf getFwdVec(myBoid b){
+	private myVectorf getFwdVec(myBoid b, float delT_f){
 		if(b.velocity.magn < MyMathUtils.EPS_F){			return b.orientation[O_FWD]._normalize();		}
 		else {		
 			myVectorf tmp = b.velocity.cloneMe()._normalize();			
-			return new myVectorf(b.orientation[O_FWD], f.delT, tmp);		
+			return new myVectorf(b.orientation[O_FWD], delT_f, tmp);		
 		}
 	}
 	
@@ -115,9 +99,9 @@ public class myBoidUpdater implements Callable<Boolean> {
 		return myVectorf.UP.cloneMe();
 	}	
 	
-	public void setOrientation(myBoid b){
+	public void setOrientation(myBoid b, double delT){
 		//find new orientation at new coords - creature is oriented in local axes as forward being positive z and up being positive y vectors correspond to columns, x/y/z elements correspond to rows
-		b.orientation[O_FWD].set(getFwdVec(b));
+		b.orientation[O_FWD].set(getFwdVec(b, (float) delT));
 		b.orientation[O_UP].set(getUpVec(b));	
 		b.orientation[O_RHT] = b.orientation[O_UP]._cross(b.orientation[O_FWD]); //sideways is cross of up and forward - backwards(righthanded)
 		//b.orientation[O_RHT] = b.orientation[O_FWD]._cross(b.orientation[O_UP]); //sideways is cross of up and forward - backwards(righthanded)
@@ -132,55 +116,60 @@ public class myBoidUpdater implements Callable<Boolean> {
 		//can't use MyMathUtiles static version
 		b.O_axisAngle = toAxisAngle(b.orientation);
 	}
-
-	//check kill chance, remove boid if succeeds
-	public void hunt(myBoid b){
-		float chance;
-		for(myBoid dinner : b.preyFlk.values()){
-			chance = ThreadLocalRandom.current().nextFloat();
-			if(chance < killPct){b.eat(dinner.mass);dinner.killMe("Eaten by predator : "+b.ID);return;}//kill him next update by setting dead flag
-		}
-	}//kill
 	
-	public void run(){	
+	private void moveBoids() {
+		double delT = f.getDeltaT();
 		for(myBoid b : bAra){
-			if(!b.bd_flags[myBoid.isDead]){
+			//if(!b.isDead()){
 				//sclMult = (p.sin(a * radAmt) * .25f) +1.0f;
 				// 1.0f/(sclMult * sclMult)
 				if (b.forces.magn >.00001f) {
-					b.velocity.set(integrate(myVectorf._mult(b.forces, (1.0f/b.mass)), b.velocity));			//myVectorf._add(velocity[0], myVectorf._mult(forces[1], p.delT/(1.0f * mass)));	divide by  mass, multiply by delta t
+					b.velocity.set(integrate(myVectorf._mult(b.forces, (1.0f/b.mass)), b.velocity, delT));			//myVectorf._add(velocity[0], myVectorf._mult(forces[1], p.delT/(1.0f * mass)));	divide by  mass, multiply by delta t
 					if(b.velocity.magn > f.flv.maxVelMag){b.velocity._scale(f.flv.maxVelMag);}
 					if(b.velocity.magn < f.flv.minVelMag){b.velocity._scale(f.flv.minVelMag);}
 				}
-				b.coords.set(integrate(b.velocity, b.coords));												// myVectorf._add(coords[0], myVectorf._mult(velocity[1], p.delT));	
+				b.coords.set(integrate(b.velocity, b.coords, delT));												// myVectorf._add(coords[0], myVectorf._mult(velocity[1], p.delT));	
 				setValWrapCoordsForDraw(b.coords);
-				setOrientation(b);
-			}
+				setOrientation(b, delT);
+			//}
+		}			
+	}
+	
+	private void spawn() {
+		for(myBoid b : bAra){//check every boid to reproduce
+			reproduce(b);		
+		}
+		for(myBoid b : bAra){//update spawn counter
+			b.updateSpawnCntr();	
+		}
+	}
+	
+	private void updateHunger() {
+		//dead boids may exist only after hunt
+		for(myBoid b : bAra){
+			if(!b.isDead()){				b.updateHungerCntr();}
 		}		
-
-		if (stFlags[flkSpawn]) {
-			for(myBoid b : bAra){//check every boid to reproduce
-				if(!b.bd_flags[myBoid.isDead]){		reproduce(b);			}
-			}
-			for(myBoid b : bAra){//update spawn counter
-				if(!b.bd_flags[myBoid.isDead]){		b.updateSpawnCntr();	}
-			}
-		}
-		if (stFlags[flkHunt]) {//see if near enough to prey to eat it
-			for(myBoid b : bAra){			
-				if(!b.bd_flags[myBoid.isDead]){			hunt(b);			}
-			}
-		}
-		if (stFlags[flkHunger]){
-			for(myBoid b : bAra){
-				if(!b.bd_flags[myBoid.isDead]){				b.updateHungerCntr();}
-			}			
+	}
+	/**
+	 * Determine which update procedure to perform
+	 * @param _updToDo
+	 */
+	public void setCurrFunction(BoidUpdate_Type _updToDo) {
+		updateToDo = _updToDo;
+	}
+	
+	public void run(){	
+		switch (updateToDo) {
+			case Move : {	moveBoids(); break;}
+			case Spawn : {	spawn(); break;}
+			case Hunger : {	updateHunger(); break;}
+			default:	{break;}
 		}
 	}
 	
 	//integrator
-	public myPointf integrate(myVectorf stateDot, myPointf state){		return myPointf._add(state, myVectorf._mult(stateDot, f.delT));}
-	public myVectorf integrate(myVectorf stateDot, myVectorf state){	return myVectorf._add(state, myVectorf._mult(stateDot, f.delT));}
+	public myPointf integrate(myVectorf stateDot, myPointf state, double delT){		return myPointf._add(state, myVectorf._mult(stateDot, delT));}
+	public myVectorf integrate(myVectorf stateDot, myVectorf state, double delT){	return myVectorf._add(state, myVectorf._mult(stateDot, delT));}
 	
 	public void setValWrapCoordsForDraw(myPointf _coords){
 		if((_coords.x > AppMgr.gridDimX) || (_coords.x < 0)){	_coords.x = (_coords.x+AppMgr.gridDimX) % AppMgr.gridDimX;}

@@ -27,6 +27,13 @@ public abstract class Base_RenderObj {
 	//color defined for this particular boid-type - also query for menu color
 	protected RenderObj_Clr flockColor;
 	protected float emitMod = 1.0f;
+	
+	/**
+	 * # of animation frames to use for this rendered object
+	 */
+	public static int numAnimFrames = 90;
+	
+	
 	//class to allow for prebuilding complex rendered representations of boids as pshapes
 	public Base_RenderObj(IRenderInterface _p, Base_DispWindow _win, int _type) {
 		p=_p; win=_win; type = _type;
@@ -309,13 +316,20 @@ public abstract class Base_RenderObj {
 	public void setMenuColor(){
 		flockColor.fillMenu(.9f);
 	}
-	//instance a pshape and draw it
-	public void drawMe(int animIDX, int objID){
+	/**
+	 * instance a shape and draw it with given animation phase
+	 * @param animPhase
+	 * @param objID
+	 */
+	public final void drawMe(double animPhase, int objID){
 		((my_procApplet) p).shape(objRep);
-		drawMeIndiv(animIDX);
+		drawMeIndiv((int)(animPhase * numAnimFrames));
 	}
-	//draw object
-	protected abstract void drawMeIndiv(int animIDX);
+	/**
+	 * draw object
+	 * @param animIDX index in animation array to use
+	 */
+	protected abstract void drawMeIndiv(int animPhase);
 	
 	//public void shgl_vTextured(PShape sh, myPointf P, float u, float v) {sh.vertex(P.x,P.y,P.z,u,v);}                          // vertex with texture coordinates
 	public void shgl_vertexf(PShape sh, float x, float y, float z){sh.vertex(x,y,z);}	 // vertex for shading or drawing

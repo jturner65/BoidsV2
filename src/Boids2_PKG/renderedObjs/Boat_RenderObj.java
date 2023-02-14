@@ -18,7 +18,6 @@ import processing.core.PShape;
  *
  */
 public class Boat_RenderObj extends Base_RenderObj {
-	//all boid obj types need this
 	//if overall geometry has been made or not
 	private static boolean made;
 	//precalc consts
@@ -136,11 +135,11 @@ public class Boat_RenderObj extends Base_RenderObj {
 		//build boat body arrays
 		initBoatBody();	
 		//create pshape groups of oars, for each frame of animation, shared across all instances
-		oars = new PShape[myBoid.numAnimFrames];
-		float animRatio = myBoid.maxAnimCntr/(1.0f*myBoid.numAnimFrames);
-		for(int a=0; a<myBoid.numAnimFrames; ++a){
+		oars = new PShape[numAnimFrames];
+		double animRatio = myBoid.maxAnimCntr/(1.0f*numAnimFrames);
+		for(int a=0; a<numAnimFrames; ++a){
 			oars[a] = createBaseShape(PConstants.GROUP);
-			float animCntr = (a * animRatio);
+			double animCntr = (a * animRatio);
 			buildOars(a, mainColor, animCntr, 1, new myVectorf(0, 0.3f, 3));
 			buildOars(a, mainColor, animCntr, -1, new myVectorf(0, 0.3f, 3)); 		
 		}		
@@ -226,13 +225,14 @@ public class Boat_RenderObj extends Base_RenderObj {
 	 * @param dirMult
 	 * @param transVec
 	 */
-	private void buildOars(int animIdx, RenderObj_Clr clr, float animCntr, float dirMult, myPointf transVec){
+	private void buildOars(int animIdx, RenderObj_Clr clr, double animCntr, float dirMult, myPointf transVec){
 		float[] rotAra1 = new float[]{MyMathUtils.HALF_PI_F, 1, 0, 0},
 				rotAra2, rotAra3;
 		myPointf transVec1 = new myPointf(0,0,0);
 		float disp = 0, d=-6, distMod = 10.0f/numOars;
+		double ca = pi4thrds + .65f*Math.cos(animCntr*pi100th);
 		for(int i =0; i<numOars;++i){
-			double ca = pi4thrds + .65f*Math.cos(animCntr*pi100th), sa = pi6ths + .65f*Math.sin(((animCntr + i/(1.0f*numOars)))*pi100th);
+			double	sa = pi6ths + .65f*Math.sin(((animCntr + i/(1.0f*numOars)))*pi100th);
 			transVec1.set((transVec.x)+dirMult*1.5f, transVec.y, (transVec.z)+ d+disp);//sh.translate((transVec.x)+dirMult*1.5f, transVec.y, (transVec.z)+ d+disp);
 			rotAra2 = new float[]{(float) ca, 0,0,dirMult};
 			rotAra3 = new float[]{(float) (sa*.5f), 1,0, 0};			

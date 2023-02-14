@@ -154,12 +154,12 @@ public abstract class myFwdForceSolver implements Callable<Boolean> {
 		//for(myBoid b : bAra){b.forces.set(getForceAtLocation(b));}
 		if(stFlags[flkCyclesFrc]){//if cyclic forces - turn off when jellyfish boid is "contracting"
 			for(myBoid b : bAra){
-				float sclAmt = (float) (Math.cos(b.animPhase) + .5f);
-				sclAmt = (sclAmt <= 0 ? 0.00001f : sclAmt);
+				
+				float sclAmt =0.5f+ (float) (Math.sin(MyMathUtils.TWO_PI * b.animPhase) *.5f);
 				b.forces._scale(b.forces.magn * sclAmt);								
-				dampFrc.set(b.velocity);
-				dampFrc._mult(-.5f);
-				b.forces._add(dampFrc);		
+//				dampFrc.set(b.velocity);
+//				dampFrc._mult(-.1f);
+//				b.forces._add(dampFrc);		
 //
 //				if((b.animPhase <= .25f) || (b.animPhase >= .75f)){	
 //					//b.forces.set(0,0,0);//extra damping
