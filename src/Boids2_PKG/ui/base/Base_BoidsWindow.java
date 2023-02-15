@@ -93,7 +93,6 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 * Array of each flock's specific flocking vars, set via UI
 	 */
 	protected myFlkVars[] flockVars;
-
 	
 //	// structure holding boid flocks and the rendered versions of them - move to myRenderObj?
 	//only 5 different flocks will display nicely on side menu
@@ -468,7 +467,9 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 			case flkHunt			    : {break;}
 			case flkHunger			    : {break;}
 			case flkSpawn			    : {break;}
-			case modDelT	 			: {break;}
+			case modDelT	 			: {
+				timeStepMult = val ?  60.0f/ pa.getFrameRate() : 1.0f;				
+				break;}
 			case flkCyclesFrc			: {break;}
 			case viewFromBoid		    : {
 				dispFlags.setDrawMseEdge(!val);//if viewing from boid, then don't show mse edge, and vice versa
@@ -658,7 +659,28 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	protected void drawMe(float animTimeMod) {
 		pa.pushMatState();
 		pa.translate(-AppMgr.gridHalfDim.x, -AppMgr.gridHalfDim.y, -AppMgr.gridHalfDim.z);
-		for(int i =0; i<flocks.length; ++i){flocks[i].drawBoids();}
+		
+		boolean debugAnim = privFlags.getIsDebug(), 
+				showVelAnim = privFlags.getFlag(showVel);
+		
+
+		if(privFlags.getFlag(drawBoids)){//broken apart to minimize if checks - only potentially 2 per flock per frame instead of thousands
+			if (privFlags.getFlag(drawScaledBoids)) {
+				if(debugAnim){			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsDbgFrameScaled();}}
+				else if (showVelAnim){	for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsAndVelScaled();}}
+				else {					for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsScaled();}}				
+			} else {
+				if(debugAnim){			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsDbgFrame();}}
+				else if (showVelAnim){	for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsAndVel();}}
+				else {					for(int i =0; i<flocks.length; ++i){flocks[i].drawBoids();}}
+			}
+		} else {
+			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsAsBall(debugAnim,showVelAnim);  }
+			if(privFlags.getFlag(showFlkMbrs)){
+				for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsFlkMmbrs();}
+			}
+		}	
+		//for(int i =0; i<flocks.length; ++i){flocks[i].drawBoids();}
 		pa.popMatState();
 	}//drawMe
 	
@@ -671,8 +693,6 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	
 	@Override
 	protected boolean simMe(float modAmtSec) {//run simulation
-		//scale timestep to account for lag of rendering if set in booleans		
-		timeStepMult = privFlags.getFlag(modDelT) ?  60.0f/ pa.getFrameRate() : 1.0f;
 		//clear out all boid maps from last cycle
 		for(int i =0; i<flocks.length; ++i){flocks[i].clearOutBoids();} 
 		//initialize maps of each boid's nighborhoods, predators and prey

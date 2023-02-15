@@ -168,27 +168,19 @@ public class myBoidFlock {
 	
 	//move creatures to random start positions
 	public void scatterBoids() {for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).coords.set(randBoidStLoc());}}//	randInit
-	public void drawBoids(){
-		boolean debugAnim = win.privFlags.getIsDebug(), 
-				showVel = win.privFlags.getFlag(Boids_3DWin.showVel);
-
-		if(win.privFlags.getFlag(Boids_3DWin.drawBoids)){//broken apart to minimize if checks - only potentially 2 per flock per frame instead of thousands
-			if (win.privFlags.getFlag(Boids_3DWin.drawScaledBoids)) {
-				if(debugAnim){		for(myBoid b : boidFlock){b.drawMeDbgFrameScaled();}}
-				else if (showVel){	for(myBoid b : boidFlock){b.drawMeAndVelScaled();}}
-				else {				for(myBoid b : boidFlock){b.drawMeScaled();}}				
-			} else {
-				if(debugAnim){		for(myBoid b : boidFlock){b.drawMeDbgFrame();}}
-				else if (showVel){	for(myBoid b : boidFlock){b.drawMeAndVel();}}
-				else {				for(myBoid b : boidFlock){b.drawMe();}}
-			}
-		} else {
-			for(myBoid b : boidFlock){b.drawMeBall(debugAnim,showVel);  }
-			if(win.privFlags.getFlag(Boids_3DWin.showFlkMbrs)){
-				for(myBoid b : boidFlock){b.drawClosestPrey();b.drawClosestPredator();}
-			}
-		}
-	}//drawBoids
+	
+	public void drawBoidsDbgFrameScaled() {	for(myBoid b : boidFlock){b.drawMeDbgFrameScaled();}}
+	public void drawBoidsAndVelScaled() {	for(myBoid b : boidFlock){b.drawMeAndVelScaled();}}
+	public void drawBoidsScaled() {			for(myBoid b : boidFlock){b.drawMeScaled();}}
+	public void drawBoidsDbgFrame() {		for(myBoid b : boidFlock){b.drawMeDbgFrame();}}
+	public void drawBoidsAndVel() {			for(myBoid b : boidFlock){b.drawMeAndVel();}}
+	public void drawBoids() {				for(myBoid b : boidFlock){b.drawMe();}}
+	public void drawBoidsAsBall(boolean debugAnim, boolean showVel) {			
+		for(myBoid b : boidFlock){b.drawMeBall(debugAnim,showVel);}
+	}
+	public void drawBoidsFlkMmbrs() {		for(myBoid b : boidFlock){b.drawClosestPrey();b.drawClosestPredator();}}
+	
+	
 	
 	////////////////
 	// Simulation step functions for flock
