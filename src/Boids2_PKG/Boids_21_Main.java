@@ -37,7 +37,6 @@ public class Boids_21_Main extends GUI_AppManager {
 
 	public final int[] bground = new int[]{244,244,255,255};		//bground color
 	
-	
 	//////////////////////////////////////////////// code
 	public static void main(String[] passedArgs) {
 	    Boids_21_Main me = new Boids_21_Main();

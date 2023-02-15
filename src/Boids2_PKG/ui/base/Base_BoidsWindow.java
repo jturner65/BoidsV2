@@ -13,10 +13,6 @@ import java.util.concurrent.Future;
 import Boids2_PKG.flocks.myBoidFlock;
 import Boids2_PKG.flocks.myFlkVars;
 import Boids2_PKG.flocks.boids.myBoid;
-import Boids2_PKG.renderedObjs.Boat_RenderObj;
-import Boids2_PKG.renderedObjs.JFish_RenderObj;
-import Boids2_PKG.renderedObjs.Sphere_RenderObj;
-import Boids2_PKG.renderedObjs.base.Base_RenderObj;
 import Boids2_PKG.threadedSolvers.updaters.BoidHuntUpdater;
 import Boids2_PKG.threadedSolvers.updaters.BoidUpdate_Type;
 import Boids2_PKG.ui.myBoidsUIDataUpdater;
@@ -27,6 +23,11 @@ import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Render_Interface.IRenderInterface;
 import base_UI_Objects.GUI_AppManager;
 import base_UI_Objects.my_procApplet;
+import base_UI_Objects.renderedObjs.Boat_RenderObj;
+import base_UI_Objects.renderedObjs.JFish_RenderObj;
+import base_UI_Objects.renderedObjs.Sphere_RenderObj;
+import base_UI_Objects.renderedObjs.base.Base_RenderObj;
+import base_UI_Objects.renderedObjs.base.RenderObj_ClrPalette;
 import base_UI_Objects.windowUI.base.Base_DispWindow;
 import base_UI_Objects.windowUI.drawnTrajectories.DrawnSimpleTraj;
 import base_UI_Objects.windowUI.uiData.UIDataUpdater;
@@ -55,7 +56,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 */
 	public static final int 
 			//debug is 0
-			isMTCapableIDX 		= 1,			//whether this machine supports multiple threads
+			showBoidFrame 		= 1,			//Show the boids RGB axes, with red being in direction of velocity
 			drawBoids			= 2,			//whether to draw boids or draw spheres (renders faster)
 			drawScaledBoids 	= 3,			//whether to draw boids scaled by their mass
 			clearPath			= 4,			//whether to clear each drawn boid, or to show path by keeping past drawn boids
@@ -77,9 +78,10 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 			flkCyclesFrc		= 18,			//the force these boids exert cycles with motion
 			//end must stay within first 32
 			modDelT				= 19,			//whether to modify delT based on frame rate or keep it fixed (to fight lag)
-			viewFromBoid		= 20;			//whether viewpoint is from a boid's perspective or global
+			viewFromBoid		= 20,			//whether viewpoint is from a boid's perspective or global
+			isMTCapableIDX 		= 21;			//whether this machine supports multiple threads
 	
-	protected static final int numBasePrivFlags = 21;
+	protected static final int numBasePrivFlags = 22;
 
 	public final int MaxNumBoids = 15000;		//max # of boids per flock
 	protected final int initNumBoids = 500;		//initial # of boids per flock
@@ -95,13 +97,44 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	protected myFlkVars[] flockVars;
 	
 //	// structure holding boid flocks and the rendered versions of them - move to myRenderObj?
-	//only 5 different flocks will display nicely on side menu
+	//5 different flocks will display nicely on side menu
 	protected String[] flkNames = new String[]{"Privateers", "Pirates", "Corsairs", "Marauders", "Freebooters"};
 	protected float[] flkRadMults = {1.0f, 0.5f, 0.25f, 0.75f, 0.66f, 0.33f};
 	
 	///////////
 	//graphical constructs for boids 
 	///////////
+	// colors for render objects
+	//divisors for stroke color from fill color
+	private static final int
+		sphereClrIDX = 0,
+		boatClrIDX = 1,
+		jFishClrIDX = 2;
+	private static final int numBoidTypes = 3;
+	private static final int[][] specClr = new int[][]{
+		{255,255,255,255},		//sphere
+		{255,255,255,255},		//boat
+		{255,255,255,255}};		//jellyfish
+	//Divide fill color for each type by these values for stroke
+	private static final float[][] strokeScaleFact = new float[][]{
+		{1.25f,0.42f,1.33f,0.95f,3.3f},    			//sphere    
+		{1.25f,0.42f,1.33f,0.95f,3.3f},    			//boat      
+		{1.25f,1.25f,1.25f,1.25f,1.25f}};      //jellyfish 
+		
+	//scale all fill colors by this value for emissive value
+	private static final float[] emitScaleFact = new float[] {0.7f, 0.9f, 0.8f};
+	//stroke weight for sphere, boat, jellyfish
+	private static final float[] strkWt = new float[] {1.0f, 1.0f,.1f};
+	//shininess for sphere, boat, jellyfish
+	private static final float[] shn = new float[] {5.0f,5.0f,5.0f};
+	
+	//per type, per flock fill colors
+	private static final int[][][] objFillColors = new int[][][]{
+		{{110, 65, 30,255},	{30, 30, 30,255}, {130, 22, 10,255}, {22, 188, 110,255},	{22, 10, 130,255}},		//sphere
+		{{110, 65, 30,255}, {20, 20, 20,255}, {130, 22, 10,255}, {22, 128, 50,255}, {22, 10, 150,255}},				//boats
+		{{180, 125, 100,255}, {90, 130, 80, 255}, {180, 82, 90,255}, {190, 175, 60,255}, {50, 90, 240,255}}	//jellyfish
+	};
+
 	/**
 	 * image sigils for sails
 	 */
@@ -116,10 +149,16 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	protected static final myPointf[] mnUVBox = new myPointf[]{new myPointf(0,0,0),new myPointf(1,0,0),new myPointf(1,1,0),new myPointf(0,1,0)};
 	
 	protected String[] boidTypeNames = new String[]{"Pirate Boats", "Jellyfish"};
+	
+	/**
+	 * # of animation frames per animation cycle for animating boids
+	 */	
+	protected int[] numAnimFramesPerType = new int[] {90,120};
+	
 	//whether this boid exhibits cyclic motion
 	protected boolean[] boidCyclesFrc = new boolean[]{false, true};
 	
-	protected final int MaxNumFlocks = flkNames.length;			//max # of flocks we'll support
+	protected final int maxNumFlocks = flkNames.length;			//max # of flocks we'll support
 	//array of template objects to render
 	//need individual array for each type of object, sphere (simplified) render object
 	protected Base_RenderObj[] currRndrTmplPerFlockAra,//set depending on UI choice for complex rndr obj 
@@ -138,21 +177,28 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	//current/initial values
 	protected double curTimeStep = .1;
 	protected int numFlocks = 1;
-	
-	
-	//idxs of flock and boid to assign camera to if we are watching from "on deck"
+
+	/**
+	 * idxs of flock and boid to assign camera to if we are watching from "on deck"
+	 */
 	protected int flockToWatch, boidToWatch;
-	//offset to bottom of custom window menu 
+	/**
+	 * offset to bottom of custom window menu 
+	 */
 	protected float custMenuOffset;
 	
-	//idx of zone in currently modified flkVars value during drag - set to -1 on click release
+	/**
+	 * idx of zone in currently modified flkVars value during drag - set to -1 on click release
+	 */
 	protected int flkVarIDX, flkVarObjIDX;
 	
 	//threading constructions - allow map manager to own its own threading executor
 	protected ExecutorService th_exec;	//to access multithreading - instance from calling program
 	protected int numUsableThreads;		//# of threads usable by the application
 	
-	
+	/**
+	 * Callers and futures for hunt functionality - each thread gets members from all flocks
+	 */
 	protected List<Future<Boolean>> callHuntFutures;
 	protected List<Callable<Boolean>> callHuntBoidCalcs;
 	
@@ -169,6 +215,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	public int initAllPrivBtns(ArrayList<Object[]> tmpBtnNamesArray){
 										//needs to be in order of privModFlgIdxs
 		tmpBtnNamesArray.add(new Object[] {"Debugging", "Enable Debug", Base_BoolFlags.debugIDX});
+		tmpBtnNamesArray.add(new Object[] {"Showing Frame", "Show Frame", showBoidFrame});
 		tmpBtnNamesArray.add(new Object[] {"Drawing Boids", "Drawing Spheres", drawBoids});
 		tmpBtnNamesArray.add(new Object[] {"Scale Boids' Sizes", "Boids Same Size", drawScaledBoids});
 		tmpBtnNamesArray.add(new Object[] {"Showing Boid Path", "Hiding Boid Path", clearPath});
@@ -219,7 +266,6 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	protected void initMe() {
 		//called once
 		//TODO set this to be determined by UI input (?)
-		initSimpleBoids();
 		initBoidRndrObjs();
 		//want # of usable background threads.  Leave 2 for primary process (and potential draw loop)
 		numUsableThreads = Runtime.getRuntime().availableProcessors() - 2;
@@ -272,38 +318,68 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	protected final void updateCalcObjUIVals() {}
 	
 	/**
-	 * simple render object templates - spheres
-	 */
-	protected void initSimpleBoids(){
-		sphrRndrTmplPerFlockAra = new Sphere_RenderObj[MaxNumFlocks];
-		for(int i=0; i<MaxNumFlocks; ++i){		sphrRndrTmplPerFlockAra[i] = new Sphere_RenderObj((my_procApplet) pa, this, i);	}
-	}
-	
-	/**
 	 * initialize all instances of boat boid models/templates - called 1 time
 	 */
-	protected void initBoidRndrObjs(){
-		cmplxRndrTmpls = new ConcurrentSkipListMap<String, Base_RenderObj[]> (); 
-		flkSails = new PImage[MaxNumFlocks];
-		boatRndrTmplPerFlockAra = new Boat_RenderObj[MaxNumFlocks];
-		jellyFishRndrTmplPerFlockAra = new JFish_RenderObj[MaxNumFlocks];
-		bdgSizeX = new float[MaxNumFlocks];
-		mnBdgBox = new myPointf[MaxNumFlocks][];
-		for(int i=0; i<MaxNumFlocks; ++i){	
+	protected void initBoidRndrObjs(){		
+		flkSails = new PImage[maxNumFlocks];
+		bdgSizeX = new float[maxNumFlocks];
+		mnBdgBox = new myPointf[maxNumFlocks][];
+		for(int i=0; i<maxNumFlocks; ++i){	
 			flkSails[i] = ((my_procApplet) pa).loadImage(flkNames[i]+".jpg");
 
 			float scale = flkSails[i].width / (1.0f*flkSails[i].height);
 			bdgSizeX[i] = bdgSizeX_base * scale; 
 
 			mnBdgBox[i] = new myPointf[]{new myPointf(0,0,0),new myPointf(0,bdgSizeY,0),new myPointf(bdgSizeX[i],bdgSizeY,0),new myPointf(bdgSizeX[i],0,0)};
-			
-			//build boat render object for each individual flock type
-			boatRndrTmplPerFlockAra[i] = new Boat_RenderObj(pa, this, i);			
-			jellyFishRndrTmplPerFlockAra[i] = new JFish_RenderObj(pa, this, i);
 		}
+		
+		cmplxRndrTmpls = new ConcurrentSkipListMap<String, Base_RenderObj[]> (); 
+		boatRndrTmplPerFlockAra = new Boat_RenderObj[maxNumFlocks];
+		jellyFishRndrTmplPerFlockAra = new JFish_RenderObj[maxNumFlocks];
+		sphrRndrTmplPerFlockAra = new Sphere_RenderObj[maxNumFlocks];
+		RenderObj_ClrPalette[] palettes = new RenderObj_ClrPalette[numBoidTypes];
+		for (int i=0;i<numBoidTypes;++i) {palettes[i] = buildRenderObjPalette(i);}
+		
+		for(int i=0; i<maxNumFlocks; ++i){				
+			sphrRndrTmplPerFlockAra[i] = new Sphere_RenderObj(pa, i, palettes[sphereClrIDX]);	
+			//build boat render object for each individual flock type
+			boatRndrTmplPerFlockAra[i] = new Boat_RenderObj(pa, i, numAnimFramesPerType[0], palettes[boatClrIDX]);
+			//build "jellyfish" render object for each flock
+			jellyFishRndrTmplPerFlockAra[i] = new JFish_RenderObj(pa, i, numAnimFramesPerType[1], palettes[jFishClrIDX]);
+		}
+
 		cmplxRndrTmpls.put(boidTypeNames[0], boatRndrTmplPerFlockAra);
 		cmplxRndrTmpls.put(boidTypeNames[1], jellyFishRndrTmplPerFlockAra);
 		currRndrTmplPerFlockAra = cmplxRndrTmpls.get(boidTypeNames[0]);//start by rendering boats
+	}
+
+	
+	/**
+	 * Build render object color palette for passed type of flock
+	 * @param _type
+	 * @return
+	 */
+	private final RenderObj_ClrPalette buildRenderObjPalette(int _type) {
+		RenderObj_ClrPalette palette = new RenderObj_ClrPalette(pa, maxNumFlocks);
+		//set main color
+		palette.setColor(-1, objFillColors[_type][0], objFillColors[_type][0], objFillColors[_type][0], specClr[_type], new int[]{0,0,0,0}, strkWt[_type], shn[_type]);
+		//scale stroke color from fill color
+		palette.scaleMainStrokeColor(strokeScaleFact[_type][0]);
+		//set alpha after scaling
+		palette.setMainStrokeColorAlpha(objFillColors[_type][0][3]);
+		//set per-flock colors
+		for(int i=0; i<maxNumFlocks; ++i){	
+			palette.setColor(i, objFillColors[_type][i], objFillColors[_type][i], objFillColors[_type][i], specClr[_type], new int[]{0,0,0,0}, strkWt[_type], shn[_type]);
+			//scale stroke colors
+			palette.scaleInstanceStrokeColor(i, strokeScaleFact[_type][i]);
+			//set alpha after scaling
+			palette.setInstanceStrokeColorAlpha(i, objFillColors[_type][i][3]);
+		}
+		//scale all emissive values - scaled from fill color
+		palette.scaleAllEmissiveColors(emitScaleFact[_type]);
+		//disable ambient
+		palette.disableAmbient();
+		return palette;
 	}
 	
 	/**
@@ -352,13 +428,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 			// flockVars[i] = new myFlkVars(this, flkNames[i],(float)ThreadLocalRandom.current().nextDouble(0.65, 1.0));
 			flockVars[i] = new myFlkVars(flkNames[i], flkRadMults[i]);
 			flocks[i] = new myBoidFlock(pa,this,flockVars[i],initNumBoids,i);
-			flocks[i].initFlock();
 		}
-		
-		callHuntBoidCalcs = new ArrayList<Callable<Boolean>>();
-		callHuntFutures = new ArrayList<Future<Boolean>>();
-		//Build current per-thread hunt callables
-		buildBoidHuntCallables();
 		
 		int predIDX, preyIDX;
 		for(int i =0; i<flocks.length; ++i){
@@ -366,6 +436,15 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 			preyIDX = (((i+flocks.length)-1)%flocks.length);
 			flocks[i].setPredPreySphereTmpl(flocks[predIDX], flocks[preyIDX], currRndrTmplPerFlockAra[i], sphrRndrTmplPerFlockAra[i]);
 		}	
+		for(int i =0; i<flocks.length; ++i){
+			flocks[i].initFlock();
+		}
+		
+		callHuntBoidCalcs = new ArrayList<Callable<Boolean>>();
+		callHuntFutures = new ArrayList<Future<Boolean>>();
+		//Build current per-thread hunt callables
+		buildBoidHuntCallables();
+
 	}//initFlocks
 	
 	
@@ -375,26 +454,28 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 */
 	@SuppressWarnings("unchecked")
 	private void buildBoidHuntCallables() {
-		callHuntBoidCalcs.clear();
-		//Get each flock's boidThreadFrame, and merge them
-		List<myBoid>[][] boidThreadFramePerFlock = new List[flocks.length][];
-		int maxNumFrames = -1;
-		for(int i =0; i<flocks.length; ++i){
-			boidThreadFramePerFlock[i] = flocks[i].getBoidThrdFrames();	
-			maxNumFrames = MyMathUtils.max(boidThreadFramePerFlock[i].length,maxNumFrames);
-		}
-		//Just merge each flock's thread frame.
-		List<myBoid>[] boidThrdFrames = new List[maxNumFrames];
-		for (int frame = 0; frame < maxNumFrames; ++frame) {
-			boidThrdFrames[frame] = new ArrayList<myBoid>();
+		if(privFlags.getFlag(flkHunt)) {
+			callHuntBoidCalcs.clear();
+			//Get each flock's boidThreadFrame, and merge them
+			List<myBoid>[][] boidThreadFramePerFlock = new List[flocks.length][];
+			int maxNumFrames = -1;
 			for(int i =0; i<flocks.length; ++i){
-				if(boidThreadFramePerFlock[i].length>frame) {
-					boidThrdFrames[frame].addAll(boidThreadFramePerFlock[i][frame]);
-				}				
+				boidThreadFramePerFlock[i] = flocks[i].getBoidThrdFrames();	
+				maxNumFrames = MyMathUtils.max(boidThreadFramePerFlock[i].length,maxNumFrames);
 			}
+			//Just merge each flock's thread frame.
+			List<myBoid>[] boidThrdFrames = new List[maxNumFrames];
+			for (int frame = 0; frame < maxNumFrames; ++frame) {
+				boidThrdFrames[frame] = new ArrayList<myBoid>();
+				for(int i =0; i<flocks.length; ++i){
+					if(boidThreadFramePerFlock[i].length>frame) {
+						boidThrdFrames[frame].addAll(boidThreadFramePerFlock[i][frame]);
+					}				
+				}
+			}
+			//Build callables
+			for(List<myBoid> subL : boidThrdFrames){callHuntBoidCalcs.add(new BoidHuntUpdater(subL));}
 		}
-		//Build callables
-		for(List<myBoid> subL : boidThrdFrames){callHuntBoidCalcs.add(new BoidHuntUpdater(subL));}				
 	}//buildBoidHuntCallables()
 	
 	
@@ -450,6 +531,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	@Override
 	public void handlePrivFlags_Indiv(int idx, boolean val, boolean oldVal){
 		switch(idx){
+			case showBoidFrame 			: {break;}
 			case drawBoids			    : {break;}
 			case drawScaledBoids		: {break;}		
 			case clearPath			    : {
@@ -529,7 +611,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		tmpListObjVals.put(gIDX_FlockToObs, flkNames);
 			
 		tmpUIObjArray.put(gIDX_TimeStep,  new Object[]{new double[]{0,1.0f,.0001f}, curTimeStep, "Time Step", GUIObj_Type.FloatVal, new boolean[]{true}});   				//uiTrainDataFrmtIDX                                                                        
-		tmpUIObjArray.put(gIDX_NumFlocks, new Object[]{new double[]{1,MaxNumFlocks,1.0f}, 1.0, "# of Flocks", GUIObj_Type.IntVal, new boolean[]{true}});   				//uiTrainDataFrmtIDX                                                                        
+		tmpUIObjArray.put(gIDX_NumFlocks, new Object[]{new double[]{1,maxNumFlocks,1.0f}, 1.0, "# of Flocks", GUIObj_Type.IntVal, new boolean[]{true}});   				//uiTrainDataFrmtIDX                                                                        
 		tmpUIObjArray.put(gIDX_BoidType,  new Object[]{new double[]{0,boidTypeNames.length-1,1.1f}, 0.0, "Flock Species", GUIObj_Type.ListVal, new boolean[]{true}} );   				//uiTrainDataFrmtIDX                                                                        
 		tmpUIObjArray.put(gIDX_FlockToObs,new Object[]{new double[]{0,flkNames.length-1,1.1f}, 0.0, "Flock To Watch", GUIObj_Type.ListVal, new boolean[]{true}} );   				//uiTrainDataFrmtIDX                                                                        
 		tmpUIObjArray.put(gIDX_ModNumBoids, new Object[]{new double[]{-50,50,1.0f}, 0.0, "Modify Flock Pop", GUIObj_Type.IntVal, new boolean[]{true}});   				//uiTrainDataFrmtIDX                                                                        
@@ -660,22 +742,22 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		pa.pushMatState();
 		pa.translate(-AppMgr.gridHalfDim.x, -AppMgr.gridHalfDim.y, -AppMgr.gridHalfDim.z);
 		
-		boolean debugAnim = privFlags.getIsDebug(), 
+		boolean showFrame = privFlags.getFlag(showBoidFrame), 
 				showVelAnim = privFlags.getFlag(showVel);
 		
 
 		if(privFlags.getFlag(drawBoids)){//broken apart to minimize if checks - only potentially 2 per flock per frame instead of thousands
 			if (privFlags.getFlag(drawScaledBoids)) {
-				if(debugAnim){			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsDbgFrameScaled();}}
+				if(showFrame){			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsDbgFrameScaled();}}
 				else if (showVelAnim){	for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsAndVelScaled();}}
 				else {					for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsScaled();}}				
 			} else {
-				if(debugAnim){			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsDbgFrame();}}
+				if(showFrame){			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsDbgFrame();}}
 				else if (showVelAnim){	for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsAndVel();}}
 				else {					for(int i =0; i<flocks.length; ++i){flocks[i].drawBoids();}}
 			}
 		} else {
-			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsAsBall(debugAnim,showVelAnim);  }
+			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsAsBall(showFrame,showVelAnim);  }
 			if(privFlags.getFlag(showFlkMbrs)){
 				for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsFlkMmbrs();}
 			}

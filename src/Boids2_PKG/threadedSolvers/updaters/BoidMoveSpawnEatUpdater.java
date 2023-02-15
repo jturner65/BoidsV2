@@ -11,7 +11,7 @@ import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
 import base_UI_Objects.GUI_AppManager;
 
-public class myBoidUpdater implements Callable<Boolean> {
+public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
 	private GUI_AppManager AppMgr;
 	private List<myBoid> bAra;
 	private myBoidFlock f;
@@ -24,7 +24,7 @@ public class myBoidUpdater implements Callable<Boolean> {
 	 */
 	private BoidUpdate_Type updateToDo = BoidUpdate_Type.Move;
 	
-	public myBoidUpdater(GUI_AppManager _AppMgr, myBoidFlock _f, List<myBoid> _bAra){
+	public BoidMoveSpawnEatUpdater(GUI_AppManager _AppMgr, myBoidFlock _f, List<myBoid> _bAra){
 		f=_f; bAra=_bAra;AppMgr=_AppMgr;
 		O_FWD = myBoid.O_FWD;
 		O_RHT = myBoid.O_RHT;  

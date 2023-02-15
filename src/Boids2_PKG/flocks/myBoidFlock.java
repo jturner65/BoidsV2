@@ -8,19 +8,18 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 
 import Boids2_PKG.flocks.boids.myBoid;
-import Boids2_PKG.renderedObjs.base.Base_RenderObj;
 import Boids2_PKG.threadedSolvers.forceSolvers.myLinForceSolver;
 import Boids2_PKG.threadedSolvers.forceSolvers.myOrigForceSolver;
 import Boids2_PKG.threadedSolvers.initializers.myBoidValsResetter;
 import Boids2_PKG.threadedSolvers.initializers.myInitPredPreyMaps;
 import Boids2_PKG.threadedSolvers.updaters.BoidUpdate_Type;
-import Boids2_PKG.threadedSolvers.updaters.myBoidUpdater;
-import Boids2_PKG.ui.Boids_3DWin;
+import Boids2_PKG.threadedSolvers.updaters.BoidMoveSpawnEatUpdater;
 import Boids2_PKG.ui.base.Base_BoidsWindow;
 import base_Render_Interface.IRenderInterface;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
 import base_UI_Objects.GUI_AppManager;
+import base_UI_Objects.renderedObjs.base.Base_RenderObj;
 import base_UI_Objects.windowUI.base.Base_DispWindow;
 import base_Utils_Objects.io.messaging.MsgCodes;
 
@@ -273,13 +272,13 @@ public class myBoidFlock {
 			case Move : {
 				callUbdBoidCalcs.clear();
 				//move boids
-				for(List<myBoid> subL : boidThrdFrames){callUbdBoidCalcs.add(new myBoidUpdater(AppMgr, this, subL));}
+				for(List<myBoid> subL : boidThrdFrames){callUbdBoidCalcs.add(new BoidMoveSpawnEatUpdater(AppMgr, this, subL));}
 				break;}
 			case Spawn:{
-				for (Callable<Boolean> upd : callUbdBoidCalcs) {((myBoidUpdater) upd).setCurrFunction(BoidUpdate_Type.Spawn);}
+				for (Callable<Boolean> upd : callUbdBoidCalcs) {((BoidMoveSpawnEatUpdater) upd).setCurrFunction(BoidUpdate_Type.Spawn);}
 				break;}
 			case Hunger:{ 
-				for (Callable<Boolean> upd : callUbdBoidCalcs) {((myBoidUpdater) upd).setCurrFunction(BoidUpdate_Type.Hunger);}
+				for (Callable<Boolean> upd : callUbdBoidCalcs) {((BoidMoveSpawnEatUpdater) upd).setCurrFunction(BoidUpdate_Type.Hunger);}
 				break;}
 			default:{
 				win.getMsgObj().dispErrorMessage("myBoidFlock", "updateBoidState", "Unknown update state :"+_state.toStrBrf()+". Aborting!");

@@ -44,7 +44,9 @@ public class myBoid {
 						 	hadChild		= 3;							//had a child this cycle, needs to "deliver"
 	private final static int NumBoidFlags 	= 4;
 	
-	//location to put new child
+	/**
+	 * location to put new child
+	 */
 	public myPointf birthLoc;	
 	
 	/**
@@ -58,13 +60,8 @@ public class myBoid {
 	/**
 	 * 
 	 */
-	public static final double maxAnimCntr = 1000.0;
-	/**
-	 * 
-	 */
 	public static final double baseAnimSpd = 1.0;
 	
-	//public final float preCalcAnimSpd;
 	//boat construction variables
 	public final int type,gender;//,bodyColor;													//for spawning gender = 0 == female, 1 == male;
 	public static final int O_FWD = 0, O_RHT = 1,  O_UP = 2;
@@ -89,7 +86,7 @@ public class myBoid {
 		orientation[O_UP] = myVectorf.UP.cloneMe();
 		//preCalcAnimSpd = (float) ThreadLocalRandom.current().nextDouble(.5f,2.0);		
 		animPhase = (float) ThreadLocalRandom.current().nextDouble(.25f, .75f ) ;//keep initial phase between .25 and .75 so that cyclic-force boids start moving right away
-		animCntr = animPhase * maxAnimCntr;
+		animCntr = animPhase * flk.getCurrTemplate().getMaxAnimCounter();
 		
 		coords = new myPointf(_coords);	//new myPointf[2]; 
 		velocity = new myVectorf();
@@ -197,7 +194,7 @@ public class myBoid {
 	}//alignBoid	
 	//kill this boid
 	public void killMe(String cause){
-		if(AppMgr.isDebugMode()){System.out.println("Boid : " +ID+" killed : " + cause);}
+		if(AppMgr.isDebugMode()){AppMgr.msgObj.dispConsoleDebugMessage("myBoid", "killMe", "Boid : " +ID+" killed by : " + cause);}
 		bd_flags[isDead]=true;
 	}	
 	
@@ -344,6 +341,7 @@ public class myBoid {
 	
 	private void animIncr(float vel){
 		animCntr += (baseAnimSpd + vel);//*preCalcAnimSpd;						//set animMod based on velocity -> 1 + mag of velocity	
+		double maxAnimCntr = flk.getCurrTemplate().getMaxAnimCounter();
 		animCntr %= maxAnimCntr;
 		animPhase = (animCntr/maxAnimCntr);									//phase of animation cycle
 	}//animIncr		
