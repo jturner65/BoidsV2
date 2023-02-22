@@ -19,7 +19,9 @@ public class Boids_21_Main extends GUI_AppManager {
 	public final String prjNmShrt = "Boids2";
 	public final String projDesc = "Multiple boid flock predator/prey simulation";
 	//use sphere background for this program
-	private boolean useSphereBKGnd = true;	
+	private boolean useSphereBKGnd = true;
+	
+	private final String bkSkyBox = "bkgrndTex.jpg";
 	/**
 	 * size of 3d grid cube side
 	 */
@@ -53,9 +55,34 @@ public class Boids_21_Main extends GUI_AppManager {
 	protected HashMap<String,Object> setRuntimeArgsVals(HashMap<String, Object> _passedArgsMap) {
 		return  _passedArgsMap;
 	}
+	/**
+	 * Called in pre-draw initial setup, before first init
+	 * potentially override setup variables on per-project basis.
+	 * Do not use for setting background color or Skybox anymore.
+	 *  	(Current settings in my_procApplet) 	
+	 *  	strokeCap(PROJECT);
+	 *  	textSize(txtSz);
+	 *  	textureMode(NORMAL);			
+	 *  	rectMode(CORNER);	
+	 *  	sphereDetail(4);	 * 
+	 */
+	@Override
+	protected void setupAppDims_Indiv() {
+		//modify default grid dims to be 1500x1500x1500
+		setDesired3DGridDims(GridDim_3D);		
+	}
+	@Override
+	protected boolean getUseSkyboxBKGnd(int winIdx) {	return useSphereBKGnd;}
+	@Override
+	protected String getSkyboxFilename(int winIdx) {	return bkSkyBox;}
+	@Override
+	protected int[] getBackgroundColor(int winIdx) {return bground;}
+	@Override
+	protected int getNumDispWindows() {	return numVisFlags;	}
 
 	@Override
-	protected void setSmoothing() {		pa.setSmoothing(0);		}
+	protected void setSmoothing() {		ri.setSmoothing(0);		}
+	
 	/**
 	 * whether or not we want to restrict window size on widescreen monitors
 	 * 
@@ -85,33 +112,7 @@ public class Boids_21_Main extends GUI_AppManager {
 	 */
 	@Override
 	protected final MsgCodes getMinLogMsgCodes() {return null;}
-	
-	@Override
-	protected void setBkgrnd(){
-		if(useSphereBKGnd) { pa.setBkgndSphere();	} else {pa.setRenderBackground(bground[0],bground[1],bground[2],bground[3]);		}
-	}
 
-	/**
-	 * Called in pre-draw initial setup, before first init
-	 * potentially override setup variables on per-project basis :
-	 * (Current settings in my_procApplet) 	
-	 *  	strokeCap(PROJECT);
-	 *  	textSize(txtSz);
-	 *  	textureMode(NORMAL);			
-	 *  	rectMode(CORNER);	
-	 *  	sphereDetail(4);	 * 
-	 */
-	@Override
-	protected void setup_Indiv() {
-		//modify default grid dims to be 1500x1500x1500
-		setDesired3DGridDims(GridDim_3D);
-		//TODO move to window to set up specific background for each different "scene" type
-		//PImage bgrndTex = loadImage("bkgrndTex.jpg");
-		//PImage bgrndTex = loadImage("sky_1.jpg");
-		if(useSphereBKGnd) {			pa.loadBkgndSphere("bkgrndTex.jpg");	} else {		setBkgrnd();	}
-
-	}
-	
 	@Override
 	protected void initBaseFlags_Indiv() {
 		setBaseFlagToShow_debugMode(false);
@@ -124,10 +125,9 @@ public class Boids_21_Main extends GUI_AppManager {
 	@Override
 	protected void initAllDispWindows() {
 		showInfo = true;
-		int numWins = numVisFlags;//includes 1 for menu window (never < 1)
 		String[] _winTitles = new String[]{"","Boids ver2.0 3D","Boids ver2.0 2D"},
 				_winDescr = new String[] {"", "Multi Flock Predator/Prey Boids 3D Simulation","Multi Flock Predator/Prey Boids 2D Simulation"};
-		initWins(numWins,_winTitles, _winDescr);
+		setWinTitlesAndDescs(_winTitles, _winDescr);
 		//call for menu window
 		buildInitMenuWin();
 		//instanced window dimensions when open and closed - only showing 1 open at a time
@@ -158,10 +158,10 @@ public class Boids_21_Main extends GUI_AppManager {
 		//			//display window initialization	
 		wIdx = disp3DResIDX; fIdx = show3DWin;
 		setInitDispWinVals(wIdx, _dimOpen, _dimClosed,new boolean[]{false,true,true,true}, new int[]{255,255,255,255},new int[]{0,0,0,255},new int[]{180,180,180,255},new int[]{100,100,100,255}); 
-		dispWinFrames[wIdx] = new Boids_3DWin(pa, this, wIdx, fIdx);
+		dispWinFrames[wIdx] = new Boids_3DWin(ri, this, wIdx, fIdx);
 		wIdx = disp2DResIDX; fIdx = show2DWin;
 		setInitDispWinVals(wIdx, _dimOpen, _dimClosed,new boolean[]{false,false,true,false}, new int[]{50,40,20,255}, new int[]{255,255,255,255},new int[]{180,180,180,255},new int[]{100,100,100,255});
-		dispWinFrames[wIdx] = new Boids_2DWin(pa, this, wIdx, fIdx);
+		dispWinFrames[wIdx] = new Boids_2DWin(ri, this, wIdx, fIdx);
 
 		//specify windows that cannot be shown simultaneously here
 		initXORWins(new int[]{show3DWin,show2DWin}, new int[]{disp3DResIDX, disp2DResIDX});
