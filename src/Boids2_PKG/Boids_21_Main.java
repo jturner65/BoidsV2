@@ -27,15 +27,16 @@ public class Boids_21_Main extends GUI_AppManager {
 	 */
 	private final int GridDim_3D = 1500;
 		
-	private final int
-		showUIMenu = 0,
-		show3DWin = 1,
-		show2DWin = 2;
-	public final int numVisFlags = 3;
-	
-	//idx's in dispWinFrames for each window - 0 is always left side menu window
+	/**
+	 * idx's in dispWinFrames for each window - 0 is always left side menu window
+	 * Side menu is dispMenuIDX == 0
+	 */
 	private static final int disp3DResIDX = 1,
 							disp2DResIDX = 2;	
+	/**
+	 * # of visible windows including side menu (always at least 1 for side menu)
+	 */
+	private static final int numVisWins = 3;
 
 	public final int[] bground = new int[]{244,244,255,255};		//bground color
 	
@@ -78,7 +79,7 @@ public class Boids_21_Main extends GUI_AppManager {
 	@Override
 	protected int[] getBackgroundColor(int winIdx) {return bground;}
 	@Override
-	protected int getNumDispWindows() {	return numVisFlags;	}
+	protected int getNumDispWindows() {	return numVisWins;	}
 
 	@Override
 	protected void setSmoothing() {		ri.setSmoothing(0);		}
@@ -128,13 +129,10 @@ public class Boids_21_Main extends GUI_AppManager {
 		String[] _winTitles = new String[]{"","Boids ver2.0 3D","Boids ver2.0 2D"},
 				_winDescr = new String[] {"", "Multi Flock Predator/Prey Boids 3D Simulation","Multi Flock Predator/Prey Boids 2D Simulation"};
 		setWinTitlesAndDescs(_winTitles, _winDescr);
-		//call for menu window
-		buildInitMenuWin();
 		//instanced window dimensions when open and closed - only showing 1 open at a time
 		float[] _dimOpen  = getDefaultWinDimOpen(), 
 				_dimClosed  = getDefaultWinDimClosed();	
-		int wIdx = dispMenuIDX,fIdx=showUIMenu;
-		//new mySideBarMenu(this, winTitles[wIdx], fIdx, winFillClrs[wIdx], winStrkClrs[wIdx], winRectDimOpen[wIdx], winRectDimClose[wIdx], winDescr[wIdx]);
+
 		//Builds sidebar menu button config
 		//application-wide menu button bar titles and button names
 		String[] menuBtnTitles = new String[]{"Functions 1","Functions 2","Functions 3"};
@@ -144,7 +142,7 @@ public class Boids_21_Main extends GUI_AppManager {
 			{"Func 10", "Func 11", "Func 12", "Func 13"}	//row 3
 			};
 		String [] dbgBtns = {"Debug 0", "Debug 1", "Debug 2", "Debug 3","Debug 4"};
-		dispWinFrames[wIdx] = buildSideBarMenu(wIdx, fIdx,menuBtnTitles, menuBtnNames, dbgBtns, true, false);
+		buildSideBarMenu(menuBtnTitles, menuBtnNames, dbgBtns, true, false);
 		
 		//define windows
 		//idx 0 is menu, and is ignored	
@@ -156,22 +154,21 @@ public class Boids_21_Main extends GUI_AppManager {
 		//int[] _fill, int[] _strk, 			: window fill and stroke colors
 		//int _trajFill, int _trajStrk)			: trajectory fill and stroke colors, if these objects can be drawn in window (used as alt color otherwise)
 		//			//display window initialization	
-		wIdx = disp3DResIDX; fIdx = show3DWin;
+		int wIdx = disp3DResIDX;
 		setInitDispWinVals(wIdx, _dimOpen, _dimClosed,new boolean[]{false,true,true,true}, new int[]{255,255,255,255},new int[]{0,0,0,255},new int[]{180,180,180,255},new int[]{100,100,100,255}); 
-		dispWinFrames[wIdx] = new Boids_3DWin(ri, this, wIdx, fIdx);
-		wIdx = disp2DResIDX; fIdx = show2DWin;
+		dispWinFrames[wIdx] = new Boids_3DWin(ri, this, wIdx);
+		wIdx = disp2DResIDX;
 		setInitDispWinVals(wIdx, _dimOpen, _dimClosed,new boolean[]{false,false,true,false}, new int[]{50,40,20,255}, new int[]{255,255,255,255},new int[]{180,180,180,255},new int[]{100,100,100,255});
-		dispWinFrames[wIdx] = new Boids_2DWin(ri, this, wIdx, fIdx);
+		dispWinFrames[wIdx] = new Boids_2DWin(ri, this, wIdx);
 
 		//specify windows that cannot be shown simultaneously here
-		initXORWins(new int[]{show3DWin,show2DWin}, new int[]{disp3DResIDX, disp2DResIDX});
+		initXORWins(new int[]{disp3DResIDX, disp2DResIDX}, new int[]{disp3DResIDX, disp2DResIDX});
 	
 	}//initAllDispWindows
 
 	@Override
 	protected void initOnce_Indiv() {
-		setVisFlag(showUIMenu, true);					//show input UI menu	
-		setVisFlag(show3DWin, true);
+		setVisFlag(disp3DResIDX, true);
 	}
 
 	@Override
@@ -232,13 +229,12 @@ public class Boids_21_Main extends GUI_AppManager {
 	}
 
 	@Override
-	public float[] getUIRectVals(int idx) {
+	public float[] getUIRectVals_Indiv(int idx, float[] menuRectVals) {
 			//this.pr("In getUIRectVals for idx : " + idx);
 		switch(idx){
-			case dispMenuIDX 		: {return new float[0];}			//idx 0 is parent menu sidebar
-			case disp3DResIDX 		: {return dispWinFrames[dispMenuIDX].uiClkCoords;}
-			case disp2DResIDX 		: {return dispWinFrames[dispMenuIDX].uiClkCoords;}
-			default :  return dispWinFrames[dispMenuIDX].uiClkCoords;
+			case disp3DResIDX 		: {return menuRectVals;}
+			case disp2DResIDX 		: {return menuRectVals;}
+			default :  return menuRectVals;
 		}
 	}
 
@@ -259,14 +255,13 @@ public class Boids_21_Main extends GUI_AppManager {
 	 * @return
 	 */
 	@Override
-	public int getNumVisFlags() {return numVisFlags;}
+	public int getNumVisFlags() {return numVisWins;}
 	@Override
 	//address all flag-setting here, so that if any special cases need to be addressed they can be
 	protected void setVisFlag_Indiv(int idx, boolean val ){
 		switch (idx){
-			case showUIMenu 	: { dispWinFrames[dispMenuIDX].dispFlags.setShowWin(val);    break;}											//whether or not to show the main ui window (sidebar)			
-			case show3DWin		: {setWinFlagsXOR(disp3DResIDX, val); break;}
-			case show2DWin		: {setWinFlagsXOR(disp2DResIDX, val); break;}
+			case disp3DResIDX		: {setWinFlagsXOR(disp3DResIDX, val); break;}
+			case disp2DResIDX		: {setWinFlagsXOR(disp2DResIDX, val); break;}
 			default : {break;}
 		}
 	}//setFlags  

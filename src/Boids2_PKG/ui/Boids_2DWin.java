@@ -17,8 +17,8 @@ public class Boids_2DWin extends Base_BoidsWindow {
 	
 	//instance-specific flag idxs should start number at Base_BoidsWindow.numBasePrivFlags
 	
-	public Boids_2DWin(IRenderInterface _p, GUI_AppManager _AppMgr, int _winIdx, int _flagIdx) {
-		super(_p, _AppMgr, _winIdx, _flagIdx);		
+	public Boids_2DWin(IRenderInterface _p, GUI_AppManager _AppMgr, int _winIdx) {
+		super(_p, _AppMgr, _winIdx);		
 		super.initThisWin(false);
 	}
 

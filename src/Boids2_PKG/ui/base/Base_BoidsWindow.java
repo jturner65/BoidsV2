@@ -202,8 +202,8 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	protected List<Future<Boolean>> callHuntFutures;
 	protected List<Callable<Boolean>> callHuntBoidCalcs;
 	
-	public Base_BoidsWindow(IRenderInterface _p, GUI_AppManager _AppMgr, int _winIdx, int _flagIdx) {
-		super(_p, _AppMgr, _winIdx, _flagIdx);	
+	public Base_BoidsWindow(IRenderInterface _p, GUI_AppManager _AppMgr, int _winIdx) {
+		super(_p, _AppMgr, _winIdx);	
 	}
 	
 	public ExecutorService getTh_Exec() {return th_exec;}
@@ -721,13 +721,13 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	public void clearModNumBoids() {	resetUIObj(gIDX_ModNumBoids);}
 	
 	@Override
-	public void initDrwnTrajIndiv(){}	
+	public void initDrwnTraj_Indiv(){}	
 	//overrides function in base class mseClkDisp
 	@Override
 	public void drawTraj3D(float animTimeMod,myPoint trans){}//drawTraj3D	
 	//set camera to either be global or from pov of one of the boids
 	@Override
-	protected void setCameraIndiv(float[] camVals){
+	protected void setCamera_Indiv(float[] camVals){
 		if (privFlags.getFlag(viewFromBoid)){	setBoidCam(rx,ry,dz);		}
 		else {	
 			pa.setCameraWinVals(camVals);//(camVals[0],camVals[1],camVals[2],camVals[3],camVals[4],camVals[5],camVals[6],camVals[7],camVals[8]);      
@@ -807,7 +807,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	protected void stopMe() {	}		
 
 	@Override
-	protected boolean hndlMouseMoveIndiv(int mouseX, int mouseY, myPoint mseClckInWorld){
+	protected boolean hndlMouseMove_Indiv(int mouseX, int mouseY, myPoint mseClckInWorld){
 		return false;
 	}
 
@@ -847,7 +847,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	
 	
 	@Override
-	protected boolean hndlMouseClickIndiv(int mouseX, int mouseY, myPoint mseClckInWorld, int mseBtn) {
+	protected boolean hndlMouseClick_Indiv(int mouseX, int mouseY, myPoint mseClckInWorld, int mseBtn) {
 		boolean res = false;
 		if(!res){//not in ui buttons, check if in flk vars region
 			if((mouseX < uiClkCoords[2]) && (mouseY >= custMenuOffset)){
@@ -864,7 +864,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	}//hndlMouseClickIndiv
 
 	@Override
-	protected boolean hndlMouseDragIndiv(int mouseX, int mouseY, int pmouseX, int pmouseY, myPoint mouseClickIn3D, myVector mseDragInWorld, int mseBtn) {
+	protected boolean hndlMouseDrag_Indiv(int mouseX, int mouseY, int pmouseX, int pmouseY, myPoint mouseClickIn3D, myVector mseDragInWorld, int mseBtn) {
 		boolean res = false;
 		if(!res){//not in ui buttons, check if in flk vars region
 			if ((flkVarIDX != -1 ) && (flkVarObjIDX != -1)) {	res = handleFlkMenuDrag(flkVarIDX, flkVarObjIDX, mouseX, mouseY, pmouseX, pmouseY, mseBtn);		}
@@ -885,7 +885,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	protected void snapMouseLocs(int oldMouseX, int oldMouseY, int[] newMouseLoc) {}	
 
 	@Override
-	protected void hndlMouseRelIndiv() {
+	protected void hndlMouseRel_Indiv() {
 		//release always clears mod variable
 		flkVarIDX = -1;
 		flkVarObjIDX = -1;		
@@ -897,13 +897,13 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	@Override
 	protected void endCntlKeyI() {}
 	@Override
-	protected void addSScrToWinIndiv(int newWinKey){}
+	protected void addSScrToWin_Indiv(int newWinKey){}
 	@Override
-	protected void addTrajToScrIndiv(int subScrKey, String newTrajKey){}
+	protected void addTrajToScr_Indiv(int subScrKey, String newTrajKey){}
 	@Override
-	protected void delSScrToWinIndiv(int idx) {}	
+	protected void delSScrToWin_Indiv(int idx) {}	
 	@Override
-	protected void delTrajToScrIndiv(int subScrKey, String newTrajKey) {}
+	protected void delTrajToScr_Indiv(int subScrKey, String newTrajKey) {}
 	//resize drawn all trajectories
 	@Override
 	protected void resizeMe(float scale) {}
@@ -1063,5 +1063,5 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	}
 
 	@Override
-	public void processTrajIndiv(DrawnSimpleTraj drawnTraj) {	}
+	public void processTraj_Indiv(DrawnSimpleTraj drawnTraj) {	}
 }//class Base_BoidsWindow
