@@ -121,6 +121,7 @@ public class Boids_21_Main extends GUI_AppManager {
 		setBaseFlagToShow_runSim(true);
 		setBaseFlagToShow_singleStep(true);
 		setBaseFlagToShow_showRtSideMenu(true);		
+		setBaseFlagToShow_showDrawableCanvas(false);
 	}
 
 	@Override
@@ -199,9 +200,9 @@ public class Boids_21_Main extends GUI_AppManager {
 			case 's' :
 			case 'S' : {break;}//{saveSS(prjNmShrt);break;}//save picture of current image			
 //			case ';' :
-//			case ':' : {((mySideBarMenu)dispWinFrames[dispMenuIDX]).guiObjs[((mySideBarMenu)dispWinFrames[dispMenuIDX]).gIDX_cycModDraw].modVal(-1); break;}//decrease the number of cycles between each draw, to some lower bound
+//			case ':' : {((mySideBarMenu)dispWinFrames[dispMenuIDX]).guiObjs_Numeric[((mySideBarMenu)dispWinFrames[dispMenuIDX]).gIDX_cycModDraw].modVal(-1); break;}//decrease the number of cycles between each draw, to some lower bound
 //			case '\'' :
-//			case '"' : {((mySideBarMenu)dispWinFrames[dispMenuIDX]).guiObjs[((mySideBarMenu)dispWinFrames[dispMenuIDX]).gIDX_cycModDraw].modVal(1); break;}//increase the number of cycles between each draw to some upper bound		
+//			case '"' : {((mySideBarMenu)dispWinFrames[dispMenuIDX]).guiObjs_Numeric[((mySideBarMenu)dispWinFrames[dispMenuIDX]).gIDX_cycModDraw].modVal(1); break;}//increase the number of cycles between each draw to some upper bound		
 			default : {	}
 		}//switch	
 	}

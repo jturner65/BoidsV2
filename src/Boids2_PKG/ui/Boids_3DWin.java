@@ -83,7 +83,7 @@ public class Boids_3DWin extends Base_BoidsWindow {
 	
 	/**
 	 * Handles Instance-specific UI objects
-	 * Called if int-handling guiObjs[UIidx] (int or list) has new data which updated UI adapter. 
+	 * Called if int-handling guiObjs_Numeric[UIidx] (int or list) has new data which updated UI adapter. 
 	 * Intended to support custom per-object handling by owning window.
 	 * Only called if data changed!
 	 * @param UIidx Index of gui obj with new data
@@ -98,7 +98,7 @@ public class Boids_3DWin extends Base_BoidsWindow {
 	}
 	/**
 	 * Handles Instance-specific UI objects
-	 * Called if float-handling guiObjs[UIidx] has new data which updated UI adapter.  
+	 * Called if float-handling guiObjs_Numeric[UIidx] has new data which updated UI adapter.  
 	 * Intended to support custom per-object handling by owning window.
 	 * Only called if data changed! 
 	 * @param UIidx Index of gui obj with new data

@@ -325,7 +325,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		bdgSizeX = new float[maxNumFlocks];
 		mnBdgBox = new myPointf[maxNumFlocks][];
 		for(int i=0; i<maxNumFlocks; ++i){	
-			flkSails[i] = ((my_procApplet) pa).loadImage(flkNames[i]+".jpg");
+			flkSails[i] = ((my_procApplet) ri).loadImage(flkNames[i]+".jpg");
 
 			float scale = flkSails[i].width / (1.0f*flkSails[i].height);
 			bdgSizeX[i] = bdgSizeX_base * scale; 
@@ -341,11 +341,11 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		for (int i=0;i<numBoidTypes;++i) {palettes[i] = buildRenderObjPalette(i);}
 		
 		for(int i=0; i<maxNumFlocks; ++i){				
-			sphrRndrTmplPerFlockAra[i] = new Sphere_RenderObj(pa, i, palettes[sphereClrIDX]);	
+			sphrRndrTmplPerFlockAra[i] = new Sphere_RenderObj(ri, i, palettes[sphereClrIDX]);	
 			//build boat render object for each individual flock type
-			boatRndrTmplPerFlockAra[i] = new Boat_RenderObj(pa, i, numAnimFramesPerType[0], palettes[boatClrIDX]);
+			boatRndrTmplPerFlockAra[i] = new Boat_RenderObj(ri, i, numAnimFramesPerType[0], palettes[boatClrIDX]);
 			//build "jellyfish" render object for each flock
-			jellyFishRndrTmplPerFlockAra[i] = new JFish_RenderObj(pa, i, numAnimFramesPerType[1], palettes[jFishClrIDX]);
+			jellyFishRndrTmplPerFlockAra[i] = new JFish_RenderObj(ri, i, numAnimFramesPerType[1], palettes[jFishClrIDX]);
 		}
 
 		cmplxRndrTmpls.put(boidTypeNames[0], boatRndrTmplPerFlockAra);
@@ -360,7 +360,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 * @return
 	 */
 	private final RenderObj_ClrPalette buildRenderObjPalette(int _type) {
-		RenderObj_ClrPalette palette = new RenderObj_ClrPalette(pa, maxNumFlocks);
+		RenderObj_ClrPalette palette = new RenderObj_ClrPalette(ri, maxNumFlocks);
 		//set main color
 		palette.setColor(-1, objFillColors[_type][0], objFillColors[_type][0], objFillColors[_type][0], specClr[_type], new int[]{0,0,0,0}, strkWt[_type], shn[_type]);
 		//scale stroke color from fill color
@@ -427,7 +427,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 			// ??? 
 			// flockVars[i] = new myFlkVars(this, flkNames[i],(float)ThreadLocalRandom.current().nextDouble(0.65, 1.0));
 			flockVars[i] = new myFlkVars(flkNames[i], flkRadMults[i]);
-			flocks[i] = new myBoidFlock(pa,this,flockVars[i],initNumBoids,i);
+			flocks[i] = new myBoidFlock(ri,this,flockVars[i],initNumBoids,i);
 		}
 		
 		int predIDX, preyIDX;
@@ -488,36 +488,36 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	public int getFlkFlagsInt(){		return privFlags.getFlagsAsInt(0);} //get first 32 flag settings
 	
 	public void drawMenuBadge(myPointf[] ara, myPointf[] uvAra, int type) {
-		pa.gl_beginShape(); 
-		((my_procApplet)pa).texture(flkSails[type]);
-		for(int i=0;i<ara.length;++i){	((my_procApplet)pa).vTextured(ara[i], uvAra[i].y, uvAra[i].x);} 
-		pa.gl_endShape(true);
+		ri.gl_beginShape(); 
+		((my_procApplet)ri).texture(flkSails[type]);
+		for(int i=0;i<ara.length;++i){	((my_procApplet)ri).vTextured(ara[i], uvAra[i].y, uvAra[i].x);} 
+		ri.gl_endShape(true);
 	}//
 	
-	private static final float fvDataTxtStY = -Base_DispWindow.yOff*.5f;
-	private static final float fvDataNewLineY = Base_DispWindow.yOff*.75f;
+	private static final float fvDataTxtStY = -Base_DispWindow.txtHeightOff*.5f;
+	private static final float fvDataNewLineY = Base_DispWindow.txtHeightOff*.75f;
 	
 	public void drawFlockMenu(int i, int numBoids){
-		pa.translate(0,-bdgSizeY-6);
+		ri.translate(0,-bdgSizeY-6);
 		drawMenuBadge(mnBdgBox[i],mnUVBox,i);
-		pa.translate(bdgSizeX[i]+3,bdgSizeY+6);
+		ri.translate(bdgSizeX[i]+3,bdgSizeY+6);
 		//p.setColorValFill(flkMenuClr);
 		currRndrTmplPerFlockAra[i].setMenuColor();
 		String fvData[] = flockVars[i].getData(numBoids);
-		pa.showText(fvData[0],0, fvDataTxtStY);pa.translate(0,fvDataNewLineY);
-		pa.translate(-bdgSizeX[i]-3,0);
-		for(int j=1;j<fvData.length; ++j){pa.showText(fvData[j],0,fvDataTxtStY);pa.translate(0,fvDataNewLineY);}
+		ri.showText(fvData[0],0, fvDataTxtStY);ri.translate(0,fvDataNewLineY);
+		ri.translate(-bdgSizeX[i]-3,0);
+		for(int j=1;j<fvData.length; ++j){ri.showText(fvData[j],0,fvDataTxtStY);ri.translate(0,fvDataNewLineY);}
 	}//drawFlockMenu
 	
 	@Override
 	public void drawCustMenuObjs(float animTimeMod){
-		pa.pushMatState();	
+		ri.pushMatState();	
 		//all flock menu drawing within push mat call
-		pa.translate(5,custMenuOffset+yOff);
+		ri.translate(5,custMenuOffset+txtHeightOff);
 		for(int i =0; i<flocks.length; ++i){
 			drawFlockMenu(i, flocks[i].numBoids);
 		}		
-		pa.popMatState();
+		ri.popMatState();
 	}
 	
 	//set camera to be on a boid in one of the flocks
@@ -536,7 +536,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 			case drawScaledBoids		: {break;}		
 			case clearPath			    : {
 				//TODO this needs to change how it works so that initialization doesn't call my_procApplet before it is ready
-				//pa.setClearBackgroundEveryStep( !val);//turn on or off background clearing in main window
+				//ri.setClearBackgroundEveryStep( !val);//turn on or off background clearing in main window
 				break;}
 			case showVel			    : {break;}
 			case attractMode			: {break;}
@@ -550,7 +550,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 			case flkHunger			    : {break;}
 			case flkSpawn			    : {break;}
 			case modDelT	 			: {
-				timeStepMult = val ?  60.0f/ pa.getFrameRate() : 1.0f;				
+				timeStepMult = val ?  60.0f/ ri.getFrameRate() : 1.0f;				
 				break;}
 			case flkCyclesFrc			: {break;}
 			case viewFromBoid		    : {
@@ -603,7 +603,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 * @param tmpListObjVals
 	 */
 	@Override
-	protected void setupGUIObjsAras(TreeMap<Integer, Object[]> tmpUIObjArray, TreeMap<Integer, String[]> tmpListObjVals){	
+	protected final void setupGUIObjsAras(TreeMap<Integer, Object[]> tmpUIObjArray, TreeMap<Integer, String[]> tmpListObjVals){	
 		//build list select box values
 		//keyed by object idx (uiXXXIDX), entries are lists of values to use for list select ui objects
 		
@@ -625,12 +625,12 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 */
 	protected abstract void setupGUIObjsAras_Indiv(TreeMap<Integer, Object[]> tmpUIObjArray, TreeMap<Integer, String[]> tmpListObjVals);
 	
-	//when flockToWatch changes, reset maxBoidToWatch value
-	private void setMaxUIBoidToWatch(int flkIdx){guiObjs[gIDX_BoidToObs].setNewMax(flocks[flkIdx].boidFlock.size()-1);setUIWinVals(gIDX_BoidToObs);}	
-	private void setMaxUIFlockToWatch(){guiObjs[gIDX_FlockToObs].setNewMax(numFlocks - 1);	setUIWinVals(gIDX_FlockToObs);}		
+	//when flockToWatch changes, reset maxBoidToWatch value ((Base_NumericGUIObj)guiObjs_Numeric[gIDX_BoidToObs])
+	private void setMaxUIBoidToWatch(int flkIdx){setNewUIMaxVal(gIDX_BoidToObs,flocks[flkIdx].boidFlock.size()-1);setUIWinVals(gIDX_BoidToObs);}	
+	private void setMaxUIFlockToWatch(){setNewUIMaxVal(gIDX_FlockToObs, numFlocks - 1);	setUIWinVals(gIDX_FlockToObs);}		
 	
 	/**
-	 * Called if int-handling guiObjs[UIidx] (int or list) has new data which updated UI adapter. 
+	 * Called if int-handling guiObjs_Numeric[UIidx] (int or list) has new data which updated UI adapter. 
 	 * Intended to support custom per-object handling by owning window.
 	 * Only called if data changed!
 	 * @param UIidx Index of gui obj with new data
@@ -670,7 +670,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	
 	/**
 	 * Handles Instance-specific UI objects
-	 * Called if int-handling guiObjs[UIidx] (int or list) has new data which updated UI adapter. 
+	 * Called if int-handling guiObjs_Numeric[UIidx] (int or list) has new data which updated UI adapter. 
 	 * Intended to support custom per-object handling by owning window.
 	 * Only called if data changed!
 	 * @param UIidx Index of gui obj with new data
@@ -682,7 +682,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	
 
 	/**
-	 * Called if float-handling guiObjs[UIidx] has new data which updated UI adapter.  
+	 * Called if float-handling guiObjs_Numeric[UIidx] has new data which updated UI adapter.  
 	 * Intended to support custom per-object handling by owning window.
 	 * Only called if data changed!
 	 * @param UIidx Index of gui obj with new data
@@ -702,7 +702,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	}//setUI_FloatValsCustom
 	/**
 	 * Handles Instance-specific UI objects
-	 * Called if float-handling guiObjs[UIidx] has new data which updated UI adapter.  
+	 * Called if float-handling guiObjs_Numeric[UIidx] has new data which updated UI adapter.  
 	 * Intended to support custom per-object handling by owning window.
 	 * Only called if data changed! 
 	 * @param UIidx Index of gui obj with new data
@@ -730,17 +730,17 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	protected void setCamera_Indiv(float[] camVals){
 		if (privFlags.getFlag(viewFromBoid)){	setBoidCam(rx,ry,dz);		}
 		else {	
-			pa.setCameraWinVals(camVals);//(camVals[0],camVals[1],camVals[2],camVals[3],camVals[4],camVals[5],camVals[6],camVals[7],camVals[8]);      
+			ri.setCameraWinVals(camVals);//(camVals[0],camVals[1],camVals[2],camVals[3],camVals[4],camVals[5],camVals[6],camVals[7],camVals[8]);      
 			// puts origin of all drawn objects at screen center and moves forward/away by dz
-			pa.translate(camVals[0],camVals[1],(float)dz); 
+			ri.translate(camVals[0],camVals[1],(float)dz); 
 		    setCamOrient();	
 		}
 	}
 	
 	@Override
 	protected void drawMe(float animTimeMod) {
-		pa.pushMatState();
-		pa.translate(-AppMgr.gridHalfDim.x, -AppMgr.gridHalfDim.y, -AppMgr.gridHalfDim.z);
+		ri.pushMatState();
+		ri.translate(-AppMgr.gridHalfDim.x, -AppMgr.gridHalfDim.y, -AppMgr.gridHalfDim.z);
 		
 		boolean showFrame = privFlags.getFlag(showBoidFrame), 
 				showVelAnim = privFlags.getFlag(showVel);
@@ -763,7 +763,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 			}
 		}	
 		//for(int i =0; i<flocks.length; ++i){flocks[i].drawBoids();}
-		pa.popMatState();
+		ri.popMatState();
 	}//drawMe
 	
 
