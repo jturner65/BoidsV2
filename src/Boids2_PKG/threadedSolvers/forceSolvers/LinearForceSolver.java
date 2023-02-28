@@ -5,13 +5,13 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 import Boids2_PKG.flocks.myBoidFlock;
 import Boids2_PKG.flocks.boids.myBoid;
-import Boids2_PKG.threadedSolvers.forceSolvers.base.myFwdForceSolver;
+import Boids2_PKG.threadedSolvers.forceSolvers.base.Base_ForceSolver;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
 import base_UI_Objects.GUI_AppManager;
 
-public class myLinForceSolver extends myFwdForceSolver{
-	public myLinForceSolver(GUI_AppManager _AppMgr, myBoidFlock _f, int _flagInt, boolean _isClk, List<myBoid> _bAra) {
+public class LinearForceSolver extends Base_ForceSolver{
+	public LinearForceSolver(GUI_AppManager _AppMgr, myBoidFlock _f, int _flagInt, boolean _isClk, List<myBoid> _bAra) {
 		super(_AppMgr,_f,_flagInt, _isClk, _bAra);
 	}
 	

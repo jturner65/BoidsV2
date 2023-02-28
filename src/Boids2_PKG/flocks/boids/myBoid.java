@@ -17,7 +17,6 @@ import base_UI_Objects.windowUI.base.Base_DispWindow;
  * @author John
  */
 public class myBoid {
-	public static IRenderInterface p;
 	public static GUI_AppManager AppMgr;
 	public myBoidFlock flk;
 	
@@ -47,23 +46,31 @@ public class myBoid {
 	/**
 	 * location to put new child
 	 */
-	public myPointf birthLoc;	
+	private myPointf birthLoc;	
 	
 	/**
 	 * animation controlling variables
 	 */	
 	private double animCntr;
+	
 	/**
 	 * Fraction of animation cycle currently at
 	 */
 	public double animPhase;
 	/**
+	 * Current render object type's max anim counter
+	 */
+	private double maxAnimCntr;	
+	/**
 	 * 
 	 */
-	public static final double baseAnimSpd = 1.0;
+	private final double baseAnimSpd = 1.0;
 	
-	//boat construction variables
-	public final int type,gender;//,bodyColor;													//for spawning gender = 0 == female, 1 == male;
+	public final int type;
+	/**
+	 * for spawning gender = 0 == female, 1 == male;
+	 */
+	public final int gender;												
 	public static final int O_FWD = 0, O_RHT = 1,  O_UP = 2;
 		
 	public ConcurrentSkipListMap<Float, myBoid> neighbors,	//sorted by distance map of neighbors to this boid
@@ -75,8 +82,8 @@ public class myBoid {
 										predFlkLoc,			//boid mapped to location used for distance calc
 										preyFlkLoc;			//boid mapped to location used for distance calc
 	
-	public myBoid(IRenderInterface _p, myBoidFlock _f,  myPointf _coords, int _type){
-		ID = IDcount++;		p = _p;		flk = _f; type=_type; 
+	public myBoid(myBoidFlock _f,  myPointf _coords, int _type){
+		ID = IDcount++;	 flk = _f; type=_type; 
 		AppMgr = Base_DispWindow.AppMgr;
 		initbd_flags();
 		rotVec = myVectorf.RIGHT.cloneMe(); 			//initial setup
@@ -84,9 +91,10 @@ public class myBoid {
 		orientation[O_FWD] = myVectorf.FORWARD.cloneMe();
 		orientation[O_RHT] = myVectorf.RIGHT.cloneMe();
 		orientation[O_UP] = myVectorf.UP.cloneMe();
-		//preCalcAnimSpd = (float) ThreadLocalRandom.current().nextDouble(.5f,2.0);		
-		animPhase = (float) ThreadLocalRandom.current().nextDouble(.25f, .75f ) ;//keep initial phase between .25 and .75 so that cyclic-force boids start moving right away
-		animCntr = animPhase * flk.getCurrTemplate().getMaxAnimCounter();
+		//keep initial phase between .25 and .75 so that cyclic-force boids start moving right away
+		animPhase = (float) ThreadLocalRandom.current().nextDouble(.25f, .75f ) ;
+		maxAnimCntr = flk.getMaxAnimCounter();
+		animCntr = animPhase * maxAnimCntr;
 		
 		coords = new myPointf(_coords);	//new myPointf[2]; 
 		velocity = new myVectorf();
@@ -186,10 +194,10 @@ public class myBoid {
 		forces.set(bVelFrc[1]);
 	}	
 	//align the boid along the current orientation matrix
-	private void alignBoid(){
+	private void alignBoid(IRenderInterface ri){
 		rotVec.set(O_axisAngle[1],O_axisAngle[2],O_axisAngle[3]);
 		float rotAngle = (float) (oldRotAngle + ((O_axisAngle[0]-oldRotAngle) * flk.getDeltaT()));
-		p.rotate(rotAngle,rotVec.x, rotVec.y, rotVec.z);
+		ri.rotate(rotAngle,rotVec.x, rotVec.y, rotVec.z);
 		oldRotAngle = rotAngle;
 	}//alignBoid	
 	//kill this boid
@@ -198,8 +206,14 @@ public class myBoid {
 		bd_flags[isDead]=true;
 	}	
 	
-	//set this boat to be camera location
-	public void setBoatCam(float dThet, float dPhi, float dz){
+	/**
+	 * set this boat to be camera location
+	 * @param ri
+	 * @param dThet
+	 * @param dPhi
+	 * @param dz
+	 */
+	public void setBoatCam(IRenderInterface ri,float dThet, float dPhi, float dz){
 		//set eye to initially be at coords of boid, modified for world being displaced by half grid dims
 		myPointf eyeTmp = myPointf._sub(coords,AppMgr.gridHalfDim);
 		myVectorf tmpEyeMod = new myVectorf( orientation[O_FWD]);
@@ -212,141 +226,124 @@ public class myBoid {
 		myVectorf eyeLookVec = myVectorf._rotAroundAxis( rotdir, rotdir._cross(orientation[O_UP]), dThet);
 		myPointf eye = myPointf._add(eyeTmp, .1f*dz, eyeLookVec);
 		myPointf dir =  myPointf._add(eyeTmp, eyeLookVec);
-		p.setCameraWinVals(new float[] {eye.x, eye.y, eye.z, dir.x, dir.y, dir.z, -orientation[O_UP].x, -orientation[O_UP].y, -orientation[O_UP].z});
+		ri.setCameraWinVals(new float[] {eye.x, eye.y, eye.z, dir.x, dir.y, dir.z, -orientation[O_UP].x, -orientation[O_UP].y, -orientation[O_UP].z});
 	}//setBoatCam
 	
-	private void drawTmpl() {
-		p.pushMatState();
+	private void drawTmpl(IRenderInterface ri) {
+		ri.pushMatState();
 		flk.getCurrTemplate().drawMe(animPhase, ID);
-		p.popMatState();
+		ri.popMatState();
 	}
 	
-	//draw this body on mesh
-	public void drawMe(){
-		p.pushMatState();
-			p.translate(coords.x,coords.y,coords.z);		//move to location
-			alignBoid();
-			drawTmpl();		
-		p.popMatState();
+	/**
+	 * draw this body on mesh
+	 * @param ri
+	 */
+	public void drawMe(IRenderInterface ri){
+		ri.pushMatState();
+			ri.translate(coords.x,coords.y,coords.z);		//move to location
+			alignBoid(ri);
+			drawTmpl(ri);		
+		ri.popMatState();
 		animIncr(velocity.magn*.1f);
 	}//drawme	
 	
-	public void drawMeDbgFrame(){
-		p.pushMatState();
-			p.translate(coords.x,coords.y,coords.z);		//move to location
-			drawMyVec(rotVec, IRenderInterface.gui_Black,4.0f);
-			AppMgr.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);
-			alignBoid();
-			drawTmpl();
-		p.popMatState();
-		animIncr(velocity.magn*.1f);		
-	}
-	
-	public void drawMeAndVel(){
-		p.pushMatState();
-			p.translate(coords.x,coords.y,coords.z);		//move to location
-			drawMyVec(velocity, IRenderInterface.gui_Magenta,.5f);
-			alignBoid();
-			drawTmpl();
-		p.popMatState();
-		animIncr(velocity.magn*.1f);		
-	}
-	
-	public void drawMeScaled(){
-		p.pushMatState();
-			p.translate(coords.x,coords.y,coords.z);		//move to location
-			alignBoid();
-			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
-			drawTmpl();
-		p.popMatState();
+	public void drawMeScaled(IRenderInterface ri){
+		ri.pushMatState();
+			ri.translate(coords.x,coords.y,coords.z);		//move to location
+			alignBoid(ri);
+			ri.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
+			drawTmpl(ri);
+		ri.popMatState();
 		animIncr(velocity.magn*.1f);
 	}//drawme	
 	
-	public void drawMeDbgFrameScaled(){
-		p.pushMatState();
-			p.translate(coords.x,coords.y,coords.z);		//move to location
-			drawMyVec(rotVec, IRenderInterface.gui_Black,4.0f);
-			AppMgr.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);
-			alignBoid();
-			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
-			drawTmpl();
-		p.popMatState();
-		animIncr(velocity.magn*.1f);		
-	}
-	
-	public void drawMeAndVelScaled(){
-		p.pushMatState();
-			p.translate(coords.x,coords.y,coords.z);		//move to location
-			drawMyVec(velocity, IRenderInterface.gui_Magenta,.5f);
-			alignBoid();
-			p.scale(scaleBt.x,scaleBt.y,scaleBt.z);																	//make appropriate size				
-			drawTmpl();
-		p.popMatState();
-		animIncr(velocity.magn*.1f);		
-	}
-	
+	/**
+	 * Only called when animated object is drawn
+	 * @param vel
+	 */
+	private void animIncr(float vel){
+		animCntr += (baseAnimSpd + vel);//*preCalcAnimSpd;						//set animMod based on velocity -> 1 + mag of velocity	
+		maxAnimCntr = flk.getMaxAnimCounter();
+		animCntr %= maxAnimCntr;
+		animPhase = (animCntr/maxAnimCntr);									//phase of animation cycle
+	}//animIncr	
 	
 	/**
 	 * draw this boid as a ball - replace with sphere render obj 
 	 * @param debugAnim
 	 * @param showVel
 	 */
-	public void drawMeBall(boolean debugAnim, boolean showVel){
-		p.pushMatState();
-			p.translate(coords.x,coords.y,coords.z);		//move to location
-			if(debugAnim){drawMyVec(rotVec, IRenderInterface.gui_Black,4.0f);
-			AppMgr.drawAxes(100, 2.0f, new myPoint(0,0,0), orientation, 255);}
-			if(showVel){drawMyVec(velocity, IRenderInterface.gui_DarkMagenta,.5f);}
+	public void drawMeAsBall(IRenderInterface ri){
+		ri.pushMatState();
+			ri.translate(coords.x,coords.y,coords.z);		//move to location			
 			flk.getSphereTemplate().drawMe(animPhase, ID);
-		p.popMatState();
-		//animIncr();
+		ri.popMatState();
 	}//drawme 
 	
-	public void drawClosestPrey(){
+	public void drawClosestPrey(IRenderInterface ri){
 		if(this.preyFlkLoc.size() == 0){return;}
 		myPointf tmp = this.preyFlkLoc.firstEntry().getValue();
 		int clr1 = IRenderInterface.gui_Red, clr2 = IRenderInterface.gui_White;
-		drawClosestOther(tmp, clr1, clr2);
+		drawClosestOther(ri, tmp, clr1, clr2);
 	}
 	
-	public void drawClosestPredator(){
+	public void drawClosestPredator(IRenderInterface ri){
 		if(this.predFlkLoc.size() == 0){return;}
 		myPointf tmp = this.predFlkLoc.firstEntry().getValue();
 		int clr1 = IRenderInterface.gui_Cyan, clr2 = IRenderInterface.gui_White;
-		drawClosestOther(tmp, clr1, clr2);
+		drawClosestOther(ri, tmp, clr1, clr2);
 	}	
 	
-	private void drawClosestOther(myPointf tmp, int stClr, int endClr){
-		p.pushMatState();
-			p.setStrokeWt(3.0f);
+	private void drawClosestOther(IRenderInterface ri, myPointf tmp, int stClr, int endClr){
+		ri.pushMatState();
+			ri.setStrokeWt(3.0f);
 			//p.setColorValStroke(stClr);
-			p.drawLine(coords, tmp,stClr,endClr );
+			ri.drawLine(coords, tmp,stClr,endClr );
 			//p.line(coords, tmp);
-			p.translate(tmp.x,tmp.y,tmp.z);		//move to location
-			p.setColorValFill(endClr, 255);
-			p.noStroke();
-			p.drawSphere(10);
-		p.popMatState();
-		
+			ri.translate(tmp.x,tmp.y,tmp.z);		//move to location
+			ri.setColorValFill(endClr, 255);
+			ri.noStroke();
+			ri.drawSphere(10);
+		ri.popMatState();		
 	}		
 	//public double calcBobbing(){		return 2*(p.cos(.01f*animCntr));	}		//bobbing motion
 	
-	protected void drawMyVec(myVectorf v, int clr, float sw){
-		p.pushMatState();
-			p.setColorValStroke(clr, 255);
-			p.setStrokeWt(sw);
-			p.drawLine(new myPointf(0,0,0),v);
-		p.popMatState();	
+	/**
+	 * Draw velocity vector
+	 * @param ri
+	 */
+	public void drawMyVel(IRenderInterface ri) {
+		ri.pushMatState();
+			ri.translate(coords.x,coords.y,coords.z);		//move to location
+			ri.setColorValStroke(IRenderInterface.gui_Magenta, 255);
+			ri.setStrokeWt(.5f);
+			ri.drawLine(myPointf.ZEROPT,velocity);
+		ri.popMatState();
+	}
+	/**
+	 * Draw rotation vector and orientation frame
+	 * @param ri
+	 */
+	public void drawMyFrame(IRenderInterface ri) {
+		ri.pushMatState();
+			ri.translate(coords.x,coords.y,coords.z);		//move to location
+			ri.setColorValStroke(IRenderInterface.gui_Cyan, 255);
+			ri.setStrokeWt(2.0f);
+			ri.drawLine(myPointf.ZEROPT,myPointf._mult(rotVec, 100f));
+			AppMgr.drawAxes(100, 2.0f, myPoint.ZEROPT, orientation, 255);
+		ri.popMatState();	
 	}
 	
-	private void animIncr(float vel){
-		animCntr += (baseAnimSpd + vel);//*preCalcAnimSpd;						//set animMod based on velocity -> 1 + mag of velocity	
-		double maxAnimCntr = flk.getCurrTemplate().getMaxAnimCounter();
-		animCntr %= maxAnimCntr;
-		animPhase = (animCntr/maxAnimCntr);									//phase of animation cycle
-	}//animIncr		
-	
-	
+	protected void drawMyVec(IRenderInterface ri, myVectorf v, int clr, float sw){
+		ri.pushMatState();
+			ri.translate(coords.x,coords.y,coords.z);		//move to location
+			ri.setColorValStroke(clr, 255);
+			ri.setStrokeWt(sw);
+			ri.drawLine(myPointf.ZEROPT,v);
+		ri.popMatState();	
+	}
+
 	public String toString(){
 		String result = "ID : " + ID + " Type : "+flk.win.getFlkName(type)+" | Mass : " + mass + " | Spawn CD "+spawnCntr + " | Starve CD " + starveCntr+"\n";
 		result+=" | location : " + coords + " | velocity : " + velocity + " | forces : " + forces +"\n" ;

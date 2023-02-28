@@ -8,8 +8,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 
 import Boids2_PKG.flocks.boids.myBoid;
-import Boids2_PKG.threadedSolvers.forceSolvers.myLinForceSolver;
-import Boids2_PKG.threadedSolvers.forceSolvers.myOrigForceSolver;
+import Boids2_PKG.threadedSolvers.forceSolvers.LinearForceSolver;
+import Boids2_PKG.threadedSolvers.forceSolvers.OriginalForceSolver;
 import Boids2_PKG.threadedSolvers.initializers.myBoidValsResetter;
 import Boids2_PKG.threadedSolvers.initializers.myInitPredPreyMaps;
 import Boids2_PKG.threadedSolvers.updaters.BoidUpdate_Type;
@@ -24,21 +24,47 @@ import base_UI_Objects.windowUI.base.Base_DispWindow;
 import base_Utils_Objects.io.messaging.MsgCodes;
 
 public class myBoidFlock {
-	public IRenderInterface p;	
+	/**
+	 * Owning window
+	 */
 	public Base_BoidsWindow win;
+	/**
+	 * Owning application manager
+	 */
 	public static GUI_AppManager AppMgr;
+	/** 
+	 * Flock name
+	 */
 	public String name;
+	/**
+	 * Current number of members in this flock
+	 */
 	public int numBoids;
+	/**
+	 * Collection of flock members
+	 */
 	public ArrayList<myBoid> boidFlock;
-	//private ArrayList<List<myBoid>> boidThrdFrames;			//structure to hold views of boidFlock for each thread operation
-	private List<myBoid>[] boidThrdFrames;			//structure to hold views of boidFlock for each thread operation
-	
+	/**
+	 * structure to hold views of boidFlock for each thread operation
+	 */
+	private List<myBoid>[] boidThrdFrames;
+	/**
+	 * timestep
+	 */
 	private double delT;
+	/**
+	 * Flock variables for this flock
+	 */
+	public myFlkVars flv;
 	
-	public myFlkVars flv;						//flock vars per flock	
-	
-	public final float  distGrwthMod = 1.1f,	//how the radius should grow to look for more creatures for neighbors, if haven't satisfied minimum number
-						nearPct = .4f;			//% size of total population to use as neighborhood target, if enough creatures
+	/**
+	 * How the radius should grow to look for more creatures for neighbors, if haven't satisfied minimum number
+	 */
+	public final float  distGrwthMod = 1.1f;	
+	/**
+	 * % size of total population to use as neighborhood target, if enough creatures
+	 */
+	public final float  nearPct = .4f;
 	
 	public float totMaxRad;						//max search distance for neighbors
 	public int nearCount;						//# of creatures required to have a neighborhood - some % of total # of creatures, or nearMinCnt, whichever is larger
@@ -58,20 +84,19 @@ public class myBoidFlock {
 	 */
 	private int numBoidsToChange = 0;
 	
-	private final int numThrds;
+	private final int numThrdsToUse;
 	protected ExecutorService th_exec;	//to access multithreading - instance from calling program
 	//flock-specific data
 	//private int flkMenuClr;//color of menu	
 	
-	public myBoidFlock(IRenderInterface _p, Base_BoidsWindow _win, myFlkVars _flv, int _numBoids, int _type){
-		p = _p; win=_win;	
+	public myBoidFlock(Base_BoidsWindow _win, myFlkVars _flv, int _numBoids, int _type, int _numThrdsToUse){
+		win=_win;	
 		flv = _flv;
 		name = flv.typeName; 
 		AppMgr = Base_DispWindow.AppMgr;	
 		type = _type;
 		th_exec = win.getTh_Exec();
-		int numThrdsAvail = AppMgr.getNumThreadsAvailable();
-		numThrds = (numThrdsAvail - 2);
+		numThrdsToUse = _numThrdsToUse;
 		
 		//Boids_2 _p, myBoids3DWin _win, myBoidFlock _flock, int _bodyClr, int numSpc, float _nRadMult
 		delT = (float) win.getTimeStep();
@@ -101,7 +126,7 @@ public class myBoidFlock {
 	public void initFlock(){
 		boidFlock = new ArrayList<myBoid>(numBoids);
 		for(int c = 0; c < numBoids; ++c){
-			boidFlock.add( new myBoid(p, this, randBoidStLoc(), type));
+			boidFlock.add( new myBoid(this, randBoidStLoc(), type));
 		}
 		setNumBoids(boidFlock.size());
 		buildThreadFrames();
@@ -152,7 +177,7 @@ public class myBoidFlock {
 	
 	protected myBoid addBoid(){	return addBoid(randBoidStLoc());	}	
 	protected myBoid addBoid(myPointf stLoc){
-		myBoid tmp = new myBoid(p, this, stLoc, type); 
+		myBoid tmp = new myBoid(this, stLoc, type); 
 		boidFlock.add(tmp);
 		setNumBoids(boidFlock.size());
 		return tmp;
@@ -165,21 +190,26 @@ public class myBoidFlock {
 		setNumBoids(boidFlock.size());
 	}//removeBoid		
 	
-	//move creatures to random start positions
+	/**
+	 * move creatures to random start positions
+	 */
 	public void scatterBoids() {for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).coords.set(randBoidStLoc());}}//	randInit
+
+	public void drawBoids(IRenderInterface ri) {				for(myBoid b : boidFlock){b.drawMe(ri);}}
+	public void drawBoidsScaled(IRenderInterface ri) {			for(myBoid b : boidFlock){b.drawMeScaled(ri);}}
+	public void drawBoidsAsBall(IRenderInterface ri) {			for(myBoid b : boidFlock){b.drawMeAsBall(ri);}}
 	
-	public void drawBoidsDbgFrameScaled() {	for(myBoid b : boidFlock){b.drawMeDbgFrameScaled();}}
-	public void drawBoidsAndVelScaled() {	for(myBoid b : boidFlock){b.drawMeAndVelScaled();}}
-	public void drawBoidsScaled() {			for(myBoid b : boidFlock){b.drawMeScaled();}}
-	public void drawBoidsDbgFrame() {		for(myBoid b : boidFlock){b.drawMeDbgFrame();}}
-	public void drawBoidsAndVel() {			for(myBoid b : boidFlock){b.drawMeAndVel();}}
-	public void drawBoids() {				for(myBoid b : boidFlock){b.drawMe();}}
-	public void drawBoidsAsBall(boolean debugAnim, boolean showVel) {			
-		for(myBoid b : boidFlock){b.drawMeBall(debugAnim,showVel);}
+	public void drawBoidVels(IRenderInterface ri) {			for(myBoid b : boidFlock){b.drawMyVel(ri);}}
+	public void drawBoidFrames(IRenderInterface ri) {			for(myBoid b : boidFlock){b.drawMyFrame(ri);}}
+	public void drawBoidsFlkMmbrs(IRenderInterface ri) {		for(myBoid b : boidFlock){b.drawClosestPrey(ri);b.drawClosestPredator(ri);}}
+	
+	/**
+	 * If this is being animated and has a template, return that template's max animation counter, otherwise return 1
+	 * @return
+	 */
+	public double getMaxAnimCounter() {
+		return tmpl == null ? 1.0 : tmpl.getMaxAnimCounter();
 	}
-	public void drawBoidsFlkMmbrs() {		for(myBoid b : boidFlock){b.drawClosestPrey();b.drawClosestPredator();}}
-	
-	
 	
 	////////////////
 	// Simulation step functions for flock
@@ -189,7 +219,7 @@ public class myBoidFlock {
 	 */
 	@SuppressWarnings("unchecked")
 	private void buildThreadFrames() {
-		int numFrames = (numBoids > numThrds ? numThrds : numBoids); //TODO : have threads equally spread among all flocks
+		int numFrames = (numBoids > numThrdsToUse ? numThrdsToUse : numBoids); //TODO : have threads equally spread among all flocks
 		boidThrdFrames = new List[numFrames];		
 		if (numFrames == 0) {return;}
 		// Base # of boids per frame
@@ -246,7 +276,7 @@ public class myBoidFlock {
 	public void moveBoidsLinMultTH(boolean addFrc){
 		callFwdBoidCalcs.clear();
 		for(List<myBoid> subL : boidThrdFrames){
-			callFwdBoidCalcs.add(new myLinForceSolver(AppMgr,  this, curFlagState, addFrc, subL));
+			callFwdBoidCalcs.add(new LinearForceSolver(AppMgr,  this, curFlagState, addFrc, subL));
 		}
 		try {callFwdSimFutures = th_exec.invokeAll(callFwdBoidCalcs);for(Future<Boolean> f: callFwdSimFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }		
 	}
@@ -258,7 +288,7 @@ public class myBoidFlock {
 	public void moveBoidsOrigMultTH(boolean addFrc){
 		callFwdBoidCalcs.clear();
 		for(List<myBoid> subL : boidThrdFrames){
-			callFwdBoidCalcs.add(new myOrigForceSolver(AppMgr,  this, curFlagState, addFrc, subL));
+			callFwdBoidCalcs.add(new OriginalForceSolver(AppMgr,  this, curFlagState, addFrc, subL));
 		}
 		try {callFwdSimFutures = th_exec.invokeAll(callFwdBoidCalcs);for(Future<Boolean> f: callFwdSimFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }		
 	}

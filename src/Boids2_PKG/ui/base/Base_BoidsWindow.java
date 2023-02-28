@@ -15,7 +15,7 @@ import Boids2_PKG.flocks.myFlkVars;
 import Boids2_PKG.flocks.boids.myBoid;
 import Boids2_PKG.threadedSolvers.updaters.BoidHuntUpdater;
 import Boids2_PKG.threadedSolvers.updaters.BoidUpdate_Type;
-import Boids2_PKG.ui.myBoidsUIDataUpdater;
+import Boids2_PKG.ui.Boids_UIDataUpdater;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
 import base_Math_Objects.vectorObjs.doubles.myVector;
@@ -282,7 +282,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 			
 		initFlocks();	
 		//flkMenuOffset = uiClkCoords[1] + uiClkCoords[3] - y45Off;	//495
-		custMenuOffset = uiClkCoords[3];	//495
+		custMenuOffset = uiClkCoords[3] + 10;	//495
 		initMe_IndivPost();
 	}//initMe
 	
@@ -310,7 +310,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 */
 	@Override
 	protected UIDataUpdater buildUIDataUpdateObject() {
-		return new myBoidsUIDataUpdater(this);
+		return new Boids_UIDataUpdater(this);
 	}
 	/**
 	 * This function is called on ui value update, to pass new ui values on to window-owned consumers
@@ -423,11 +423,12 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		setMaxUIFlockToWatch();
 		flocks = new myBoidFlock[numFlocks];
 		flockVars = new myFlkVars[numFlocks];
+		float initPredRad = MyMathUtils.min(MyMathUtils.min(Base_DispWindow.AppMgr.gridDimY, Base_DispWindow.AppMgr.gridDimZ), Base_DispWindow.AppMgr.gridDimX);
 		for(int i =0; i<flocks.length; ++i){
 			// ??? 
 			// flockVars[i] = new myFlkVars(this, flkNames[i],(float)ThreadLocalRandom.current().nextDouble(0.65, 1.0));
-			flockVars[i] = new myFlkVars(flkNames[i], flkRadMults[i]);
-			flocks[i] = new myBoidFlock(ri,this,flockVars[i],initNumBoids,i);
+			flockVars[i] = new myFlkVars(flkNames[i], flkRadMults[i], initPredRad);
+			flocks[i] = new myBoidFlock(this,flockVars[i],initNumBoids,i, numUsableThreads);
 		}
 		
 		int predIDX, preyIDX;
@@ -522,7 +523,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	
 	//set camera to be on a boid in one of the flocks
 	public void setBoidCam(float rx, float ry, float dz){
-		flocks[flockToWatch].boidFlock.get(boidToWatch).setBoatCam(rx,ry,dz);
+		flocks[flockToWatch].boidFlock.get(boidToWatch).setBoatCam(ri, rx,ry,dz);
 	}
 	
 	/**
@@ -742,27 +743,16 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		ri.pushMatState();
 		ri.translate(-AppMgr.gridHalfDim.x, -AppMgr.gridHalfDim.y, -AppMgr.gridHalfDim.z);
 		
-		boolean showFrame = privFlags.getFlag(showBoidFrame), 
-				showVelAnim = privFlags.getFlag(showVel);
-		
+		if (privFlags.getFlag(showBoidFrame)){			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidFrames(ri);}}
+		if (privFlags.getFlag(showVel)){				for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidVels(ri);}}
 
 		if(privFlags.getFlag(drawBoids)){//broken apart to minimize if checks - only potentially 2 per flock per frame instead of thousands
-			if (privFlags.getFlag(drawScaledBoids)) {
-				if(showFrame){			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsDbgFrameScaled();}}
-				else if (showVelAnim){	for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsAndVelScaled();}}
-				else {					for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsScaled();}}				
-			} else {
-				if(showFrame){			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsDbgFrame();}}
-				else if (showVelAnim){	for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsAndVel();}}
-				else {					for(int i =0; i<flocks.length; ++i){flocks[i].drawBoids();}}
-			}
+			if (privFlags.getFlag(drawScaledBoids)) {	for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsScaled(ri);}}				
+			else {										for(int i =0; i<flocks.length; ++i){flocks[i].drawBoids(ri);}}
 		} else {
-			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsAsBall(showFrame,showVelAnim);  }
-			if(privFlags.getFlag(showFlkMbrs)){
-				for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsFlkMmbrs();}
-			}
+			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsAsBall(ri);  }
+			if(privFlags.getFlag(showFlkMbrs)){			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsFlkMmbrs(ri);}}
 		}	
-		//for(int i =0; i<flocks.length; ++i){flocks[i].drawBoids();}
 		ri.popMatState();
 	}//drawMe
 	

@@ -14,7 +14,7 @@ import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
 import base_UI_Objects.GUI_AppManager;
 
-public abstract class myFwdForceSolver implements Callable<Boolean> {
+public abstract class Base_ForceSolver implements Callable<Boolean> {
 	private GUI_AppManager AppMgr;
 	//protected flkVrs fv;
 	private myFlkVars fv;
@@ -50,7 +50,7 @@ public abstract class myFwdForceSolver implements Callable<Boolean> {
 	
 	private boolean addFrc;
 
-	public myFwdForceSolver(GUI_AppManager _AppMgr, myBoidFlock _f, int _flagInt, boolean _isClk, List<myBoid> _bAra) {
+	public Base_ForceSolver(GUI_AppManager _AppMgr, myBoidFlock _f, int _flagInt, boolean _isClk, List<myBoid> _bAra) {
 		AppMgr=_AppMgr; f = _f;fv = f.flv; bAra=_bAra;
 		flagInt = _flagInt;
 		setStFlags();		

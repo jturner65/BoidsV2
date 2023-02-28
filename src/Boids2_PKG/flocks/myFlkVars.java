@@ -3,7 +3,7 @@ package Boids2_PKG.flocks;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
-import base_UI_Objects.windowUI.base.Base_DispWindow;
+//import base_UI_Objects.windowUI.base.Base_DispWindow;
 import base_Math_Objects.MyMathUtils;
 
 
@@ -60,23 +60,23 @@ public class myFlkVars {
 	
 	public final String typeName;
 	
-	public myFlkVars(String _flockName, float _nRadMult) {
+	public myFlkVars(String _flockName, float _nRadMult, float _predRad) {
 		typeName = _flockName;
-		initFlockVals(_nRadMult, .05f);
+		initFlockVals(_nRadMult, .05f, _predRad);
 	}//ctor
 	
 	public float getInitMass(){return (float)(massForType[0] + (massForType[1] - massForType[0])*ThreadLocalRandom.current().nextFloat());}
 	
 	//set initial values
-	public void initFlockVals(float nRadMult, float _spnPct){
+	private void initFlockVals(float _initRadMult, float _initSpnPct, float _initPredRad){
 		//radius to avoid pred/find prey
-		predRad = MyMathUtils.min(MyMathUtils.min(Base_DispWindow.AppMgr.gridDimY, Base_DispWindow.AppMgr.gridDimZ), Base_DispWindow.AppMgr.gridDimX);						
+		predRad = _initPredRad;						
 		nghbrRadMax = predRad*neighborMult;
-		nghbrRad = nghbrRadMax*nRadMult;
+		nghbrRad = nghbrRadMax*_initRadMult;
 		colRad  = nghbrRad*.1f;
 		velRad  = nghbrRad*.5f; 			
 		//weight multiplier for forces - centering, avoidance, velocity matching and wander
-		spawnPct = _spnPct;		//% chance to reproduce given the boids breech the required radius
+		spawnPct = _initSpnPct;		//% chance to reproduce given the boids breech the required radius
 		spawnRad = colRad;			//distance to spawn 
 		spawnFreq = 500; 		//# of cycles that must pass before can spawn again
 		//required meal time
@@ -85,7 +85,7 @@ public class myFlkVars {
 		killPct = .01f;				//% chance to kill prey creature
 
 		setDefaultWtVals(true);//init to true
-		massForType = new float[]{2.0f*nRadMult,4.0f*nRadMult}; //nRadMult should vary from 1.0 to .25
+		massForType = new float[]{2.0f*_initRadMult,4.0f*_initRadMult}; //_initRadMult should vary from 1.0 to .25
 		maxFrcs = new float[]{100,200,100,10,400,20};		//maybe scale forces?
 		minVelMag = maxVelMag*.0025f;
 	}
@@ -144,7 +144,11 @@ public class myFlkVars {
 	private float modVal(float val, float min, float max, float mod){float oldVal = val;val += mod;	if(!(MyMathUtils.inRange(val, min, max))){val = oldVal;}return val;}
 	
 	
-	//modify a particular flock force weight for a particular flock
+	/**
+	 * modify a particular flock force weight for a particular flock
+	 * @param wIdx
+	 * @param mod
+	 */
 	private void modFlkWt(int wIdx, float mod){
 		float oldVal = this.wts[wIdx];
 		this.wts[wIdx] += mod;
