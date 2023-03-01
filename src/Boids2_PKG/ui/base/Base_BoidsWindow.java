@@ -31,7 +31,7 @@ import base_UI_Objects.renderedObjs.base.RenderObj_ClrPalette;
 import base_UI_Objects.windowUI.base.Base_DispWindow;
 import base_UI_Objects.windowUI.drawnTrajectories.DrawnSimpleTraj;
 import base_UI_Objects.windowUI.uiData.UIDataUpdater;
-import base_UI_Objects.windowUI.uiObjs.base.GUIObj_Type;
+import base_UI_Objects.windowUI.uiObjs.base.base.GUIObj_Type;
 import base_Utils_Objects.io.messaging.MsgCodes;
 import base_Utils_Objects.tools.flags.Base_BoolFlags;
 import processing.core.PImage;

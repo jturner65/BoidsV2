@@ -129,7 +129,7 @@ public class Boids_21_Main extends GUI_AppManager {
 		showInfo = true;
 		String[] _winTitles = new String[]{"","Boids ver2.0 3D","Boids ver2.0 2D"},
 				_winDescr = new String[] {"", "Multi Flock Predator/Prey Boids 3D Simulation","Multi Flock Predator/Prey Boids 2D Simulation"};
-		//instanced window dimensions when open and closed - only showing 1 open at a time
+		//instanced window dims when open and closed - only showing 1 open at a time - and init cam vals
 		float[][] _floatDims  = new float[][] {getDefaultWinDimOpen(), getDefaultWinDimClosed(), getInitCameraValues()};	
 
 		//Builds sidebar menu button config
@@ -169,7 +169,7 @@ public class Boids_21_Main extends GUI_AppManager {
 		 */
 		int wIdx = disp3DResIDX;
 		//setInitDispWinVals(wIdx, _dimOpen, _dimClosed,new boolean[]{false,true,true,true}, new int[]{255,255,255,255},new int[]{0,0,0,255},new int[]{180,180,180,255},new int[]{100,100,100,255}); 
-		setInitDispWinVals(wIdx, _winTitles[wIdx], _winDescr[wIdx], new boolean[]{true,false,true,true}, _floatDims,		
+		setInitDispWinVals(wIdx, _winTitles[wIdx], _winDescr[wIdx], getDfltBoolAra(true), _floatDims,		
 				new int[][] {new int[]{255,255,255,255},new int[]{0,0,0,255},
 					new int[]{180,180,180,255},new int[]{100,100,100,255},
 					new int[]{0,0,0,200},new int[]{255,255,255,255}});
@@ -178,7 +178,7 @@ public class Boids_21_Main extends GUI_AppManager {
 		dispWinFrames[wIdx] = new Boids_3DWin(ri, this, wIdx);
 		wIdx = disp2DResIDX;
 		//setInitDispWinVals(wIdx, _dimOpen, _dimClosed,new boolean[]{false,false,true,false}, new int[]{50,40,20,255}, new int[]{255,255,255,255},new int[]{180,180,180,255},new int[]{100,100,100,255});
-		setInitDispWinVals(wIdx, _winTitles[wIdx], _winDescr[wIdx], new boolean[]{false,false,false,true}, _floatDims,
+		setInitDispWinVals(wIdx, _winTitles[wIdx], _winDescr[wIdx], getDfltBoolAra(false), _floatDims,
 				new int[][] {new int[]{50,40,20,255}, new int[]{255,255,255,255},
 					new int[]{180,180,180,255}, new int[]{100,100,100,255},
 					new int[]{0,0,0,200},new int[]{255,255,255,255}});
