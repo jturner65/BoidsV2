@@ -31,7 +31,6 @@ import base_UI_Objects.renderedObjs.base.RenderObj_ClrPalette;
 import base_UI_Objects.windowUI.base.Base_DispWindow;
 import base_UI_Objects.windowUI.drawnTrajectories.DrawnSimpleTraj;
 import base_UI_Objects.windowUI.uiData.UIDataUpdater;
-import base_UI_Objects.windowUI.uiObjs.base.base.GUIObj_Type;
 import base_Utils_Objects.io.messaging.MsgCodes;
 import base_Utils_Objects.tools.flags.Base_BoolFlags;
 import processing.core.PImage;
@@ -611,12 +610,12 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		tmpListObjVals.put(gIDX_BoidType, boidTypeNames);
 		tmpListObjVals.put(gIDX_FlockToObs, flkNames);
 			
-		tmpUIObjArray.put(gIDX_TimeStep,  new Object[]{new double[]{0,1.0f,.0001f}, curTimeStep, "Time Step", GUIObj_Type.FloatVal, new boolean[]{true}});   				//uiTrainDataFrmtIDX                                                                        
-		tmpUIObjArray.put(gIDX_NumFlocks, new Object[]{new double[]{1,maxNumFlocks,1.0f}, 1.0, "# of Flocks", GUIObj_Type.IntVal, new boolean[]{true}});   				//uiTrainDataFrmtIDX                                                                        
-		tmpUIObjArray.put(gIDX_BoidType,  new Object[]{new double[]{0,boidTypeNames.length-1,1.1f}, 0.0, "Flock Species", GUIObj_Type.ListVal, new boolean[]{true}} );   				//uiTrainDataFrmtIDX                                                                        
-		tmpUIObjArray.put(gIDX_FlockToObs,new Object[]{new double[]{0,flkNames.length-1,1.1f}, 0.0, "Flock To Watch", GUIObj_Type.ListVal, new boolean[]{true}} );   				//uiTrainDataFrmtIDX                                                                        
-		tmpUIObjArray.put(gIDX_ModNumBoids, new Object[]{new double[]{-50,50,1.0f}, 0.0, "Modify Flock Pop", GUIObj_Type.IntVal, new boolean[]{true}});   				//uiTrainDataFrmtIDX                                                                        
-		tmpUIObjArray.put(gIDX_BoidToObs, new Object[]{new double[]{0,initNumBoids-1,1.0f}, 0.0, "Boid To Board", GUIObj_Type.IntVal, new boolean[]{true}} );   				//uiTrainDataFrmtIDX
+		tmpUIObjArray.put(gIDX_TimeStep, uiObjInitAra_Float(new double[]{0,1.0f,.0001f}, curTimeStep, "Time Step", new boolean[]{true}));   			                                                            
+		tmpUIObjArray.put(gIDX_NumFlocks, uiObjInitAra_Int(new double[]{1,maxNumFlocks,1.0f}, 1.0, "# of Flocks", new boolean[]{true}));   				                                                        
+		tmpUIObjArray.put(gIDX_BoidType, uiObjInitAra_List(new double[]{0,boidTypeNames.length-1,1.1f}, 0.0, "Flock Species", new boolean[]{true}));   	                                                                    
+		tmpUIObjArray.put(gIDX_FlockToObs, uiObjInitAra_List(new double[]{0,flkNames.length-1,1.1f}, 0.0, "Flock To Watch", new boolean[]{true}));   	                                                                    
+		tmpUIObjArray.put(gIDX_ModNumBoids, uiObjInitAra_Int(new double[]{-50,50,1.0f}, 0.0, "Modify Flock Pop", new boolean[]{true}));   				                                                        
+		tmpUIObjArray.put(gIDX_BoidToObs, uiObjInitAra_Int(new double[]{0,initNumBoids-1,1.0f}, 0.0, "Boid To Board", new boolean[]{true}));   			
 		setupGUIObjsAras_Indiv(tmpUIObjArray, tmpListObjVals);
 	}
 	/**
