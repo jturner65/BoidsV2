@@ -48,6 +48,10 @@ public class Boids_21_Main extends GUI_AppManager {
 	
 	protected Boids_21_Main(){super();}
 	
+
+	@Override
+	protected boolean showMachineData() {return true;}
+	
 	/**
 	 * Set various relevant runtime arguments in argsMap
 	 * @param _passedArgs command-line arguments
@@ -320,6 +324,5 @@ public class Boids_21_Main extends GUI_AppManager {
 			default 				: {return new int[] {255,255,255,alpha};}
 		}
 	}
-
 
 }//class Boids_21_Main extends GUI_AppManager
