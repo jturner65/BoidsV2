@@ -27,13 +27,19 @@ public class Boids_2DWin extends Base_BoidsWindow {
 		//TODO : Add instance-specific boolean buttons to tmpBtnNamesArray and return new size
 		return tmpBtnNamesArray.size();
 	}
-
+	
 	@Override
 	protected void initDispFlags_Indiv() {		
 	}
 	
 	@Override
 	protected void initMe_IndivPost() {
+	}
+	
+
+	@Override
+	protected void initTransform() {
+		moveTo2DRectCenter();		
 	}
 	
 	/**
@@ -114,4 +120,5 @@ public class Boids_2DWin extends Base_BoidsWindow {
 		// TODO :Switch to handle Instance-specific UIidxs
 		return false;
 	}
+
 }//class Boids_2DWin

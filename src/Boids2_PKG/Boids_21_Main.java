@@ -177,19 +177,16 @@ public class Boids_21_Main extends GUI_AppManager {
 				new int[][] {new int[]{255,255,255,255},new int[]{0,0,0,255},
 					new int[]{180,180,180,255},new int[]{100,100,100,255},
 					new int[]{0,0,0,200},new int[]{255,255,255,255}});
-		
-		
+				
 		dispWinFrames[wIdx] = new Boids_3DWin(ri, this, wIdx);
+		
 		wIdx = disp2DResIDX;
 		//setInitDispWinVals(wIdx, _dimOpen, _dimClosed,new boolean[]{false,false,true,false}, new int[]{50,40,20,255}, new int[]{255,255,255,255},new int[]{180,180,180,255},new int[]{100,100,100,255});
 		setInitDispWinVals(wIdx, _winTitles[wIdx], _winDescr[wIdx], getDfltBoolAra(false), _floatDims,
 				new int[][] {new int[]{50,40,20,255}, new int[]{255,255,255,255},
 					new int[]{180,180,180,255}, new int[]{100,100,100,255},
 					new int[]{0,0,0,200},new int[]{255,255,255,255}});
-		
-		
-		
-		
+				
 		dispWinFrames[wIdx] = new Boids_2DWin(ri, this, wIdx);
 
 		//specify windows that cannot be shown simultaneously here
@@ -199,7 +196,7 @@ public class Boids_21_Main extends GUI_AppManager {
 
 	@Override
 	protected void initOnce_Indiv() {
-		setVisFlag(disp3DResIDX, true);
+		setWinVisFlag(disp3DResIDX, true);
 	}
 
 	@Override
@@ -277,7 +274,7 @@ public class Boids_21_Main extends GUI_AppManager {
 			//val is btn state before transition 
 			boolean bVal = (val == 1?  false : true);
 			//each entry in this array should correspond to a clickable window
-			setVisFlag(winFlagsXOR[btn], bVal);
+			setWinVisFlag(winFlagsXOR[btn], bVal);
 		}
 	}
 	

@@ -33,6 +33,12 @@ public class Boids_3DWin extends Base_BoidsWindow {
 
 	@Override
 	protected void initDispFlags_Indiv() {}
+
+	@Override
+	protected void initTransform() {
+		ri.translate(-AppMgr.gridHalfDim.x, -AppMgr.gridHalfDim.y, -AppMgr.gridHalfDim.z);	
+	}
+	
 	/**
 	 * Add instance-specific private flags to init to true to those from base class
 	 * @param baseFlags base class flags to init to true - add to this array

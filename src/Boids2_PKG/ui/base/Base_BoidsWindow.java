@@ -737,10 +737,12 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		}
 	}
 	
+	protected abstract void initTransform();
+	
 	@Override
 	protected void drawMe(float animTimeMod) {
 		ri.pushMatState();
-		ri.translate(-AppMgr.gridHalfDim.x, -AppMgr.gridHalfDim.y, -AppMgr.gridHalfDim.z);
+		initTransform();
 		
 		if (privFlags.getFlag(showBoidFrame)){			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidFrames(ri);}}
 		if (privFlags.getFlag(showVel)){				for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidVels(ri);}}
@@ -880,11 +882,11 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		flkVarObjIDX = -1;		
 	}
 	@Override
-	protected void endShiftKeyI() {}
+	protected void endShiftKey_Indiv() {}
 	@Override
-	protected void endAltKeyI() {}
+	protected void endAltKey_Indiv() {}
 	@Override
-	protected void endCntlKeyI() {}
+	protected void endCntlKey_Indiv() {}
 	@Override
 	protected void addSScrToWin_Indiv(int newWinKey){}
 	@Override
