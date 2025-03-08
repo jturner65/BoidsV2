@@ -340,11 +340,11 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		for (int i=0;i<numBoidTypes;++i) {palettes[i] = buildRenderObjPalette(i);}
 		
 		for(int i=0; i<maxNumFlocks; ++i){				
-			sphrRndrTmplPerFlockAra[i] = new Sphere_RenderObj(ri, i, palettes[sphereClrIDX]);	
+			sphrRndrTmplPerFlockAra[i] = new Sphere_RenderObj(ri, i, maxNumFlocks, palettes[sphereClrIDX]);	
 			//build boat render object for each individual flock type
-			boatRndrTmplPerFlockAra[i] = new Boat_RenderObj(ri, i, numAnimFramesPerType[0], palettes[boatClrIDX]);
+			boatRndrTmplPerFlockAra[i] = new Boat_RenderObj(ri, i, maxNumFlocks,numAnimFramesPerType[0], palettes[boatClrIDX], new PImage[] {flkSails[i]});
 			//build "jellyfish" render object for each flock
-			jellyFishRndrTmplPerFlockAra[i] = new JFish_RenderObj(ri, i, numAnimFramesPerType[1], palettes[jFishClrIDX]);
+			jellyFishRndrTmplPerFlockAra[i] = new JFish_RenderObj(ri, i, maxNumFlocks, numAnimFramesPerType[1], palettes[jFishClrIDX]);
 		}
 
 		cmplxRndrTmpls.put(boidTypeNames[0], boatRndrTmplPerFlockAra);
