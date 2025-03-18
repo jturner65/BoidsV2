@@ -76,8 +76,8 @@ public class myBoidFlock {
 	private Base_RenderObj tmpl, sphTmpl;				//template to render boid; simplified sphere template
 	public myBoidFlock preyFlock, predFlock;		//direct reference to flock that is my prey and my predator -- set in main program after init is called
 	
-	public List<Future<Boolean>> callFwdSimFutures, callUpdFutures, callInitFutures, callResetBoidFutures;
-	public List<Callable<Boolean>> callFwdBoidCalcs, callUbdBoidCalcs, callInitBoidCalcs, callResetBoidCalcs;
+	private List<Future<Boolean>> callFwdSimFutures, callUpdFutures, callInitFutures, callResetBoidFutures;
+	private List<Callable<Boolean>> callFwdBoidCalcs, callUbdBoidCalcs, callInitBoidCalcs, callResetBoidCalcs;
 	
 	/**
 	 * Set via UI to add or remove boids on next cycle

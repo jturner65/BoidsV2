@@ -120,7 +120,7 @@ public class Boids_21_Main extends GUI_AppManager {
 
 	@Override
 	protected void initBaseFlags_Indiv() {
-		setBaseFlagToShow_debugMode(false);
+		setBaseFlagToShow_debugMode(true);
 		setBaseFlagToShow_saveAnim(true); 
 		setBaseFlagToShow_runSim(true);
 		setBaseFlagToShow_singleStep(true);

@@ -141,7 +141,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	/**
 	 * badge size
 	 */
-	protected final float bdgSizeX_base = 15, bdgSizeY = 15;
+	protected final float bdgSizeX_base, bdgSizeY;
 	protected float[] bdgSizeX;
 
 	protected myPointf[][] mnBdgBox;
@@ -201,8 +201,15 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	protected List<Future<Boolean>> callHuntFutures;
 	protected List<Callable<Boolean>> callHuntBoidCalcs;
 	
+	private final float fvDataTxtStY;// = -Base_DispWindow.txtHeightOff*.5f;
+	private final float fvDataNewLineY;// = Base_DispWindow.txtHeightOff*.75f;
+	
 	public Base_BoidsWindow(IRenderInterface _p, GUI_AppManager _AppMgr, int _winIdx) {
-		super(_p, _AppMgr, _winIdx);	
+		super(_p, _AppMgr, _winIdx);
+		fvDataTxtStY = winInitVals.getTextHeightOffset() * .5f;
+		fvDataNewLineY = winInitVals.getTextHeightOffset() * .75f;
+		bdgSizeX_base = winInitVals.getXOffset() * .75f;
+		bdgSizeY = winInitVals.getTextHeightOffset() * .75f;
 	}
 	
 	public ExecutorService getTh_Exec() {return th_exec;}
@@ -281,7 +288,8 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 			
 		initFlocks();	
 		//flkMenuOffset = uiClkCoords[1] + uiClkCoords[3] - y45Off;	//495
-		custMenuOffset = uiClkCoords[3] + 10;	//495
+		custMenuOffset = uiClkCoords[3] + winInitVals.getClkBoxDim();	
+		msgObj.dispConsoleDebugMessage(className, "initMe", "Cust menu offset : "+custMenuOffset+ "| Old Cust menu offset : "+(uiClkCoords[3] +10));
 		initMe_IndivPost();
 	}//initMe
 	
@@ -493,14 +501,11 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		for(int i=0;i<ara.length;++i){	((my_procApplet)ri).vTextured(ara[i], uvAra[i].y, uvAra[i].x);} 
 		ri.gl_endShape(true);
 	}//
-	
-	private static final float fvDataTxtStY = -Base_DispWindow.txtHeightOff*.5f;
-	private static final float fvDataNewLineY = Base_DispWindow.txtHeightOff*.75f;
-	
+		
 	public void drawFlockMenu(int i, int numBoids){
 		ri.translate(0,-bdgSizeY-6);
 		drawMenuBadge(mnBdgBox[i],mnUVBox,i);
-		ri.translate(bdgSizeX[i]+3,bdgSizeY+6);
+		ri.translate(bdgSizeX[i]+4,0);
 		//p.setColorValFill(flkMenuClr);
 		currRndrTmplPerFlockAra[i].setMenuColor();
 		String fvData[] = flockVars[i].getData(numBoids);
@@ -513,7 +518,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	public void drawCustMenuObjs(float animTimeMod){
 		ri.pushMatState();	
 		//all flock menu drawing within push mat call
-		ri.translate(5,custMenuOffset+txtHeightOff);
+		ri.translate(5,custMenuOffset+winInitVals.getTextHeightOffset());
 		for(int i =0; i<flocks.length; ++i){
 			drawFlockMenu(i, flocks[i].numBoids);
 		}		
@@ -840,26 +845,24 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	@Override
 	protected boolean hndlMouseClick_Indiv(int mouseX, int mouseY, myPoint mseClckInWorld, int mseBtn) {
 		boolean res = false;
-		if(!res){//not in ui buttons, check if in flk vars region
-			if((mouseX < uiClkCoords[2]) && (mouseY >= custMenuOffset)){
-				float relY = mouseY - custMenuOffset;
-				flkVarIDX = Math.round(relY) / 100;
-				//msgObj.dispInfoMessage(className, "hndlMouseClickIndiv","ui drag in UI coords : [" + mouseX + "," + mouseY + "; rel Y : " +relY + " ] flkIDX : " + flkVarIDX);
-				if(flkVarIDX < numFlocks){	
-					flkVarObjIDX = handleFlkMenuClick(mouseX, Math.round(relY) % 100);
-					res = (flkVarIDX != -1);	
-				} else {			flkVarIDX = -1;			}
-			}			
-		} 
+		//not in ui buttons, check if in flk vars region
+		if((mouseX < uiClkCoords[2]) && (mouseY >= custMenuOffset)){
+			float relY = mouseY - custMenuOffset;
+			flkVarIDX = Math.round(relY) / 100;
+			//msgObj.dispInfoMessage(className, "hndlMouseClickIndiv","ui drag in UI coords : [" + mouseX + "," + mouseY + "; rel Y : " +relY + " ] flkIDX : " + flkVarIDX);
+			if(flkVarIDX < numFlocks){	
+				flkVarObjIDX = handleFlkMenuClick(mouseX, Math.round(relY) % 100);
+				res = (flkVarIDX != -1);	
+			} else {			flkVarIDX = -1;			}
+		}			
 		return res;
 	}//hndlMouseClickIndiv
 
 	@Override
 	protected boolean hndlMouseDrag_Indiv(int mouseX, int mouseY, int pmouseX, int pmouseY, myPoint mouseClickIn3D, myVector mseDragInWorld, int mseBtn) {
 		boolean res = false;
-		if(!res){//not in ui buttons, check if in flk vars region
-			if ((flkVarIDX != -1 ) && (flkVarObjIDX != -1)) {	res = handleFlkMenuDrag(flkVarIDX, flkVarObjIDX, mouseX, mouseY, pmouseX, pmouseY, mseBtn);		}
-		}					 
+		//not in ui buttons, check if in flk vars region
+		if ((flkVarIDX != -1 ) && (flkVarObjIDX != -1)) {	res = handleFlkMenuDrag(flkVarIDX, flkVarObjIDX, mouseX, mouseY, pmouseX, pmouseY, mseBtn);		}
 		return res;
 	}
 	

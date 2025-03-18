@@ -3,7 +3,6 @@ package Boids2_PKG.flocks;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
-//import base_UI_Objects.windowUI.base.Base_DispWindow;
 import base_Math_Objects.MyMathUtils;
 
 
@@ -18,13 +17,13 @@ public class myFlkVars {
 	public float dampConst = .01f;				//multiplier for damping force, to slow boats down if nothing else acting on them
 	
 	public float nghbrRad,									//radius of the creatures considered to be neighbors
-					colRad,										//radius of creatures to be considered for colision avoidance
-					velRad,										//radius of creatures to be considered for velocity matching
-					predRad,									//radius for creature to be considered for pred/prey (to start avoiding or to chase)
-					spawnPct,									//% chance to reproduce given the boids breech the required radius
-					spawnRad,									//distance to spawn * mass
-					killPct,									//% chance to kill prey creature
-					killRad;									//distance to kill * mass (distance required to make kill attempt)
+				colRad,										//radius of creatures to be considered for collision avoidance
+				velRad,										//radius of creatures to be considered for velocity matching
+				predRad,									//radius for creature to be considered for pred/prey (to start avoiding or to chase)
+				spawnPct,									//% chance to reproduce given the boids breech the required radius
+				spawnRad,									//distance to spawn * mass
+				killPct,									//% chance to kill prey creature
+				killRad;									//distance to kill * mass (distance required to make kill attempt)
 	
 	public int spawnFreq, 									//# of cycles that must pass before can spawn again
 				eatFreq;								 		//# cycles w/out food until starve to death
