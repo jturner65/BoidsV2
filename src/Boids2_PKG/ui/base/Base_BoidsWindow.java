@@ -599,9 +599,8 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 * @param tmpUIObjArray : map of object data, keyed by UI object idx, with array values being :                    
 	 *           the first element double array of min/max/mod values                                                   
 	 *           the 2nd element is starting value                                                                      
-	 *           the 3rd elem is label for object                                                                       
-	 *           the 4th element is object type (GUIObj_Type enum)
-	 *           the 5th element is boolean array of : (unspecified values default to false)
+	 *           the 3rd elem is label for object                      
+	 *           the 4th element is boolean array of : (unspecified values default to false)
 	 *           	{value is sent to owning window, 
 	 *           	value is sent on any modifications (while being modified, not just on release), 
 	 *           	changes to value must be explicitly sent to consumer (are not automatically sent)}    
@@ -733,13 +732,8 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	//set camera to either be global or from pov of one of the boids
 	@Override
 	protected void setCamera_Indiv(float[] camVals){
-		if (privFlags.getFlag(viewFromBoid)){	setBoidCam(rx,ry,dz);		}
-		else {	
-			ri.setCameraWinVals(camVals);//(camVals[0],camVals[1],camVals[2],camVals[3],camVals[4],camVals[5],camVals[6],camVals[7],camVals[8]);      
-			// puts origin of all drawn objects at screen center and moves forward/away by dz
-			ri.translate(camVals[0],camVals[1],(float)dz); 
-		    setCamOrient();	
-		}
+		if (privFlags.getFlag(viewFromBoid)){	setBoidCam(getCamRotX(),getCamRotY(),getCamDist());		}
+		else {						setCameraBase(camVals);	}
 	}
 	
 	protected abstract void initTransform();

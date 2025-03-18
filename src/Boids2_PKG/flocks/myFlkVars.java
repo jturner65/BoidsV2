@@ -1,9 +1,11 @@
 package Boids2_PKG.flocks;
 
 import java.util.Arrays;
+import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import base_Math_Objects.MyMathUtils;
+import base_UI_Objects.windowUI.uiObjs.base.base.GUIObj_Type;
 
 
 /**
@@ -59,6 +61,41 @@ public class myFlkVars {
 	
 	public final String typeName;
 	
+	public final String[] UI_Labels = new String[] {
+		"Flocking Radius",
+		"Centering Force Weight",
+		"Col Avoidance Radius",
+		"Col Avoidance Weight",
+		"Vel Matching Radius",
+		"Vel Matching Weight",
+		"Wandering Force Weight",
+		"Predator Avoidance Weight",
+		"Prey Chasing Weight",		
+		"Mating Radius",
+		"Mating Success %",
+		"Mating Frequency",
+		"Hunting Radius",
+		"Hunting Success %",
+		"Hunting Frequency"			
+	};
+	
+	public final static int 
+		fv_flkRadius = 0,
+		fv_flkFrcWeight = 1,
+		fv_colAvoidRadius = 2,
+		fv_colAvoidWeight = 3,
+		fv_velMatchRadius = 4,
+		fv_velMatchWeight = 5,
+		fv_wanderFrcWeight = 6,
+		fv_predAvoidWeight = 7,
+		fv_preyChaseWeight = 8,
+		fv_matingRadius = 9,
+		fv_matingSuccessPct = 10,
+		fv_matingFrequency = 11,
+		fv_huntingRadius = 12,
+		fv_huntingSuccessPct = 13,
+		fv_huntingFrequency = 14;
+	
 	public myFlkVars(String _flockName, float _nRadMult, float _predRad) {
 		typeName = _flockName;
 		initFlockVals(_nRadMult, .05f, _predRad);
@@ -89,6 +126,45 @@ public class myFlkVars {
 		minVelMag = maxVelMag*.0025f;
 	}
 	
+	private final Object[] uiObjInitAra(double[] minMaxMod, double initVal, int idx) {
+		return new Object[] {minMaxMod, initVal, UI_Labels[idx], GUIObj_Type.FloatVal, new boolean[]{true}};
+	}
+	
+	/**
+	 * Build all UI objects to be shown in left side bar menu for this window.  This is the first child class function called by initThisWin
+	 * @param tmpUIObjArray : map of object data, keyed by UI object idx, with array values being :                    
+	 *           the first element double array of min/max/mod values                                                   
+	 *           the 2nd element is starting value                                                                      
+	 *           the 3rd elem is label for object                                                                       
+	 *           the 4th element is object type (GUIObj_Type enum)
+	 *           the 5th element is boolean array of : (unspecified values default to false)
+	 *           	{value is sent to owning window, 
+	 *           	value is sent on any modifications (while being modified, not just on release), 
+	 *           	changes to value must be explicitly sent to consumer (are not automatically sent)}    
+	 * @param tmpListObjVals
+	 */
+	protected final void setupGUIObjsAras(TreeMap<Integer, Object[]> tmpUIObjArray, TreeMap<Integer, String[]> tmpListObjVals){	
+//		//build list select box values
+//		//keyed by object idx (uiXXXIDX), entries are lists of values to use for list select ui objects
+//	
+		tmpUIObjArray.put(fv_flkRadius, uiObjInitAra(new double[]{0.01f,1000.0f,0.01f}, nghbrRad, fv_flkRadius));
+		tmpUIObjArray.put(fv_flkFrcWeight, uiObjInitAra(new double[]{.0001f,1.0f,.0001f}, 0.5f , fv_flkFrcWeight));
+		tmpUIObjArray.put(fv_colAvoidRadius, uiObjInitAra(new double[]{0.01f,1000.0f,0.01f}, colRad, fv_colAvoidRadius));
+		tmpUIObjArray.put(fv_colAvoidWeight, uiObjInitAra(new double[]{.0001f,1.0f,.0001f}, 0.75f, fv_colAvoidWeight));
+		tmpUIObjArray.put(fv_velMatchRadius, uiObjInitAra(new double[]{0.01f,1000.0f,0.01f}, velRad, fv_velMatchRadius));
+		tmpUIObjArray.put(fv_velMatchWeight, uiObjInitAra(new double[]{.0001f,1.0f,.0001f}, 0.5f, fv_velMatchWeight));
+		tmpUIObjArray.put(fv_wanderFrcWeight, uiObjInitAra(new double[]{.0001f,1.0f,.0001f}, 0.5f, fv_wanderFrcWeight));
+		tmpUIObjArray.put(fv_predAvoidWeight, uiObjInitAra(new double[]{.0001f,1.0f,.0001f}, 0.5f, fv_predAvoidWeight));
+		tmpUIObjArray.put(fv_preyChaseWeight, uiObjInitAra(new double[]{.0001f,1.0f,.0001f}, 0.1f, fv_preyChaseWeight));
+		tmpUIObjArray.put(fv_matingRadius, uiObjInitAra(new double[]{0.01f,1000.0f,0.01f}, colRad, fv_matingRadius));
+		tmpUIObjArray.put(fv_matingSuccessPct, uiObjInitAra(new double[]{.1f,100.0f,.1f}, spawnPct, fv_matingSuccessPct));
+		tmpUIObjArray.put(fv_matingFrequency, uiObjInitAra(new double[]{100.0f,10000.0f,10.0f}, spawnFreq, fv_matingFrequency));
+		tmpUIObjArray.put(fv_huntingRadius, uiObjInitAra(new double[]{0.01f,100.0f,0.01f}, killRad, fv_huntingRadius));
+		tmpUIObjArray.put(fv_huntingSuccessPct, uiObjInitAra(new double[]{.1f,100.0f,.1f}, killPct, fv_huntingSuccessPct));
+		tmpUIObjArray.put(fv_huntingFrequency, uiObjInitAra(new double[]{100.0f,10000.0f,10.0f}, eatFreq, fv_huntingFrequency));
+
+	
+	}
 
 	//if set default weight mults based on whether using force calcs based on original inverted distance functions or linear distance functions
 	public void setDefaultWtVals(boolean useOrig){	
