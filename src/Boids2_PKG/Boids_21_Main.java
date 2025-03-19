@@ -134,7 +134,7 @@ public class Boids_21_Main extends GUI_AppManager {
 		String[] _winTitles = new String[]{"","Boids ver2.0 3D","Boids ver2.0 2D"},
 				_winDescr = new String[] {"", "Multi Flock Predator/Prey Boids 3D Simulation","Multi Flock Predator/Prey Boids 2D Simulation"};
 		//instanced window dims when open and closed - only showing 1 open at a time - and init cam vals
-		float[][] _floatDims  = new float[][] {getDefaultWinDimOpen(), getDefaultWinDimClosed(), getInitCameraValues()};	
+		float[][] _floatDims  = getDefaultWinAndCameraDims();	
 
 		//Builds sidebar menu button config
 		//application-wide menu button bar titles and button names
