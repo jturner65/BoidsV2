@@ -127,7 +127,17 @@ public class myFlkVars {
 	}
 	
 	private final Object[] uiObjInitAra(double[] minMaxMod, double initVal, int idx) {
-		return new Object[] {minMaxMod, initVal, UI_Labels[idx], GUIObj_Type.FloatVal, new boolean[]{true}};
+		// idx 0: value is sent to owning window,  
+		// idx 1: value is sent on any modifications (while being modified, not just on release), 
+		// idx 2: changes to value must be explicitly sent to consumer (are not automatically sent),
+		
+		boolean[] cfgFlagsAra = new boolean[] {true, false, false};
+		// idx 0: whether multi-line(stacked) or not
+		// idx 1: if true, build prefix ornament
+		// idx 2: if true and prefix ornament is built, make it the same color as the text fill color. 
+		boolean[] formatFlagsAra = new boolean[] {true, true, true};
+		
+		return new Object[] {minMaxMod, initVal, UI_Labels[idx], GUIObj_Type.FloatVal, cfgFlagsAra, formatFlagsAra};
 	}
 	
 	/**

@@ -206,10 +206,10 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	
 	public Base_BoidsWindow(IRenderInterface _p, GUI_AppManager _AppMgr, int _winIdx) {
 		super(_p, _AppMgr, _winIdx);
-		fvDataTxtStY = winInitVals.getTextHeightOffset() * .5f;
-		fvDataNewLineY = winInitVals.getTextHeightOffset() * .75f;
-		bdgSizeX_base = winInitVals.getXOffset() * .75f;
-		bdgSizeY = winInitVals.getTextHeightOffset() * .75f;
+		fvDataTxtStY = AppMgr.getTextHeightOffset() * .5f;
+		fvDataNewLineY = AppMgr.getTextHeightOffset() * .75f;
+		bdgSizeX_base = AppMgr.getXOffset() * .75f;
+		bdgSizeY = AppMgr.getTextHeightOffset() * .75f;
 	}
 	
 	public ExecutorService getTh_Exec() {return th_exec;}
@@ -218,7 +218,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 * initialize all private-flag based UI buttons here - called by base class
 	 */
 	@Override
-	public int initAllPrivBtns(ArrayList<Object[]> tmpBtnNamesArray){
+	public int initAllUIButtons(ArrayList<Object[]> tmpBtnNamesArray){
 										//needs to be in order of privModFlgIdxs
 		tmpBtnNamesArray.add(new Object[] {"Debugging", "Enable Debug", Base_BoolFlags.debugIDX});
 		tmpBtnNamesArray.add(new Object[] {"Showing Frame", "Show Frame", showBoidFrame});
@@ -288,7 +288,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 			
 		initFlocks();	
 		//flkMenuOffset = uiClkCoords[1] + uiClkCoords[3] - y45Off;	//495
-		custMenuOffset = uiClkCoords[3] + winInitVals.getClkBoxDim();	
+		custMenuOffset = uiClkCoords[3] + AppMgr.getClkBoxDim();	
 		msgObj.dispConsoleDebugMessage(className, "initMe", "Cust menu offset : "+custMenuOffset+ "| Old Cust menu offset : "+(uiClkCoords[3] +10));
 		initMe_IndivPost();
 	}//initMe
@@ -518,7 +518,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	public void drawCustMenuObjs(float animTimeMod){
 		ri.pushMatState();	
 		//all flock menu drawing within push mat call
-		ri.translate(5,custMenuOffset+winInitVals.getTextHeightOffset());
+		ri.translate(5,custMenuOffset+AppMgr.getTextHeightOffset());
 		for(int i =0; i<flocks.length; ++i){
 			drawFlockMenu(i, flocks[i].numBoids);
 		}		
