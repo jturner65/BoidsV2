@@ -174,7 +174,7 @@ public class Boids_21_Main extends GUI_AppManager {
 		int wIdx = disp3DResIDX;
 		//setInitDispWinVals(wIdx, _dimOpen, _dimClosed,new boolean[]{false,true,true,true}, new int[]{255,255,255,255},new int[]{0,0,0,255},new int[]{180,180,180,255},new int[]{100,100,100,255}); 
 		setInitDispWinVals(wIdx, _winTitles[wIdx], _winDescr[wIdx], getDfltBoolAra(true), _floatDims,		
-				new int[][] {new int[]{255,255,255,255},new int[]{0,0,0,255},
+				new int[][] {new int[]{255,255,255,255},new int[]{255,255,255,255},
 					new int[]{180,180,180,255},new int[]{100,100,100,255},
 					new int[]{0,0,0,200},new int[]{255,255,255,255}});
 				
