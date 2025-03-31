@@ -4,7 +4,6 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import Boids2_PKG.flocks.myBoidFlock;
-import Boids2_PKG.ui.Boids_3DWin;
 import base_Render_Interface.IRenderInterface;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
 import base_Math_Objects.vectorObjs.floats.myPointf;
@@ -345,20 +344,20 @@ public class myBoid {
 	}
 
 	public String toString(){
-		String result = "ID : " + ID + " Type : "+flk.win.getFlkName(type)+" | Mass : " + mass + " | Spawn CD "+spawnCntr + " | Starve CD " + starveCntr+"\n";
+		String result = "ID : " + ID + " Type : "+flk.getName()+" | Mass : " + mass + " | Spawn CD "+spawnCntr + " | Starve CD " + starveCntr+"\n";
 		result+=" | location : " + coords + " | velocity : " + velocity + " | forces : " + forces +"\n" ;
 		//if(p.flags[p.debugMode]){result +="\nOrientation : UP : "+orientation[O_UP] + " | FWD : "+orientation[O_FWD] + " | RIGHT : "+orientation[O_RHT] + "\n";}
 		int num =neighbors.size();
 		result += "# neighbors : "+ num + (num==0 ? "\n" : " | Neighbor IDs : \n");
-		if(flk.win.privFlags.getFlag(Boids_3DWin.showFlkMbrs)){	for(Float bd_K : neighbors.keySet()){result+="\tNeigh ID : "+neighbors.get(bd_K).ID + " dist from me : " + bd_K+"\n";}}
+		if(flk.getShowFlkMbrs()){	for(Float bd_K : neighbors.keySet()){result+="\tNeigh ID : "+neighbors.get(bd_K).ID + " dist from me : " + bd_K+"\n";}}
 		num = colliderLoc.size();
 		result += "# too-close neighbors : "+ num + (num==0 ? "\n" : " | Colliders IDs : \n");
-		if(flk.win.privFlags.getFlag(Boids_3DWin.showFlkMbrs)){for(Float bd_K : colliderLoc.keySet()){result+="\tDist from me : " + bd_K+"\n";}}
+		if(flk.getShowFlkMbrs()){for(Float bd_K : colliderLoc.keySet()){result+="\tDist from me : " + bd_K+"\n";}}
 		result += "# predators : "+ num + (num==0 ? "\n" : " | Predator IDs : \n");
-		if(flk.win.privFlags.getFlag(Boids_3DWin.showFlkMbrs)){for(Float bd_K : predFlkLoc.keySet()){result+="\tDist from me : " + bd_K+"\n";}}
+		if(flk.getShowFlkMbrs()){for(Float bd_K : predFlkLoc.keySet()){result+="\tDist from me : " + bd_K+"\n";}}
 		num = preyFlk.size();
 		result += "# prey : "+ num + (num==0 ? "\n" : " | Prey IDs : \n");
-		if(flk.win.privFlags.getFlag(Boids_3DWin.showFlkMbrs)){for(Float bd_K : preyFlk.keySet()){result+="\tPrey ID : "+preyFlk.get(bd_K).ID + " dist from me : " + bd_K+"\n";}}
+		if(flk.getShowFlkMbrs()){for(Float bd_K : preyFlk.keySet()){result+="\tPrey ID : "+preyFlk.get(bd_K).ID + " dist from me : " + bd_K+"\n";}}
 		return result;
 	}	
 }//myBoid class

@@ -14,6 +14,7 @@ import Boids2_PKG.threadedSolvers.initializers.myBoidValsResetter;
 import Boids2_PKG.threadedSolvers.initializers.myInitPredPreyMaps;
 import Boids2_PKG.threadedSolvers.updaters.BoidUpdate_Type;
 import Boids2_PKG.threadedSolvers.updaters.BoidMoveSpawnEatUpdater;
+import Boids2_PKG.ui.myFlkVars;
 import Boids2_PKG.ui.base.Base_BoidsWindow;
 import base_Render_Interface.IRenderInterface;
 import base_Math_Objects.vectorObjs.floats.myPointf;
@@ -27,7 +28,7 @@ public class myBoidFlock {
 	/**
 	 * Owning window
 	 */
-	public Base_BoidsWindow win;
+	protected Base_BoidsWindow win;
 	/**
 	 * Owning application manager
 	 */
@@ -348,6 +349,16 @@ public class myBoidFlock {
 	////////////////
 	// End simulation step functions for flock
 
+	/**
+	 * Whether we're showing the flock members 
+	 * @return
+	 */
+	public final boolean getShowFlkMbrs() {return win.getShowFlkMbrs();}
+	
+	public String getName() {return name;}
+	
+	public String getFlkName(int flockIDX) {return win.getFlkName(flockIDX);}
+	
 	public double getDeltaT() {return delT;}
 
 	public String[] getInfoString(){return this.toString().split("\n",-1);}

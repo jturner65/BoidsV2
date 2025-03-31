@@ -16,14 +16,12 @@ public class BoidHuntUpdater implements Callable<Boolean> {
 		float chance;
 		for(myBoid dinner : b.preyFlk.values()){
 			chance = ThreadLocalRandom.current().nextFloat();
-			if(chance < b.flk.flv.killPct){b.eat(dinner.mass);dinner.killMe("Eaten by predator : "+b.ID);return;}//kill him next update by setting dead flag
+			//kill him next update by setting dead flag
+			if(chance < b.flk.flv.killPct){b.eat(dinner.mass);dinner.killMe("Eaten by predator : "+b.ID);return;}
 		}
 	}//kill
 	
-	
-	public void run(){	
-		for(myBoid b : bAra){	if(!b.isDead()){		hunt(b);	}		}
-	}
+	public void run(){for(myBoid b : bAra){	if(!b.isDead()){		hunt(b);	}		}}
 	
 	@Override
 	public Boolean call() throws Exception {

@@ -11,11 +11,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import Boids2_PKG.flocks.myBoidFlock;
-import Boids2_PKG.flocks.myFlkVars;
 import Boids2_PKG.flocks.boids.myBoid;
 import Boids2_PKG.threadedSolvers.updaters.BoidHuntUpdater;
 import Boids2_PKG.threadedSolvers.updaters.BoidUpdate_Type;
 import Boids2_PKG.ui.Boids_UIDataUpdater;
+import Boids2_PKG.ui.myFlkVars;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
 import base_Math_Objects.vectorObjs.doubles.myVector;
@@ -587,6 +587,12 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	protected abstract boolean handlePrivBoidFlags_Indiv(int idx, boolean val, boolean oldVal);
 	
 	/**
+	 * Whether we're showing the flock members 
+	 * @return
+	 */
+	public final boolean getShowFlkMbrs() {return privFlags.getFlag(showFlkMbrs);}
+	
+	/**
 	 * Return the current flock vars for the flock specified by flockIDX
 	 * @param flockIDX
 	 * @return
@@ -599,11 +605,16 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 * @param tmpUIObjArray : map of object data, keyed by UI object idx, with array values being :                    
 	 *           the first element double array of min/max/mod values                                                   
 	 *           the 2nd element is starting value                                                                      
-	 *           the 3rd elem is label for object                      
-	 *           the 4th element is boolean array of : (unspecified values default to false)
-	 *           	{value is sent to owning window, 
-	 *           	value is sent on any modifications (while being modified, not just on release), 
-	 *           	changes to value must be explicitly sent to consumer (are not automatically sent)}    
+	 *           the 3rd elem is label for object                                                                       
+	 *           the 4th element is object type (GUIObj_Type enum)
+	 *           the 5th element is boolean array of : (unspecified values default to false)
+	 *           	idx 0: value is sent to owning window,  
+	 *           	idx 1: value is sent on any modifications (while being modified, not just on release), 
+	 *           	idx 2: changes to value must be explicitly sent to consumer (are not automatically sent),
+	 *           the 6th element is a boolean array of format values :(unspecified values default to false)
+	 *           	idx 0: whether multi-line(stacked) or not                                                  
+	 *              idx 1: if true, build prefix ornament                                                      
+	 *              idx 2: if true and prefix ornament is built, make it the same color as the text fill color.
 	 * @param tmpListObjVals
 	 */
 	@Override
@@ -614,12 +625,12 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		tmpListObjVals.put(gIDX_BoidType, boidTypeNames);
 		tmpListObjVals.put(gIDX_FlockToObs, flkNames);
 			
-		tmpUIObjArray.put(gIDX_TimeStep, uiObjInitAra_Float(new double[]{0,1.0f,.0001f}, curTimeStep, "Time Step", new boolean[]{true}));   			                                                            
-		tmpUIObjArray.put(gIDX_NumFlocks, uiObjInitAra_Int(new double[]{1,maxNumFlocks,1.0f}, 1.0, "# of Flocks", new boolean[]{true}));   				                                                        
-		tmpUIObjArray.put(gIDX_BoidType, uiObjInitAra_List(new double[]{0,boidTypeNames.length-1,1.1f}, 0.0, "Flock Species", new boolean[]{true}));   	                                                                    
-		tmpUIObjArray.put(gIDX_FlockToObs, uiObjInitAra_List(new double[]{0,flkNames.length-1,1.1f}, 0.0, "Flock To Watch", new boolean[]{true}));   	                                                                    
-		tmpUIObjArray.put(gIDX_ModNumBoids, uiObjInitAra_Int(new double[]{-50,50,1.0f}, 0.0, "Modify Flock Pop", new boolean[]{true}));   				                                                        
-		tmpUIObjArray.put(gIDX_BoidToObs, uiObjInitAra_Int(new double[]{0,initNumBoids-1,1.0f}, 0.0, "Boid To Board", new boolean[]{true}));   			
+		tmpUIObjArray.put(gIDX_TimeStep, uiObjInitAra_Float(new double[]{0,1.0f,.0001f}, curTimeStep, "Time Step"));   			                                                            
+		tmpUIObjArray.put(gIDX_NumFlocks, uiObjInitAra_Int(new double[]{1,maxNumFlocks,1.0f}, 1.0, "# of Flocks"));   				                                                        
+		tmpUIObjArray.put(gIDX_BoidType, uiObjInitAra_List(new double[]{0,boidTypeNames.length-1,1.1f}, 0.0, "Flock Species"));   	                                                                    
+		tmpUIObjArray.put(gIDX_FlockToObs, uiObjInitAra_List(new double[]{0,flkNames.length-1,1.1f}, 0.0, "Flock To Watch"));   	                                                                    
+		tmpUIObjArray.put(gIDX_ModNumBoids, uiObjInitAra_Int(new double[]{-50,50,1.0f}, 0.0, "Modify Flock Pop"));   				                                                        
+		tmpUIObjArray.put(gIDX_BoidToObs, uiObjInitAra_Int(new double[]{0,initNumBoids-1,1.0f}, 0.0, "Boid To Board"));   			
 		setupGUIObjsAras_Indiv(tmpUIObjArray, tmpListObjVals);
 	}
 	/**

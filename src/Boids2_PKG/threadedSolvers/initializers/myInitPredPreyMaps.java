@@ -5,9 +5,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import Boids2_PKG.flocks.myBoidFlock;
-import Boids2_PKG.flocks.myFlkVars;
 import Boids2_PKG.flocks.boids.myBoid;
 import Boids2_PKG.ui.Boids_3DWin;
+import Boids2_PKG.ui.myFlkVars;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_UI_Objects.GUI_AppManager;
 
@@ -20,8 +20,6 @@ public class myInitPredPreyMaps implements Callable<Boolean> {
 	
 	public List<myBoid> bAra;								//boid ara being worked on
 	public myBoidFlock f, pry, prd;
-	//public flkVrs fv;
-	private myFlkVars flv;
 	private int flagInt;						//bitmask of current flags
 	public int type, nearCount;
 	public float predRad, mass, totMaxRadSq,tot2MaxRad, minNghbDistSq, minPredDistSq, min2DistPrey,min2DistNghbr, colRadSq, spawnRadSq;
@@ -34,18 +32,18 @@ public class myInitPredPreyMaps implements Callable<Boolean> {
 	public final int[] stFlagIDXs = new int[]{Boids_3DWin.useTorroid, Boids_3DWin.flkHunt, Boids_3DWin.flkSpawn};
 
 	public myInitPredPreyMaps(GUI_AppManager _AppMgr, myBoidFlock _f, myBoidFlock _pry, myBoidFlock _prd, myFlkVars _fv, int _flagInt, List<myBoid> _bAra) {
-		AppMgr = _AppMgr;	f = _f; flv = _fv; pry=_pry; prd=_prd; bAra=_bAra; type = f.type;
+		AppMgr = _AppMgr;	f = _f; pry=_pry; prd=_prd; bAra=_bAra; type = f.type;
 		tot2MaxRad = 2* f.totMaxRad;
 		totMaxRadSq = f.totMaxRad * f.totMaxRad;
 		//TODO set these via passed int
 		flagInt = _flagInt;
 		setStFlags();
-		colRadSq = flv.colRad * flv.colRad ;
-		spawnRadSq = flv.spawnRad * flv.spawnRad;
-		minNghbDistSq = flv.nghbrRad * flv.nghbrRad;
-		minPredDistSq = flv.predRad * flv.predRad;
-		min2DistNghbr = 2 * flv.predRad;
-		min2DistPrey = 2 * flv.predRad;
+		colRadSq = _fv.colRad * _fv.colRad ;
+		spawnRadSq = _fv.spawnRad * _fv.spawnRad;
+		minNghbDistSq = _fv.nghbrRad * _fv.nghbrRad;
+		minPredDistSq = _fv.predRad * _fv.predRad;
+		min2DistNghbr = 2 * _fv.predRad;
+		min2DistPrey = 2 * _fv.predRad;
 	}
 	
 	//TODO set these externally when/if eventually recycling threads
