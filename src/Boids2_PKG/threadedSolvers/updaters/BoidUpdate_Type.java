@@ -7,10 +7,9 @@ import java.util.Map;
  * @author john turner 
  */
 public enum BoidUpdate_Type {
-	Move(0), 
-	Spawn(1), 
-	Hunger(2);
-	private int value; 
+	Move, 
+	Spawn, 
+	Hunger;
 	private static final String[] _typeExplanation = new String[] {
 			"Integrate forces and move boid",
 			"Reproduce if able",
@@ -18,13 +17,13 @@ public enum BoidUpdate_Type {
 	private static final String[] _typeName = new String[] {"Move Boid","Reproduce","Update Hunger"};
 	public static String[] getListOfTypes() {return _typeName;}
 	private static Map<Integer, BoidUpdate_Type> map = new HashMap<Integer, BoidUpdate_Type>(); 
-	static { for (BoidUpdate_Type enumV : BoidUpdate_Type.values()) { map.put(enumV.value, enumV);}}
-	private BoidUpdate_Type(int _val){value = _val;} 
-	public int getVal(){return value;}
-	public static BoidUpdate_Type getVal(int idx){return map.get(idx);}
+	static { for (BoidUpdate_Type enumV : BoidUpdate_Type.values()) { map.put(enumV.ordinal(), enumV);}}
+	public int getVal(){return ordinal();}
+	public static BoidUpdate_Type getEnumByIndex(int idx){return map.get(idx);}
+	public static BoidUpdate_Type getEnumFromValue(int idx){return map.get(idx);}
 	public static int getNumVals(){return map.size();}						//get # of values in enum
-	public String getName() {return _typeName[value];}
+	public String getName() {return _typeName[ordinal()];}
 	@Override
-    public String toString() { return ""+this.name()+":"+_typeExplanation[value]; }	
-    public String toStrBrf() { return ""+_typeExplanation[value]; }	
+    public String toString() { return ""+this.name()+":"+_typeExplanation[ordinal()]; }	
+    public String toStrBrf() { return ""+_typeExplanation[ordinal()]; }	
 }
