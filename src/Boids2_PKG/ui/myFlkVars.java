@@ -1,10 +1,13 @@
-package Boids2_PKG.flocks;
+package Boids2_PKG.ui;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import base_Math_Objects.MyMathUtils;
+import base_UI_Objects.windowUI.base.IUIManagerOwner;
+import base_UI_Objects.windowUI.uiData.UIDataUpdater;
 import base_UI_Objects.windowUI.uiObjs.base.base.GUIObj_Type;
 
 
@@ -13,7 +16,20 @@ import base_UI_Objects.windowUI.uiObjs.base.base.GUIObj_Type;
  * @author John Turner
  *
  */
-public class myFlkVars {	
+public class myFlkVars implements IUIManagerOwner {	
+	/**
+	 * class name of instancing class
+	 */
+	protected final String className;
+	/**
+	 * structure to facilitate communicating UI changes with functional code
+	 */
+	private UIDataUpdater uiUpdateData;	
+	
+	
+	
+	
+	
 	private final float neighborMult = .5f;							//multiplier for neighborhood consideration against zone size - all rads built off this
 	
 	public float dampConst = .01f;				//multiplier for damping force, to slow boats down if nothing else acting on them
@@ -62,21 +78,21 @@ public class myFlkVars {
 	public final String typeName;
 	
 	public final String[] UI_Labels = new String[] {
-		"Flocking Radius",
-		"Centering Force Weight",
-		"Col Avoidance Radius",
-		"Col Avoidance Weight",
-		"Vel Matching Radius",
-		"Vel Matching Weight",
-		"Wandering Force Weight",
-		"Predator Avoidance Weight",
-		"Prey Chasing Weight",		
-		"Mating Radius",
-		"Mating Success %",
-		"Mating Frequency",
-		"Hunting Radius",
-		"Hunting Success %",
-		"Hunting Frequency"			
+		"Flock Rad",
+		"Flock Frc Wt",
+		"Col Avd Rad",
+		"Col Avd Wt",
+		"Vel Match Rad",
+		"Vel Match Wt",
+		"Wander Frc Wt",
+		"Pred Avd Wt",
+		"Prey Chase Wt",		
+		"Spawn Rad",
+		"Spawn %",
+		"Spawn Freq",
+		"Hunt Rad",
+		"Hunt %",
+		"Hunt Freq"			
 	};
 	
 	public final static int 
@@ -97,7 +113,9 @@ public class myFlkVars {
 		fv_huntingFrequency = 14;
 	
 	public myFlkVars(String _flockName, float _nRadMult, float _predRad) {
+		className = this.getClass().getSimpleName();
 		typeName = _flockName;
+		
 		initFlockVals(_nRadMult, .05f, _predRad);
 	}//ctor
 	
@@ -272,5 +290,119 @@ public class myFlkVars {
 	public String toString(){
 		String[] resAra = getInfoForFlkVars("Flock Vars for ");
 		return Arrays.toString(resAra);
+	}
+
+	@Override
+	public String getClassName() {return className;	}
+	/**
+	 * This function is called on ui value update, to pass new ui values on to window-owned consumers
+	 */
+	@Override
+	public void updateOwnerCalcObjUIVals() {
+		//
+		
+	}
+	/**
+	 * Called if int-handling guiObjs[UIidx] (int or list) has new data which updated UI adapter. 
+	 * Intended to support custom per-object handling by owning window.
+	 * Only called if data changed!
+	 * @param UIidx Index of gui obj with new data
+	 * @param ival integer value of new data
+	 * @param oldVal integer value of old data in UIUpdater
+	 */
+	@Override
+	public void setUI_OwnerIntValsCustom(int UIidx, int ival, int oldVal) {
+		// TODO Auto-generated method stub
+		
+	}
+	/**
+	 * Called if float-handling guiObjs[UIidx] has new data which updated UI adapter.  
+	 * Intended to support custom per-object handling by owning window.
+	 * Only called if data changed!
+	 * @param UIidx Index of gui obj with new data
+	 * @param val float value of new data
+	 * @param oldVal float value of old data in UIUpdater
+	 */
+	@Override
+	public void setUI_OwnerFloatValsCustom(int UIidx, float val, float oldVal) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * Build flkVars UIDataUpdater instance for application
+	 * @return
+	 */	
+	@Override
+	public UIDataUpdater buildOwnerUIDataUpdateObject() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	/**
+	 * Retrieve the Owner's UIDataUpdater
+	 * @return
+	 */
+	@Override
+	public UIDataUpdater getUIDataUpdater() {return uiUpdateData;}
+
+	/**
+	 * Build all UI objects to be shown in left side bar menu for this window.  This is the first child class function called by initThisWin
+	 * @param tmpUIObjArray : map of object data, keyed by UI object idx, with array values being :                    
+	 *           the first element double array of min/max/mod values                                                   
+	 *           the 2nd element is starting value                                                                      
+	 *           the 3rd elem is label for object                                                                       
+	 *           the 4th element is object type (GUIObj_Type enum)
+	 *           the 5th element is boolean array of : (unspecified values default to false)
+	 *           	idx 0: value is sent to owning window,  
+	 *           	idx 1: value is sent on any modifications (while being modified, not just on release), 
+	 *           	idx 2: changes to value must be explicitly sent to consumer (are not automatically sent),
+	 *           the 6th element is a boolean array of format values :(unspecified values default to false)
+	 *           	idx 0: whether multi-line(stacked) or not                                                  
+	 *              idx 1: if true, build prefix ornament                                                      
+	 *              idx 2: if true and prefix ornament is built, make it the same color as the text fill color.
+	 * @param tmpListObjVals
+	 */
+	@Override
+	public void setupOwnerGUIObjsAras(TreeMap<Integer, Object[]> tmpUIObjArray,
+			TreeMap<Integer, String[]> tmpListObjVals) {
+		// Build all UI objects in here.
+		
+		// TODO Auto-generated method stub
+		
+	}
+	/**
+	 * Build button descriptive arrays : each object array holds true label, false label, and idx of button in owning child class
+	 * this must return count of -all- booleans managed by privFlags, not just those that are interactive buttons (some may be 
+	 * hidden to manage booleans that manage or record state)
+	 * @param tmpBtnNamesArray ArrayList of Object arrays to be built containing all button definitions. 
+	 * @return count of -all- booleans to be managed by privFlags
+	 */
+	@Override
+	public int initAllOwnerUIButtons(ArrayList<Object[]> tmpBtnNamesArray) {
+		// Build all UI Buttons in here; return number of buttons
+		return 0;
+	}
+
+	@Override
+	public int[] getOwnerFlagIDXsToInitToTrue() {
+		return new int[0];
+	}
+
+	@Override
+	public void checkSetBoolAndUpdate(int idx, boolean val) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleOwnerPrivFlags(int idx, boolean val, boolean oldVal) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handlePrivFlagsDebugMode(boolean val) {
+		// TODO Auto-generated method stub
+		
 	}
 }//class myFlkVars 
