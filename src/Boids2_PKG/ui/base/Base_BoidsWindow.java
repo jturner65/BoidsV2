@@ -181,11 +181,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 * idxs of flock and boid to assign camera to if we are watching from "on deck"
 	 */
 	protected int flockToWatch, boidToWatch;
-	/**
-	 * offset to bottom of custom window menu 
-	 */
-	protected float custMenuOffset;
-	
+
 	/**
 	 * idx of zone in currently modified flkVars value during drag - set to -1 on click release
 	 */
@@ -220,26 +216,26 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	@Override
 	public int initAllUIButtons(ArrayList<Object[]> tmpBtnNamesArray){
 										//needs to be in order of privModFlgIdxs
-		tmpBtnNamesArray.add(new Object[] {"Debugging", "Enable Debug", Base_BoolFlags.debugIDX});
-		tmpBtnNamesArray.add(new Object[] {"Showing Frame", "Show Frame", showBoidFrame});
-		tmpBtnNamesArray.add(new Object[] {"Drawing Boids", "Drawing Spheres", drawBoids});
-		tmpBtnNamesArray.add(new Object[] {"Scale Boids' Sizes", "Boids Same Size", drawScaledBoids});
-		tmpBtnNamesArray.add(new Object[] {"Showing Boid Path", "Hiding Boid Path", clearPath});
-		tmpBtnNamesArray.add(new Object[] {"Showing Vel Vectors", "Hiding Vel Vectors", showVel});
-		tmpBtnNamesArray.add(new Object[] {"DBG : List Flk Mmbrs", "DBG : Hide Flk Mmbrs", showFlkMbrs});
-		tmpBtnNamesArray.add(new Object[] {"Mouse Click Attracts", "Mouse Click Repels", attractMode});
-		tmpBtnNamesArray.add(new Object[] {"Ctr Force ON", "Ctr Force OFF", flkCenter});
-		tmpBtnNamesArray.add(new Object[] {"Vel Match ON", "Vel Match OFF", flkVelMatch});
-		tmpBtnNamesArray.add(new Object[] {"Col Avoid ON", "Col Avoid OFF", flkAvoidCol});
-		tmpBtnNamesArray.add(new Object[] {"Wander ON", "Wander OFF", flkWander});
-		tmpBtnNamesArray.add(new Object[] {"Pred Avoid ON", "Pred Avoid OFF", flkAvoidPred});
-		tmpBtnNamesArray.add(new Object[] {"Hunting ON", "Hunting OFF", flkHunt, });
-		tmpBtnNamesArray.add(new Object[] {"Hunger ON", "Hunger OFF", flkHunger});
-		tmpBtnNamesArray.add(new Object[] {"Spawning ON", "Spawning OFF", flkSpawn, 	} );
-		tmpBtnNamesArray.add(new Object[] {"Orig Funcs ON", "Orig Funcs OFF", useOrigDistFuncs});
-		tmpBtnNamesArray.add(new Object[] {"Tor Bnds ON", "Tor Bnds OFF", useTorroid, });
-		tmpBtnNamesArray.add(new Object[] {"Mod DelT By FRate", "Fixed DelT", modDelT});
-		tmpBtnNamesArray.add(new Object[] {"Boid-eye View", "Global View", viewFromBoid});
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Debugging", "Enable Debug"}, Base_BoolFlags.debugIDX));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Showing Frame", "Show Frame"}, showBoidFrame));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Drawing Boids", "Drawing Spheres"}, drawBoids));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Scale Boids' Sizes", "Boids Same Size"}, drawScaledBoids));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Showing Boid Path", "Hiding Boid Path"}, clearPath));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Showing Vel Vectors", "Hiding Vel Vectors"}, showVel));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"DBG : List Flk Mmbrs", "DBG : Hide Flk Mmbrs"}, showFlkMbrs));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Mouse Click Attracts", "Mouse Click Repels"}, attractMode));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Ctr Force ON", "Ctr Force OFF"}, flkCenter));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Vel Match ON", "Vel Match OFF"}, flkVelMatch));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Col Avoid ON", "Col Avoid OFF"}, flkAvoidCol));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Wander ON", "Wander OFF"}, flkWander));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Pred Avoid ON", "Pred Avoid OFF"}, flkAvoidPred));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Hunting ON", "Hunting OFF"}, flkHunt));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Hunger ON", "Hunger OFF"}, flkHunger));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Spawning ON", "Spawning OFF"}, flkSpawn));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Orig Funcs ON", "Orig Funcs OFF"}, useOrigDistFuncs));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Tor Bnds ON", "Tor Bnds OFF"}, useTorroid));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Mod DelT By FRate", "Fixed DelT"}, modDelT));
+		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Boid-eye View", "Global View"}, viewFromBoid));
 		
 		return initAllPrivBtns_Indiv(tmpBtnNamesArray);
 	
@@ -288,8 +284,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 			
 		initFlocks();	
 		//flkMenuOffset = uiClkCoords[1] + uiClkCoords[3] - y45Off;	//495
-		custMenuOffset = uiClkCoords[3] + AppMgr.getClkBoxDim();	
-		msgObj.dispConsoleDebugMessage(className, "initMe", "Cust menu offset : "+custMenuOffset+ "| Old Cust menu offset : "+(uiClkCoords[3] +10));
+		//custMenuOffset = uiClkCoords[3] + AppMgr.getClkBoxDim();	
 		initMe_IndivPost();
 	}//initMe
 	
