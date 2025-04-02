@@ -246,9 +246,6 @@ public class Boids_21_Main extends GUI_AppManager {
 	protected void drawMePost_Indiv(float modAmtMillis, boolean is3DDraw) {}
 	
 
-	@Override
-	//gives multiplier based on whether shift, alt or cntl (or any combo) is pressed
-	public double clickValModMult(){return ((altIsPressed() ? .1 : 1.0) * (shiftIsPressed() ? 10.0 : 1.0));}	
 
 	@Override
 	public boolean isClickModUIVal() {
