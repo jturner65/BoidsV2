@@ -270,7 +270,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		//TODO set this to be determined by UI input (?)
 		initBoidRndrObjs();
 		//want # of usable background threads.  Leave 2 for primary process (and potential draw loop)
-		numUsableThreads = Runtime.getRuntime().availableProcessors() - 2;
+		numUsableThreads = getNumThreadsAvailable() - 2;
 		//set if this is multi-threaded capable - need more than 1 outside of 2 primary threads (i.e. only perform multithreaded calculations if 4 or more threads are available on host)
 		privFlags.setFlag(isMTCapableIDX, numUsableThreads>1);
 		
