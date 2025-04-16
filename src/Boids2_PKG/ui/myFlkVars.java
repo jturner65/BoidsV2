@@ -44,7 +44,8 @@ public class myFlkVars implements IUIManagerOwner {
 				killRad;									//distance to kill * mass (distance required to make kill attempt)
 	
 	public int spawnFreq, 									//# of cycles that must pass before can spawn again
-				eatFreq;								 		//# cycles w/out food until starve to death
+				eatFreq,								 	//# cycles w/out food until starve to death				
+				canSprintCycles;							//cycles after eating where sufficiently full that boid can sprint
 	
 	float nghbrRadMax;							//max allowed neighborhood - min dim of cube
 	public float totMaxRad;						//max search distance for neighbors
@@ -135,6 +136,7 @@ public class myFlkVars implements IUIManagerOwner {
 		spawnFreq = 500; 		//# of cycles that must pass before can spawn again
 		//required meal time
 		eatFreq = 500; 			//# cycles w/out food until starve to death
+		setCanSprintCycles();
 		killRad = 1;						//radius to kill * mass
 		killPct = .01f;				//% chance to kill prey creature
 
@@ -229,9 +231,9 @@ public class myFlkVars implements IUIManagerOwner {
 			case 9  : {spawnPct = modVal(spawnPct, MinSpAra[0], MaxSpAra[0], mod*.001f); break;}
 			case 10 : {spawnRad = modVal(spawnRad, MinSpAra[1], MaxSpAra[1], mod);break;}
 			case 11 : {spawnFreq = modVal(spawnFreq, MinSpAra[2], MaxSpAra[2], (int)(mod*10));break;}
-			case 12 : {killPct  = modVal(killPct, MinHuntAra[0], MaxHuntAra[0], mod*.0001f); break;}
-			case 13 : {predRad  = modVal(predRad, MinHuntAra[1], MaxHuntAra[1], mod);break;}
-			case 14 : {eatFreq  = modVal(eatFreq, MinHuntAra[2], MaxHuntAra[2], (int)(mod*10));break;}
+			case 12 : {killPct = modVal(killPct, MinHuntAra[0], MaxHuntAra[0], mod*.0001f); break;}
+			case 13 : {predRad = modVal(predRad, MinHuntAra[1], MaxHuntAra[1], mod);break;}
+			case 14 : {eatFreq = modVal(eatFreq, MinHuntAra[2], MaxHuntAra[2], (int)(mod*10)); setCanSprintCycles();break;}
 			default : break;
 		}//switch
 		
@@ -257,6 +259,7 @@ public class myFlkVars implements IUIManagerOwner {
 		this.wts[wIdx] += mod;
 		if(!(MyMathUtils.inRange(wts[wIdx], MinWtAra[wIdx], MaxWtAra[wIdx]))){this.wts[wIdx] = oldVal;}		
 	}
+	private void setCanSprintCycles() {canSprintCycles = (int) (.25f * eatFreq);}
 
 	private String[] getInfoForFlkVars(String _prefix) {
 		String res[] = new String[]{

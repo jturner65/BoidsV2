@@ -154,7 +154,7 @@ public class myBoid {
 			return true;} 
 		return false;
 	}	
-	public int resetCntrs(int cntrBseVal, float mod){return (int)(cntrBseVal*(1+mod));}
+	private int resetCntrs(int cntrBseVal, float mod){return (int)(cntrBseVal*(1+mod));}
 	//only reset spawn counters once boid has spawned
 	public void hasSpawned(){spawnCntr = resetCntrs(flk.flv.spawnFreq,ThreadLocalRandom.current().nextFloat()); bd_flags[canSpawn] = false;}
 	public boolean canSpawn(){return bd_flags[canSpawn];}
@@ -167,12 +167,12 @@ public class myBoid {
 	//update hunger counters
 	public void updateHungerCntr(){
 		--starveCntr;
-		if (starveCntr<=0){killMe("Starvation");}//if can get hungry then can starve to death
+		if (starveCntr<=0){killMe("Starvation"); return;}//if can get hungry then can starve to death
 		//bd_flags[isHungry] = (bd_flags[isHungry] || (p.random(f.flv.eatFreq)>=starveCntr)); //once he's hungry he stays hungry unless he eats (hungry set to false elsewhere)
 		bd_flags[isHungry] = (bd_flags[isHungry] || (ThreadLocalRandom.current().nextInt(flk.flv.eatFreq)>=starveCntr)); //once he's hungry he stays hungry unless he eats (hungry set to false elsewhere)
 	}	
 	public void eat(float tarMass){	starveCntr = resetCntrs(flk.flv.eatFreq,tarMass);bd_flags[isHungry]=false;}
-	public boolean canSprint(){return (starveCntr > .25f*flk.flv.eatFreq);}
+	public boolean canSprint(){return (starveCntr > flk.flv.canSprintCycles);}
 	
 	/**
 	 * Whether or not we're hungry

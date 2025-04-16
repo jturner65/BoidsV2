@@ -130,6 +130,7 @@ public class myBoidFlock {
 			boidFlock.add( new myBoid(this, randBoidStLoc(), type));
 		}
 		setNumBoids(boidFlock.size());
+		//initial build of per-thread boid population
 		buildThreadFrames();
 	}//initFlock - run after each flock has been constructed
 	
@@ -220,7 +221,7 @@ public class myBoidFlock {
 	 */
 	@SuppressWarnings("unchecked")
 	private void buildThreadFrames() {
-		int numFrames = (numBoids > numThrdsToUse ? numThrdsToUse : numBoids); //TODO : have threads equally spread among all flocks
+		int numFrames = (numBoids > numThrdsToUse ? numThrdsToUse : numBoids); 
 		boidThrdFrames = new List[numFrames];		
 		if (numFrames == 0) {return;}
 		// Base # of boids per frame
