@@ -3,21 +3,21 @@ package Boids2_PKG.threadedSolvers.forceSolvers;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-import Boids2_PKG.flocks.myBoidFlock;
-import Boids2_PKG.flocks.boids.myBoid;
+import Boids2_PKG.flocks.BoidFlock;
+import Boids2_PKG.flocks.boids.Boid;
 import Boids2_PKG.threadedSolvers.forceSolvers.base.Base_ForceSolver;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
 import base_UI_Objects.GUI_AppManager;
 
 public class OriginalForceSolver extends Base_ForceSolver{
-	public OriginalForceSolver(GUI_AppManager _AppMgr, myBoidFlock _f, int _flagInt, boolean _isClk, List<myBoid> _bAra) {
+	public OriginalForceSolver(GUI_AppManager _AppMgr, BoidFlock _f, int _flagInt, boolean _isClk, List<Boid> _bAra) {
 		super(_AppMgr, _f,_flagInt, _isClk, _bAra);
 	}
 	
 	//collect to center of local group
 	@Override
-	protected myVectorf frcToCenter(myBoid b){
+	protected myVectorf frcToCenter(Boid b){
 		float wtSqSum = 0, wtDist;	
 		myVectorf frcVec = new myVectorf();
 		for(Float bd_k : b.neighLoc.keySet()){	
@@ -32,7 +32,7 @@ public class OriginalForceSolver extends Base_ForceSolver{
 
 	//avoid collision, avoid predators within radius frcThresh
 	@Override
-	protected myVectorf frcAvoidCol(myBoid b, ConcurrentSkipListMap<Float,myPointf> otherLoc, float frcThresh){
+	protected myVectorf frcAvoidCol(Boid b, ConcurrentSkipListMap<Float,myPointf> otherLoc, float frcThresh){
 		myVectorf frcVec = new myVectorf(), tmpVec;
 		float subRes, wtSqSum = 0;
 		for(Float bd_k : otherLoc.keySet()){	//already limited to those closer than colRadSq
@@ -46,7 +46,7 @@ public class OriginalForceSolver extends Base_ForceSolver{
 	}//frcAvoidCol
 	
 	@Override
-	protected myVectorf frcVelMatch(myBoid b){
+	protected myVectorf frcVelMatch(Boid b){
 		float dsq, wtSqSum = 0;
 		myVectorf frcVec = new myVectorf();		
 		for(Float bd_k : b.neighbors.keySet()){	

@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
 
-import Boids2_PKG.flocks.myBoidFlock;
-import Boids2_PKG.flocks.boids.myBoid;
+import Boids2_PKG.flocks.BoidFlock;
+import Boids2_PKG.flocks.boids.Boid;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
@@ -13,28 +13,33 @@ import base_UI_Objects.GUI_AppManager;
 
 public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
 	private GUI_AppManager AppMgr;
-	private List<myBoid> bAra;
-	private myBoidFlock f;
+	private List<Boid> bAra;
 	private final float rt2 = MyMathUtils.INV_SQRT_2_F;//1/sqrt2; 
-	private final int O_FWD = myBoid.O_FWD;
-	private final int O_RHT = myBoid.O_RHT;
-	private final int O_UP = myBoid.O_UP;  
+	private final int O_FWD = Boid.O_FWD;
+	private final int O_RHT = Boid.O_RHT;
+	private final int O_UP = Boid.O_UP;  
 	private final float epsValCalcSq =  MyMathUtils.EPS_F * MyMathUtils.EPS_F;
 	private final float spawnPct;
+	private final float minVelMag;
+	private final float maxVelMag;
+	private final double deltaT;
 	
 	/**
-	 * Type of update to do
+	 * Type of update to do - start with move
 	 */
 	private BoidUpdate_Type updateToDo = BoidUpdate_Type.Move;
 	
-	public BoidMoveSpawnEatUpdater(GUI_AppManager _AppMgr, myBoidFlock _f, List<myBoid> _bAra){
-		f=_f; bAra=_bAra;AppMgr=_AppMgr;
-		spawnPct = f.flv.spawnPct;
+	public BoidMoveSpawnEatUpdater(GUI_AppManager _AppMgr, BoidFlock _f, List<Boid> _bAra){
+		bAra=_bAra;AppMgr=_AppMgr;
+		deltaT = _f.getDeltaT();
+		spawnPct = _f.flv.spawnPct;
+		minVelMag = _f.flv.minVelMag;
+		maxVelMag = _f.flv.maxVelMag;
 	}	
 
-	private void reproduce(myBoid b){
+	private void reproduce(Boid b){
 		float chance;
-		for(myBoid ptWife : b.ptnWife.values()){
+		for(Boid ptWife : b.ptnWife.values()){
 			chance = ThreadLocalRandom.current().nextFloat();
 			if(chance < spawnPct){
 				b.haveChild(new myPointf(ptWife.coords,.5f,b.coords), new myVectorf(ptWife.velocity,.5f,b.velocity), new myVectorf(ptWife.forces,.5f,b.forces));
@@ -59,7 +64,7 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
 			rzuy = -orientation[O_RHT].z+orientation[O_UP].y;
 			
 		if (((fyrx*fyrx) < epsValCalcSq) && ((uxfz*uxfz) < epsValCalcSq) && ((rzuy*rzuy) < epsValCalcSq)) {			//checking for rotational singularity
-			// angle == 0
+			// first check angle == 0
 			float fyrx2 = orientation[O_FWD].y+orientation[O_RHT].x,
 				fzux2 = orientation[O_FWD].z+orientation[O_UP].x,
 				rzuy2 = orientation[O_RHT].z+orientation[O_UP].y,
@@ -88,7 +93,7 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
 	   return new float[]{angle,tmp.x,tmp.y,tmp.z};
 	}//toAxisAngle
 	
-	private myVectorf getFwdVec(myBoid b, float delT_f){
+	private myVectorf getFwdVec(Boid b, float delT_f){
 		if(b.velocity.magn < MyMathUtils.EPS_F){			return b.orientation[O_FWD]._normalize();		}
 		else {		
 			myVectorf tmp = b.velocity.cloneMe()._normalize();			
@@ -96,13 +101,13 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
 		}
 	}
 
-	private myVectorf getUpVec(myBoid b){	
+	private myVectorf getUpVec(Boid b){	
 		float fwdUpDotm1 = 1 - b.orientation[O_FWD].z;//b.orientation[O_FWD]._dot(myVectorf.UP);
 		if ((fwdUpDotm1 * fwdUpDotm1) < epsValCalcSq){return myVectorf._cross(b.orientation[O_RHT], b.orientation[O_FWD]);	}
 		return myVectorf.UP.cloneMe();
 	}	
 	
-	private void setOrientation(myBoid b, double delT){
+	private void setOrientation(Boid b, double delT){
 		//find new orientation at new coords - creature is oriented in local axes as forward being positive z and up being positive y vectors correspond to columns, x/y/z elements correspond to rows
 		b.orientation[O_FWD].set(getFwdVec(b, (float) delT));
 		b.orientation[O_UP].set(getUpVec(b));	
@@ -120,27 +125,28 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
 	}
 	
 	private void moveBoids() {
-		double delT = f.getDeltaT();
-		for(myBoid b : bAra){
+
+		for(Boid b : bAra){
 			if (b.forces.magn > epsValCalcSq) {
-				b.velocity.set(integrate(myVectorf._mult(b.forces, (1.0f/b.mass)), b.velocity, delT));			//myVectorf._add(velocity[0], myVectorf._mult(forces[1], p.delT/(1.0f * mass)));	divide by  mass, multiply by delta t
-				if(b.velocity.magn < f.flv.minVelMag){b.velocity._mult(f.flv.minVelMag/b.velocity.magn);}
-				else if(b.velocity.magn > f.flv.maxVelMag){b.velocity._mult(f.flv.maxVelMag/b.velocity.magn);}
+				b.velocity.set(integrate(myVectorf._mult(b.forces, (1.0f/b.mass)), b.velocity, deltaT));			//myVectorf._add(velocity[0], myVectorf._mult(forces[1], p.delT/(1.0f * mass)));	divide by  mass, multiply by delta t
+				if(b.velocity.magn < minVelMag){b.velocity._mult(minVelMag/b.velocity.magn);}
+				else if(b.velocity.magn > maxVelMag){b.velocity._mult(maxVelMag/b.velocity.magn);}
 			}
-			b.coords.set(integrate(b.velocity, b.coords, delT));												// myVectorf._add(coords[0], myVectorf._mult(velocity[1], p.delT));	
+			b.coords.set(integrate(b.velocity, b.coords, deltaT));												// myVectorf._add(coords[0], myVectorf._mult(velocity[1], p.delT));	
+			//Account for wrapping if torroidal
 			setValWrapCoordsForDraw(b.coords);
-			setOrientation(b, delT);
+			setOrientation(b, deltaT);
 		}			
 	}
 	
 	private void spawn() {
-		for(myBoid b : bAra){reproduce(b);}  			//check every boid to reproduce
-		for(myBoid b : bAra){b.updateSpawnCntr();}		//update spawn counter
+		for(Boid b : bAra){reproduce(b);}  			//check every boid to reproduce
+		for(Boid b : bAra){b.updateSpawnCntr();}		//update spawn counter
 	}
 	
 	private void updateHunger() {
 		//dead boids may exist only after hunt
-		for(myBoid b : bAra){if(!b.isDead()){				b.updateHungerCntr();}}		
+		for(Boid b : bAra){if(!b.isDead()){				b.updateHungerCntr();}}		
 	}
 	/**
 	 * Determine which update procedure to perform
@@ -157,8 +163,21 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
 		}
 	}
 	
-	//integrator
+	/**
+	 * Integrator yielding a point
+	 * @param stateDot 
+	 * @param state
+	 * @param delT
+	 * @return
+	 */
 	private myPointf integrate(myVectorf stateDot, myPointf state, double delT){		return myPointf._add(state, myVectorf._mult(stateDot, delT));}
+	/**
+	 * Integrator yielding a vector
+	 * @param stateDot
+	 * @param state
+	 * @param delT
+	 * @return
+	 */
 	private myVectorf integrate(myVectorf stateDot, myVectorf state, double delT){	return myVectorf._add(state, myVectorf._mult(stateDot, delT));}
 	
 	/**
@@ -171,21 +190,22 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
 	 */
 	private float wrapVal(float val, final float minVal, final float maxVal) {
 		float distVal = maxVal - minVal;
-		if (val > maxVal) {			return (val % distVal) + minVal;		}
-		while (val < minVal) {val += distVal;}		
-		return val;
-	}
+		if (val <= maxVal) {
+			// val is less than maxVal
+			if(val >= minVal) {				return val;	}		//in correct range 		
+			// val is less than minVal, so move it by distVal-sized windows until it is not
+			while (val < minVal) {val += distVal;}	
+		}
+		// val is greater than maxVal, so mod it to be in window [minVal,maxVal]
+		// by shifting to [0,maxVal-minVal] first and then shifting back
+		return ((val - minVal) % distVal) + minVal;
+	}//wrapVal
 	
 	private void setValWrapCoordsForDraw(myPointf _coords){
 		_coords.x = wrapVal(_coords.x, 0.0f, AppMgr.gridDimX);
 		_coords.y = wrapVal(_coords.y, 0.0f, AppMgr.gridDimY);
 		_coords.z = wrapVal(_coords.z, 0.0f, AppMgr.gridDimZ);
 
-		
-//		if((_coords.x > AppMgr.gridDimX) || (_coords.x < 0)){	_coords.x = (_coords.x+AppMgr.gridDimX) % AppMgr.gridDimX;}
-//		if((_coords.y > AppMgr.gridDimY) || (_coords.y < 0)){	_coords.y = (_coords.y+AppMgr.gridDimY) % AppMgr.gridDimY;}
-//		if((_coords.z > AppMgr.gridDimZ) || (_coords.z < 0)){	_coords.z = (_coords.z+AppMgr.gridDimZ) % AppMgr.gridDimZ;}
-		//_coords.set(((_coords.x+AppMgr.gridDimX) % AppMgr.gridDimX),((_coords.y+AppMgr.gridDimY) % AppMgr.gridDimY),((_coords.z+AppMgr.gridDimZ) % AppMgr.gridDimZ));	
 	}//findValidWrapCoords	
 
 	@Override

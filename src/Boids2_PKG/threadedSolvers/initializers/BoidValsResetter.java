@@ -3,8 +3,8 @@ package Boids2_PKG.threadedSolvers.initializers;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import Boids2_PKG.flocks.myBoidFlock;
-import Boids2_PKG.flocks.boids.myBoid;
+import Boids2_PKG.flocks.BoidFlock;
+import Boids2_PKG.flocks.boids.Boid;
 import Boids2_PKG.ui.Boids_3DWin;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 
@@ -13,9 +13,9 @@ import base_Math_Objects.vectorObjs.floats.myPointf;
  * @author John Turner
  *
  */
-public class myBoidValsResetter implements Callable<Boolean> {
-	public List<myBoid> bAra;								//boid ara being worked on
-	public myBoidFlock f;
+public class BoidValsResetter implements Callable<Boolean> {
+	public List<Boid> bAra;								//boid ara being worked on
+	public BoidFlock f;
 	private int flagInt;						//bitmask of current flags
 	public boolean[] stFlags; // doHunt, doSpawn;							//is torroidal
 	public final int 		
@@ -23,7 +23,7 @@ public class myBoidValsResetter implements Callable<Boolean> {
 			doSpawn 	= 1;
 	public final int[] stFlagIDXs = new int[]{Boids_3DWin.flkHunt, Boids_3DWin.flkSpawn};
 
-	public myBoidValsResetter(myBoidFlock _f, int _flagInt,  List<myBoid> _bAra) {
+	public BoidValsResetter(BoidFlock _f, int _flagInt,  List<Boid> _bAra) {
 		f = _f; bAra=_bAra;
 		flagInt = _flagInt;
 		setStFlags();		
@@ -35,9 +35,9 @@ public class myBoidValsResetter implements Callable<Boolean> {
 	} 
 	
 	public void run(){	
-		for(myBoid b:bAra){	b.forces.set(myPointf.ZEROPT); b.clearNeighborMaps();	}
-		if (stFlags[doHunt]){	for(myBoid b:bAra){b.clearHuntMaps();			}}
-		if (stFlags[doSpawn]) {	for(myBoid b : bAra){	b.ptnWife.clear();}}	
+		for(Boid b:bAra){	b.forces.set(myPointf.ZEROPT); b.clearNeighborMaps();	}
+		if (stFlags[doHunt]){	for(Boid b:bAra){b.clearHuntMaps();			}}
+		if (stFlags[doSpawn]) {	for(Boid b : bAra){	b.ptnWife.clear();}}	
 	}//run()	
 	
 	@Override

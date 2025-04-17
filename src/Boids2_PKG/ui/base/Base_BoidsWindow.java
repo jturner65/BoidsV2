@@ -10,12 +10,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import Boids2_PKG.flocks.myBoidFlock;
-import Boids2_PKG.flocks.boids.myBoid;
+import Boids2_PKG.flocks.BoidFlock;
+import Boids2_PKG.flocks.boids.Boid;
 import Boids2_PKG.threadedSolvers.updaters.BoidHuntUpdater;
 import Boids2_PKG.threadedSolvers.updaters.BoidUpdate_Type;
 import Boids2_PKG.ui.Boids_UIDataUpdater;
-import Boids2_PKG.ui.myFlkVars;
+import Boids2_PKG.ui.Boid_UIFlkVars;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
 import base_Math_Objects.vectorObjs.doubles.myVector;
@@ -88,12 +88,12 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	/**
 	 * All flocks of boids
 	 */
-	public myBoidFlock[] flocks;
+	public BoidFlock[] flocks;
 	
 	/**
 	 * Array of each flock's specific flocking vars, set via UI
 	 */
-	protected myFlkVars[] flockVars;
+	protected Boid_UIFlkVars[] flockVars;
 	
 //	// structure holding boid flocks and the rendered versions of them - move to myRenderObj?
 	//5 different flocks will display nicely on side menu
@@ -411,6 +411,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	public final boolean getDoSpawn() {return privFlags.getFlag(flkSpawn);}
 	public final boolean getDoCheckHunger() {return privFlags.getFlag(flkHunger);}
 	
+	public final boolean getIsTorroidal() {return privFlags.getFlag(useTorroid);}
 	
 	/**
 	 * set up current flock configuration, based on ui selections
@@ -423,14 +424,14 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		flockToWatch = 0;
 		boidToWatch = 0;
 		setMaxUIFlockToWatch();
-		flocks = new myBoidFlock[numFlocks];
-		flockVars = new myFlkVars[numFlocks];
+		flocks = new BoidFlock[numFlocks];
+		flockVars = new Boid_UIFlkVars[numFlocks];
 		float initPredRad = MyMathUtils.min(MyMathUtils.min(Base_DispWindow.AppMgr.gridDimY, Base_DispWindow.AppMgr.gridDimZ), Base_DispWindow.AppMgr.gridDimX);
 		for(int i =0; i<flocks.length; ++i){
 			// ??? 
 			// flockVars[i] = new myFlkVars(this, flkNames[i],(float)ThreadLocalRandom.current().nextDouble(0.65, 1.0));
-			flockVars[i] = new myFlkVars(flkNames[i], flkRadMults[i], initPredRad);
-			flocks[i] = new myBoidFlock(this,flockVars[i],initNumBoids,i, numUsableThreads);
+			flockVars[i] = new Boid_UIFlkVars(flkNames[i], flkRadMults[i], initPredRad);
+			flocks[i] = new BoidFlock(this,flockVars[i],initNumBoids,i, numUsableThreads);
 		}
 		
 		int predIDX, preyIDX;
@@ -460,16 +461,16 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		if(privFlags.getFlag(flkHunt)) {
 			callHuntBoidCalcs.clear();
 			//Get each flock's boidThreadFrame, and merge them
-			List<myBoid>[][] boidThreadFramePerFlock = new List[flocks.length][];
+			List<Boid>[][] boidThreadFramePerFlock = new List[flocks.length][];
 			int maxNumFrames = -1;
 			for(int i =0; i<flocks.length; ++i){
 				boidThreadFramePerFlock[i] = flocks[i].getBoidThrdFrames();	
 				maxNumFrames = MyMathUtils.max(boidThreadFramePerFlock[i].length,maxNumFrames);
 			}
 			//Just merge each flock's thread frame.
-			List<myBoid>[] boidThrdFrames = new List[maxNumFrames];
+			List<Boid>[] boidThrdFrames = new List[maxNumFrames];
 			for (int frame = 0; frame < maxNumFrames; ++frame) {
-				boidThrdFrames[frame] = new ArrayList<myBoid>();
+				boidThrdFrames[frame] = new ArrayList<Boid>();
 				for(int i =0; i<flocks.length; ++i){
 					if(boidThreadFramePerFlock[i].length>frame) {
 						boidThrdFrames[frame].addAll(boidThreadFramePerFlock[i][frame]);
@@ -477,7 +478,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 				}
 			}
 			//Build callables
-			for(List<myBoid> subL : boidThrdFrames){callHuntBoidCalcs.add(new BoidHuntUpdater(subL));}
+			for(List<Boid> subL : boidThrdFrames){callHuntBoidCalcs.add(new BoidHuntUpdater(subL));}
 		}
 	}//buildBoidHuntCallables()
 	
@@ -592,7 +593,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 * @param flockIDX
 	 * @return
 	 */	
-	public myFlkVars getFlkVars(int flockIDX) {return flockVars[flockIDX];}
+	public Boid_UIFlkVars getFlkVars(int flockIDX) {return flockVars[flockIDX];}
 	public String getFlkName(int flockIDX) {return flkNames[flockIDX];}
 	
 	/**

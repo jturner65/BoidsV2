@@ -16,7 +16,7 @@ import base_UI_Objects.windowUI.uiObjs.base.base.GUIObj_Type;
  * @author John Turner
  *
  */
-public class myFlkVars implements IUIManagerOwner {	
+public class Boid_UIFlkVars implements IUIManagerOwner {	
 	/**
 	 * class name of instancing class
 	 */
@@ -35,13 +35,19 @@ public class myFlkVars implements IUIManagerOwner {
 	public float dampConst = .01f;				//multiplier for damping force, to slow boats down if nothing else acting on them
 	
 	public float nghbrRad,									//radius of the creatures considered to be neighbors
+				nghbrRadSq,
 				colRad,										//radius of creatures to be considered for collision avoidance
+				colRadSq,
 				velRad,										//radius of creatures to be considered for velocity matching
+				velRadSq,
 				predRad,									//radius for creature to be considered for pred/prey (to start avoiding or to chase)
+				predRadSq,
 				spawnPct,									//% chance to reproduce given the boids breech the required radius
 				spawnRad,									//distance to spawn * mass
+				spawnRadSq,
 				killPct,									//% chance to kill prey creature
-				killRad;									//distance to kill * mass (distance required to make kill attempt)
+				killRad,									//distance to kill * mass (distance required to make kill attempt)
+				killRadSq;
 	
 	public int spawnFreq, 									//# of cycles that must pass before can spawn again
 				eatFreq,								 	//# cycles w/out food until starve to death				
@@ -113,7 +119,7 @@ public class myFlkVars implements IUIManagerOwner {
 		fv_huntingSuccessPct = 13,
 		fv_huntingFrequency = 14;
 	
-	public myFlkVars(String _flockName, float _nRadMult, float _predRad) {
+	public Boid_UIFlkVars(String _flockName, float _nRadMult, float _predRad) {
 		className = this.getClass().getSimpleName();
 		typeName = _flockName;
 		
@@ -125,19 +131,25 @@ public class myFlkVars implements IUIManagerOwner {
 	//set initial values
 	private void initFlockVals(float _initRadMult, float _initSpnPct, float _initPredRad){
 		//radius to avoid pred/find prey
-		predRad = _initPredRad;						
+		predRad = _initPredRad;		
+		predRadSq = predRad * predRad;
 		nghbrRadMax = predRad*neighborMult;
 		nghbrRad = nghbrRadMax*_initRadMult;
+		nghbrRadSq = nghbrRad *nghbrRad;
 		colRad  = nghbrRad*.1f;
-		velRad  = nghbrRad*.5f; 			
+		colRadSq = colRad*colRad;
+		velRad  = nghbrRad*.5f; 	
+		velRadSq = velRad * velRad;
 		//weight multiplier for forces - centering, avoidance, velocity matching and wander
 		spawnPct = _initSpnPct;		//% chance to reproduce given the boids breech the required radius
 		spawnRad = colRad;			//distance to spawn 
+		spawnRadSq = spawnRad * spawnRad;
 		spawnFreq = 500; 		//# of cycles that must pass before can spawn again
 		//required meal time
 		eatFreq = 500; 			//# cycles w/out food until starve to death
 		setCanSprintCycles();
 		killRad = 1;						//radius to kill * mass
+		killRadSq = killRad * killRad;
 		killPct = .01f;				//% chance to kill prey creature
 
 		setDefaultWtVals(true);//init to true
@@ -214,13 +226,20 @@ public class myFlkVars implements IUIManagerOwner {
 		if(wIdx==-1){return;}
 		switch(wIdx){
 		//hierarchy - if neighbor then col and vel, if col then 
-			case 0  : {
+			case 0  : {//flock radius
 				nghbrRad = modVal(nghbrRad, .1f*nghbrRadMax, nghbrRadMax, mod);
-				fixNCVRads(true, true);				
-				break;}			//flock radius
-			case 1  : {colRad = modVal(colRad, .05f*nghbrRad, .9f*nghbrRadMax, mod);fixNCVRads(false, true);break;}	//avoid friends radius
-			case 2  : {velRad = modVal(velRad, colRad, .9f*nghbrRadMax, mod);break;}			//vel match radius
-			
+				fixNCVRads(true, true);
+				nghbrRadSq = nghbrRad * nghbrRad;			
+				break;}			
+			case 1  : {
+				colRad = modVal(colRad, .05f*nghbrRad, .9f*nghbrRadMax, mod);
+				fixNCVRads(false, true);
+				colRadSq = colRad * colRad;
+				break;}	//avoid friends radius
+			case 2  : {
+				velRad = modVal(velRad, colRad, .9f*nghbrRadMax, mod);
+				velRadSq = velRad * velRad;
+				break;}			//vel match radius			
 			case 3  : 						//3-8 are the 6 force weights
 			case 4  : 
 			case 5  : 
@@ -229,10 +248,16 @@ public class myFlkVars implements IUIManagerOwner {
 			case 8  : {modFlkWt(wIdx-3,mod*.01f);break;}						//3-8 are the 6 force weights
 			
 			case 9  : {spawnPct = modVal(spawnPct, MinSpAra[0], MaxSpAra[0], mod*.001f); break;}
-			case 10 : {spawnRad = modVal(spawnRad, MinSpAra[1], MaxSpAra[1], mod);break;}
+			case 10 : {
+				spawnRad = modVal(spawnRad, MinSpAra[1], MaxSpAra[1], mod); 
+				spawnRadSq = spawnRad*spawnRad; 
+				break;}
 			case 11 : {spawnFreq = modVal(spawnFreq, MinSpAra[2], MaxSpAra[2], (int)(mod*10));break;}
 			case 12 : {killPct = modVal(killPct, MinHuntAra[0], MaxHuntAra[0], mod*.0001f); break;}
-			case 13 : {predRad = modVal(predRad, MinHuntAra[1], MaxHuntAra[1], mod);break;}
+			case 13 : {
+				predRad = modVal(predRad, MinHuntAra[1], MaxHuntAra[1], mod);
+				predRadSq = predRad * predRad;
+				break;}
 			case 14 : {eatFreq = modVal(eatFreq, MinHuntAra[2], MaxHuntAra[2], (int)(mod*10)); setCanSprintCycles();break;}
 			default : break;
 		}//switch

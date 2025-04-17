@@ -3,7 +3,7 @@ package Boids2_PKG.flocks.boids;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ThreadLocalRandom;
 
-import Boids2_PKG.flocks.myBoidFlock;
+import Boids2_PKG.flocks.BoidFlock;
 import base_Render_Interface.IRenderInterface;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
 import base_Math_Objects.vectorObjs.floats.myPointf;
@@ -15,9 +15,9 @@ import base_UI_Objects.windowUI.base.Base_DispWindow;
  * class defining a creature object for flocking
  * @author John
  */
-public class myBoid {
+public class Boid {
 	public static GUI_AppManager AppMgr;
-	public myBoidFlock flk;
+	public BoidFlock flk;
 	
 	public int ID;
 	public static int IDcount = 0;
@@ -72,7 +72,7 @@ public class myBoid {
 	public final int gender;												
 	public static final int O_FWD = 0, O_RHT = 1,  O_UP = 2;
 		
-	public ConcurrentSkipListMap<Float, myBoid> neighbors,	//sorted by distance map of neighbors to this boid
+	public ConcurrentSkipListMap<Float, Boid> neighbors,	//sorted by distance map of neighbors to this boid
 									preyFlk,				//sorted by distance map of prey near this boid
 									ptnWife;				//sorted by distance map of potential mates near this boid
 	
@@ -81,7 +81,7 @@ public class myBoid {
 										predFlkLoc,			//boid mapped to location used for distance calc
 										preyFlkLoc;			//boid mapped to location used for distance calc
 	
-	public myBoid(myBoidFlock _f,  myPointf _coords, int _type){
+	public Boid(BoidFlock _f,  myPointf _coords, int _type){
 		ID = IDcount++;	 flk = _f; type=_type; 
 		AppMgr = Base_DispWindow.AppMgr;
 		initbd_flags();
@@ -102,9 +102,9 @@ public class myBoid {
 		O_axisAngle=new float[]{0,1,0,0};
 		oldRotAngle = 0;
 		gender = ThreadLocalRandom.current().nextInt(1000)%2;												//0 or 1
-		neighbors 	= new ConcurrentSkipListMap<Float, myBoid>();
-		preyFlk 	= new ConcurrentSkipListMap<Float, myBoid>();
-		ptnWife 	= new ConcurrentSkipListMap<Float, myBoid>();
+		neighbors 	= new ConcurrentSkipListMap<Float, Boid>();
+		preyFlk 	= new ConcurrentSkipListMap<Float, Boid>();
+		ptnWife 	= new ConcurrentSkipListMap<Float, Boid>();
 		
 		neighLoc 	= new ConcurrentSkipListMap<Float, myPointf>();
 		colliderLoc = new ConcurrentSkipListMap<Float, myPointf>();
@@ -140,7 +140,7 @@ public class myBoid {
 		if((!bd_flags[canSpawn]) || (gender==0)){return;}//need "males" who can mate
 		for(Float dist : neighbors.keySet()){
 			if (dist > spawnRadSq){return;}//returns in increasing order - can return once we're past spawn Rad Threshold
-			myBoid b = neighbors.get(dist);
+			Boid b = neighbors.get(dist);
 			if((b.gender==0)&&(b.canSpawn())){	ptnWife.put(dist, b);}
 		}
 	}//copySubSetBoidsMate

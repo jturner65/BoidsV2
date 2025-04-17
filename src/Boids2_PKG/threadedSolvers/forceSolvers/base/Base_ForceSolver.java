@@ -5,10 +5,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ThreadLocalRandom;
 
-import Boids2_PKG.flocks.myBoidFlock;
-import Boids2_PKG.flocks.boids.myBoid;
+import Boids2_PKG.flocks.BoidFlock;
+import Boids2_PKG.flocks.boids.Boid;
 import Boids2_PKG.ui.Boids_3DWin;
-import Boids2_PKG.ui.myFlkVars;
+import Boids2_PKG.ui.Boid_UIFlkVars;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
@@ -17,10 +17,10 @@ import base_UI_Objects.GUI_AppManager;
 public abstract class Base_ForceSolver implements Callable<Boolean> {
 	private GUI_AppManager AppMgr;
 	//protected flkVrs fv;
-	private myFlkVars fv;
-	protected List<myBoid> bAra;								//boid being worked on
-	protected myBoidFlock f;
-	myVectorf dampFrc;
+	private Boid_UIFlkVars fv;
+	protected List<Boid> bAra;								//boid being worked on
+	protected BoidFlock f;
+	protected myVectorf dampFrc;
 	protected float velRadSq, predRadSq, neighRadSq, colRadSq;				
 	private int flagInt;						//bitmask of current flags
 	public boolean[] stFlags; 
@@ -50,15 +50,15 @@ public abstract class Base_ForceSolver implements Callable<Boolean> {
 	
 	private boolean addFrc;
 
-	public Base_ForceSolver(GUI_AppManager _AppMgr, myBoidFlock _f, int _flagInt, boolean _isClk, List<myBoid> _bAra) {
+	public Base_ForceSolver(GUI_AppManager _AppMgr, BoidFlock _f, int _flagInt, boolean _isClk, List<Boid> _bAra) {
 		AppMgr=_AppMgr; f = _f;fv = f.flv; bAra=_bAra;
 		flagInt = _flagInt;
 		setStFlags();		
 		addFrc = _isClk;
-		velRadSq = fv.velRad * fv.velRad; 		
-		predRadSq = fv.predRad * fv.predRad;
-		neighRadSq = fv.nghbrRad* fv.nghbrRad;
-		colRadSq = fv.colRad * fv.colRad;
+		velRadSq = fv.velRadSq; 		
+		predRadSq = fv.predRadSq;
+		neighRadSq = fv.nghbrRadSq;
+		colRadSq = fv.colRadSq;
 		dampFrc = new myVectorf();
 		epsValCalc = MyMathUtils.EPS_F;
 	}	
@@ -69,11 +69,11 @@ public abstract class Base_ForceSolver implements Callable<Boolean> {
 		for(int i =0;i<stFlagIDXs.length;++i){stFlags[i] = (((flagInt>>stFlagIDXs[i]) & 1) == 1);} 
 	} 
 	
-	protected abstract myVectorf frcToCenter(myBoid b); 
-	protected abstract myVectorf frcAvoidCol(myBoid b, ConcurrentSkipListMap<Float,myPointf> otherLoc, float frcThresh);
-	protected abstract myVectorf frcVelMatch(myBoid b);
+	protected abstract myVectorf frcToCenter(Boid b); 
+	protected abstract myVectorf frcAvoidCol(Boid b, ConcurrentSkipListMap<Float,myPointf> otherLoc, float frcThresh);
+	protected abstract myVectorf frcVelMatch(Boid b);
 
-	protected myVectorf frcWander(myBoid b){ return new myVectorf((float)ThreadLocalRandom.current().nextDouble(-b.mass,b.mass),(float)ThreadLocalRandom.current().nextDouble(-b.mass,b.mass),(float)ThreadLocalRandom.current().nextDouble(-b.mass,b.mass));}			//boid independent
+	protected myVectorf frcWander(Boid b){ return new myVectorf((float)ThreadLocalRandom.current().nextDouble(-b.mass,b.mass),(float)ThreadLocalRandom.current().nextDouble(-b.mass,b.mass),(float)ThreadLocalRandom.current().nextDouble(-b.mass,b.mass));}			//boid independent
 
 	//pass arrays since 2d arrays are arrays of references in java
 	private myVectorf setFrcVal(myVectorf frc, float[] multV, float[] maxV, int idx){
@@ -90,12 +90,12 @@ public abstract class Base_ForceSolver implements Callable<Boolean> {
 	public void runMe(){
 		//if((p.flags[p.mouseClicked] ) && (!p.flags[p.shiftKeyPressed])){//add click force : overwhelms all forces - is not scaled
 		if (addFrc){
-			for(myBoid b : bAra){b.forces._add(AppMgr.mouseForceAtLoc(msClickForce, b.coords, stFlags[attractMode]));}
+			for(Boid b : bAra){b.forces._add(AppMgr.mouseForceAtLoc(msClickForce, b.coords, stFlags[attractMode]));}
 		}
 		//if(!stFlags[singleFlock]){
 		if (stFlags[flkHunt]) {//go to closest prey
 			if (stFlags[flkAvoidPred]){//avoid predators
-				for(myBoid b : bAra){
+				for(Boid b : bAra){
 					if (b.predFlkLoc.size() !=0){//avoid predators if they are nearby
 						//b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlk, b.predFlkLoc, predRadSq), fv.wts, fv.maxFrcs,fv.wFrcAvdPred));	//flee from predators
 						b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlkLoc, predRadSq), fv.wts, fv.maxFrcs,fv.wFrcAvdPred));	//flee from predators
@@ -109,7 +109,7 @@ public abstract class Base_ForceSolver implements Callable<Boolean> {
 					}					
 				}
 			}			
-			for(myBoid b : bAra){
+			for(Boid b : bAra){
 //					if ((b.preyFlkLoc.size() !=0) || (b.predFlkLoc.size() !=0)){//if prey exists
 //						System.out.println("Flock : " + f.name+" ID : " + b.ID + " preyFlock size : " + b.preyFlkLoc.size()+ " pred flk size : " + b.predFlkLoc.size());
 //					}										
@@ -129,33 +129,34 @@ public abstract class Base_ForceSolver implements Callable<Boolean> {
 //		}//if ! single flock
 		
 		if(stFlags[flkAvoidCol]){//find avoidance forces, if appropriate within f.colRad
-			for(myBoid b : bAra){
+			for(Boid b : bAra){
 				if(b.colliderLoc.size()==0){continue;}
 				//b.forces._add(setFrcVal(frcAvoidCol(b, b.colliders, b.colliderLoc, colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvd));
-				b.forces._add(setFrcVal(frcAvoidCol(b, b.colliderLoc, colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvd));
+				b.forces._add(setFrcVal(frcAvoidCol(b, b.colliderLoc, colRadSq),fv.wts, fv.maxFrcs, fv.wFrcAvd));
 			}
 		}				
 		
 		if(stFlags[flkVelMatch]){		//find velocity matching forces, if appropriate within f.colRad	
-			for(myBoid b : bAra){
+			for(Boid b : bAra){
 				if(b.neighbors.size()==0){continue;}
 				b.forces._add(setFrcVal(frcVelMatch(b),fv.wts, fv.maxFrcs,fv.wFrcVel));
 			}
 		}	
 		if(stFlags[flkCenter]){ //find attracting forces, if appropriate within f.nghbrRad	
-			for(myBoid b : bAra){	
+			for(Boid b : bAra){	
 				if(b.neighbors.size()==0){continue;}
 				b.forces._add(setFrcVal(frcToCenter(b),fv.wts, fv.maxFrcs,fv.wFrcCtr));
 			}
 		}		
 		if(stFlags[flkWander]){//brownian motion
-			for(myBoid b : bAra){	b.forces._add(setFrcVal(frcWander(b),fv.wts, fv.maxFrcs,fv.wFrcWnd));}
+			for(Boid b : bAra){	b.forces._add(setFrcVal(frcWander(b),fv.wts, fv.maxFrcs,fv.wFrcWnd));}
 		}
 		//for(myBoid b : bAra){b.forces.set(getForceAtLocation(b));}
-		if(stFlags[flkCyclesFrc]){//if cyclic forces - turn off when jellyfish boid is "contracting"
-			for(myBoid b : bAra){
+		if(stFlags[flkCyclesFrc]){
+			//if cyclic forces - turn off when jellyfish boid is "contracting"
+			for(Boid b : bAra){
 				
-				float sclAmt =0.5f+ (float) (Math.sin(MyMathUtils.TWO_PI * b.animPhase) *.5f);
+				float sclAmt = 0.5f+ (float) (Math.sin(MyMathUtils.TWO_PI * b.animPhase) *.5f);
 				b.forces._scale(b.forces.magn * sclAmt);								
 //				dampFrc.set(b.velocity);
 //				dampFrc._mult(-.1f);
@@ -174,7 +175,7 @@ public abstract class Base_ForceSolver implements Callable<Boolean> {
 			}			
 		} 
 		//damp velocity only if no cycling of force
-		for(myBoid b : bAra){	
+		for(Boid b : bAra){	
 			dampFrc.set(b.velocity);
 			dampFrc._mult(-fv.dampConst);
 			b.forces._add(dampFrc);		
