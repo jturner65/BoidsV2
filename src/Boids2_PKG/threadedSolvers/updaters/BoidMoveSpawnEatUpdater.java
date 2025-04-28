@@ -24,6 +24,8 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
 	private final float maxVelMag;
 	private final double deltaT;
 	
+	private final float[] gridDims;
+	
 	/**
 	 * Type of update to do - start with move
 	 */
@@ -35,6 +37,7 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
 		spawnPct = _f.flv.spawnPct;
 		minVelMag = _f.flv.minVelMag;
 		maxVelMag = _f.flv.maxVelMag;
+		gridDims = AppMgr.get3dGridDims();
 	}	
 
 	private void reproduce(Boid b){
@@ -202,9 +205,9 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
 	}//wrapVal
 	
 	private void setValWrapCoordsForDraw(myPointf _coords){
-		_coords.x = wrapVal(_coords.x, 0.0f, AppMgr.gridDimX);
-		_coords.y = wrapVal(_coords.y, 0.0f, AppMgr.gridDimY);
-		_coords.z = wrapVal(_coords.z, 0.0f, AppMgr.gridDimZ);
+		_coords.x = wrapVal(_coords.x, 0.0f, gridDims[0]);
+		_coords.y = wrapVal(_coords.y, 0.0f, gridDims[1]);
+		_coords.z = wrapVal(_coords.z, 0.0f, gridDims[2]);
 
 	}//findValidWrapCoords	
 

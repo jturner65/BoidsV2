@@ -426,7 +426,8 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		setMaxUIFlockToWatch();
 		flocks = new BoidFlock[numFlocks];
 		flockVars = new Boid_UIFlkVars[numFlocks];
-		float initPredRad = MyMathUtils.min(MyMathUtils.min(Base_DispWindow.AppMgr.gridDimY, Base_DispWindow.AppMgr.gridDimZ), Base_DispWindow.AppMgr.gridDimX);
+		float[] gridDims = AppMgr.get3dGridDims();
+		float initPredRad = MyMathUtils.min(gridDims);
 		for(int i =0; i<flocks.length; ++i){
 			// ??? 
 			// flockVars[i] = new myFlkVars(this, flkNames[i],(float)ThreadLocalRandom.current().nextDouble(0.65, 1.0));
@@ -523,7 +524,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	
 	//set camera to be on a boid in one of the flocks
 	public void setBoidCam(float rx, float ry, float dz){
-		flocks[flockToWatch].boidFlock.get(boidToWatch).setBoatCam(ri, rx,ry,dz);
+		flocks[flockToWatch].boidFlock.get(boidToWatch).setBoatCam(ri, rx,ry,dz, winInitVals.sceneOriginVal);
 	}
 	
 	/**
@@ -733,9 +734,6 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	
 	@Override
 	public void initDrwnTraj_Indiv(){}	
-	//overrides function in base class mseClkDisp
-	@Override
-	public void drawTraj3D(float animTimeMod,myPoint trans){}//drawTraj3D	
 	//set camera to either be global or from pov of one of the boids
 	@Override
 	protected void setCamera_Indiv(float[] camVals){

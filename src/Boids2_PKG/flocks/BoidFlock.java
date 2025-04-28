@@ -89,7 +89,9 @@ public class BoidFlock {
 	private final int numThrdsToUse;
 	protected ExecutorService th_exec;	//to access multithreading - instance from calling program
 	//flock-specific data
-	//private int flkMenuClr;//color of menu	
+	//private int flkMenuClr;//color of menu
+	
+	protected final float[] grid3dDims;
 	
 	public BoidFlock(Base_BoidsWindow _win, Boid_UIFlkVars _flv, int _numBoids, int _type, int _numThrdsToUse){
 		win=_win;	
@@ -102,8 +104,10 @@ public class BoidFlock {
 		
 		//Boids_2 _p, myBoids3DWin _win, myBoidFlock _flock, int _bodyClr, int numSpc, float _nRadMult
 		delT = (float) win.getTimeStep();
-		setNumBoids(_numBoids);
-		totMaxRad = AppMgr.gridDimX + AppMgr.gridDimY + AppMgr.gridDimZ;
+		setNumBoids(_numBoids);		
+		
+		grid3dDims = AppMgr.get3dGridDims();
+		totMaxRad = grid3dDims[0] + grid3dDims[1] + grid3dDims[2];
 		
 		callFwdBoidCalcs= new ArrayList<Callable<Boolean>>();
 		callFwdSimFutures = new ArrayList<Future<Boolean>>(); 
@@ -162,10 +166,10 @@ public class BoidFlock {
 	}//set after init - all flocks should be made
 	
 	//finds valid coordinates if torroidal walls 
-	public myPointf findValidWrapCoordsForDraw(myPointf _coords){return new myPointf(((_coords.x+AppMgr.gridDimX) % AppMgr.gridDimX),((_coords.y+AppMgr.gridDimY) % AppMgr.gridDimY),((_coords.z+AppMgr.gridDimZ) % AppMgr.gridDimZ));	}//findValidWrapCoords	
-	public void setValidWrapCoordsForDraw(myPointf _coords){_coords.set(((_coords.x+AppMgr.gridDimX) % AppMgr.gridDimX),((_coords.y+AppMgr.gridDimY) % AppMgr.gridDimY),((_coords.z+AppMgr.gridDimZ) % AppMgr.gridDimZ));	}//findValidWrapCoords	
+	public myPointf findValidWrapCoordsForDraw(myPointf _coords){return new myPointf(((_coords.x+grid3dDims[0]) % grid3dDims[0]),((_coords.y+grid3dDims[1]) % grid3dDims[1]),((_coords.z+grid3dDims[2]) % grid3dDims[2]));	}//findValidWrapCoords	
+	public void setValidWrapCoordsForDraw(myPointf _coords){_coords.set(((_coords.x+grid3dDims[0]) % grid3dDims[0]),((_coords.y+grid3dDims[1]) % grid3dDims[1]),((_coords.z+grid3dDims[2]) % grid3dDims[2]));	}//findValidWrapCoords	
 	public float calcRandLocation(float randNum1, float randNum2, float sqDim, float mathCalc, float mult){return ((sqDim/2.0f) + (randNum2 * (sqDim/3.0f) * mathCalc * mult));}
-	public myPointf randBoidStLoc(){		return new myPointf(ThreadLocalRandom.current().nextFloat()*AppMgr.gridDimX,ThreadLocalRandom.current().nextFloat()*AppMgr.gridDimY,ThreadLocalRandom.current().nextFloat()*AppMgr.gridDimZ);	}
+	public myPointf randBoidStLoc(){		return new myPointf(ThreadLocalRandom.current().nextFloat()*grid3dDims[0],ThreadLocalRandom.current().nextFloat()*grid3dDims[1],ThreadLocalRandom.current().nextFloat()*grid3dDims[2]);	}
 	
 	private void setNumBoids(int _numBoids){
 		numBoids = _numBoids;

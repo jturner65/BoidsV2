@@ -125,6 +125,7 @@ public class Boids_21_Main extends GUI_AppManager {
 		setBaseFlagToShow_runSim(true);
 		setBaseFlagToShow_singleStep(true);
 		setBaseFlagToShow_showRtSideMenu(true);		
+		setBaseFlagToShow_showStatusBar(true);	
 		setBaseFlagToShow_showDrawableCanvas(false);
 	}
 
@@ -197,6 +198,7 @@ public class Boids_21_Main extends GUI_AppManager {
 	@Override
 	protected void initOnce_Indiv() {
 		setWinVisFlag(disp3DResIDX, true);
+		setShowStatusBar(true);
 	}
 
 	@Override

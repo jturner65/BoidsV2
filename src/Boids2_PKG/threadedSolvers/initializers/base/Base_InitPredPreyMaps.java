@@ -29,7 +29,8 @@ public abstract class Base_InitPredPreyMaps implements Callable<Boolean> {
 			doSpawn 	= 1;
 	
 	protected final int[] stFlagIDXs = new int[]{Boids_3DWin.flkHunt, Boids_3DWin.flkSpawn};
-	
+
+	protected final float[] gridDims;
 	/**
 	 * 
 	 * @param _AppMgr
@@ -42,6 +43,7 @@ public abstract class Base_InitPredPreyMaps implements Callable<Boolean> {
 	 */
 	public Base_InitPredPreyMaps(GUI_AppManager _AppMgr, BoidFlock _f, BoidFlock _pry, BoidFlock _prd, Boid_UIFlkVars _fv, int _flagInt, List<Boid> _bAra) {
 		AppMgr = _AppMgr;	f = _f; pry=_pry; prd=_prd; bAra=_bAra; type = f.type;
+		gridDims = AppMgr.get3dGridDims();
 		tot2MaxRad = 2* f.totMaxRad;
 		totMaxRadSq = f.totMaxRad * f.totMaxRad;
 		//TODO set these via passed int

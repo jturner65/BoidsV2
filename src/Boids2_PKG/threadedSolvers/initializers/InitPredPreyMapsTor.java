@@ -43,7 +43,7 @@ public class InitPredPreyMapsTor extends Base_InitPredPreyMaps {
 		for(Boid chk : flock){
 			if(chk.ID == _src.ID){continue;}
 			tarLoc = new myPointf(chk.coords); srcLoc = new myPointf(_src.coords);//resetting because may be changed in calcMinSqDist
-			distSq = calcMinDistSq(_src.coords, chk.coords, srcLoc, tarLoc, AppMgr.gridDimX, AppMgr.gridDimY, AppMgr.gridDimZ, min2Dist);
+			distSq = calcMinDistSq(_src.coords, chk.coords, srcLoc, tarLoc, gridDims[0], gridDims[1], gridDims[2], min2Dist);
 			if(distSq>minDistSq){continue;}
 			//what if same dist as another? nudge distance a tiny amount. Introduces bias, FIFO		
 			distSq = chkPutDistInMap(_src.neighLoc,chk.neighLoc,distSq,srcLoc, tarLoc);
@@ -65,7 +65,7 @@ public class InitPredPreyMapsTor extends Base_InitPredPreyMaps {
 		if(_src == null){return;}//_src boid might have been eaten
 		for(Boid prey : preyflock){
 			preyLoc = new myPointf(prey.coords); srcLoc = new myPointf(_src.coords);//resetting because may be changed in calcMinSqDist
-			distSq = calcMinDistSq(_src.coords, prey.coords, srcLoc, preyLoc, AppMgr.gridDimX, AppMgr.gridDimY, AppMgr.gridDimZ, min2dist);
+			distSq = calcMinDistSq(_src.coords, prey.coords, srcLoc, preyLoc, gridDims[0], gridDims[1], gridDims[2], min2dist);
 			if(distSq>minPredDistSq){continue;}
 			//what if same dist as another? nudge distance a tiny amount. Introduces bias, FIFO		
 			distSq = chkPutDistInMap(_src.preyFlkLoc, prey.predFlkLoc, distSq, srcLoc, preyLoc);

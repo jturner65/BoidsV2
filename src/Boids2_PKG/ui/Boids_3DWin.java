@@ -36,7 +36,8 @@ public class Boids_3DWin extends Base_BoidsWindow {
 
 	@Override
 	protected void initTransform() {
-		ri.translate(-AppMgr.gridHalfDim.x, -AppMgr.gridHalfDim.y, -AppMgr.gridHalfDim.z);	
+		
+		ri.translate(winInitVals.sceneOriginVal);	
 	}
 	
 	/**

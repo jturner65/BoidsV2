@@ -212,9 +212,9 @@ public class Boid {
 	 * @param dPhi
 	 * @param dz
 	 */
-	public void setBoatCam(IRenderInterface ri,float dThet, float dPhi, float dz){
+	public void setBoatCam(IRenderInterface ri,float dThet, float dPhi, float dz, myPointf winOrigin){
 		//set eye to initially be at coords of boid, modified for world being displaced by half grid dims
-		myPointf eyeTmp = myPointf._sub(coords,AppMgr.gridHalfDim);
+		myPointf eyeTmp = myPointf._add(coords,winOrigin);
 		myVectorf tmpEyeMod = new myVectorf( orientation[O_FWD]);
 		tmpEyeMod._mult(2.0f);
 		tmpEyeMod._add(orientation[O_UP]);
