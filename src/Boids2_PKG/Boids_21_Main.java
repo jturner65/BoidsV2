@@ -191,8 +191,7 @@ public class Boids_21_Main extends GUI_AppManager {
 		dispWinFrames[wIdx] = new Boids_2DWin(ri, this, wIdx);
 
 		//specify windows that cannot be shown simultaneously here
-		initXORWins(new int[]{disp3DResIDX, disp2DResIDX}, new int[]{disp3DResIDX, disp2DResIDX});
-	
+		initXORWins(new int[]{disp3DResIDX, disp2DResIDX}, new int[]{disp3DResIDX, disp2DResIDX});	
 	}//initAllDispWindows
 
 	@Override

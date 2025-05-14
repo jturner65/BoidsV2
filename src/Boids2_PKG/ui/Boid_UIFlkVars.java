@@ -24,11 +24,7 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	/**
 	 * structure to facilitate communicating UI changes with functional code
 	 */
-	private UIDataUpdater uiUpdateData;	
-	
-	
-	
-	
+	private UIDataUpdater uiUpdateData;		
 	
 	private final float neighborMult = .5f;							//multiplier for neighborhood consideration against zone size - all rads built off this
 	
