@@ -18,7 +18,7 @@ public enum BoidUpdate_Type {
 	public static String[] getListOfTypes() {return _typeName;}
 	private static Map<Integer, BoidUpdate_Type> map = new HashMap<Integer, BoidUpdate_Type>(); 
 	static { for (BoidUpdate_Type enumV : BoidUpdate_Type.values()) { map.put(enumV.ordinal(), enumV);}}
-	public int getVal(){return ordinal();}
+	public int getOrdinal() {return ordinal();}
 	public static BoidUpdate_Type getEnumByIndex(int idx){return map.get(idx);}
 	public static BoidUpdate_Type getEnumFromValue(int idx){return map.get(idx);}
 	public static int getNumVals(){return map.size();}						//get # of values in enum

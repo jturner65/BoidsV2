@@ -32,7 +32,9 @@ public class Boids_3DWin extends Base_BoidsWindow {
 	protected void initMe_IndivPost() {}
 
 	@Override
-	protected void initDispFlags_Indiv() {}
+	protected void initDispFlags_Indiv() {
+		dispFlags.setDrawMseEdge(true);
+	}
 
 	@Override
 	protected void initTransform() {

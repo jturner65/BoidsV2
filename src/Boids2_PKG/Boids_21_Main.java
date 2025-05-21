@@ -179,7 +179,7 @@ public class Boids_21_Main extends GUI_AppManager {
 					new int[]{180,180,180,255},new int[]{100,100,100,255},
 					new int[]{0,0,0,200},new int[]{255,255,255,255}});
 				
-		dispWinFrames[wIdx] = new Boids_3DWin(ri, this, wIdx);
+		setDispWindow(wIdx, new Boids_3DWin(ri, this, wIdx));
 		
 		wIdx = disp2DResIDX;
 		//setInitDispWinVals(wIdx, _dimOpen, _dimClosed,new boolean[]{false,false,true,false}, new int[]{50,40,20,255}, new int[]{255,255,255,255},new int[]{180,180,180,255},new int[]{100,100,100,255});
@@ -188,7 +188,7 @@ public class Boids_21_Main extends GUI_AppManager {
 					new int[]{180,180,180,255}, new int[]{100,100,100,255},
 					new int[]{0,0,0,200},new int[]{255,255,255,255}});
 				
-		dispWinFrames[wIdx] = new Boids_2DWin(ri, this, wIdx);
+		setDispWindow(wIdx, new Boids_2DWin(ri, this, wIdx));
 
 		//specify windows that cannot be shown simultaneously here
 		initXORWins(new int[]{disp3DResIDX, disp2DResIDX}, new int[]{disp3DResIDX, disp2DResIDX});	
@@ -222,7 +222,7 @@ public class Boids_21_Main extends GUI_AppManager {
 			case '9' : {break;}
 			case '0' : { break;}							
 			case ' ' : {toggleSimIsRunning(); break;}							//run sim
-			case 'f' : {dispWinFrames[curFocusWin].setInitCamView();break;}//reset camera
+			case 'f' : {getCurFocusDispWindow().setInitCamView();break;}//reset camera
 			case 'a' :
 			case 'A' : {toggleSaveAnim();break;}						//start/stop saving every frame for making into animation
 			case 's' :
