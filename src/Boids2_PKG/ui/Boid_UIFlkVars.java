@@ -21,6 +21,10 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	 * class name of instancing class
 	 */
 	protected final String className;
+	
+	public final int ID;
+	//Counter of how many windows are built in the application. Used to specify unique ID for each new window
+	private static int objCnt = 0;
 	/**
 	 * structure to facilitate communicating UI changes with functional code
 	 */
@@ -28,7 +32,7 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	
 	private final float neighborMult = .5f;							//multiplier for neighborhood consideration against zone size - all rads built off this
 	
-	public float dampConst = .01f;				//multiplier for damping force, to slow boats down if nothing else acting on them
+	public float dampConst = .01f;							//multiplier for damping force, to slow boats down if nothing else acting on them
 	
 	public float nghbrRad,									//radius of the creatures considered to be neighbors
 				nghbrRadSq,
@@ -116,6 +120,7 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 		fv_huntingFrequency = 14;
 	
 	public Boid_UIFlkVars(String _flockName, float _nRadMult, float _predRad) {
+		ID = objCnt++;
 		className = this.getClass().getSimpleName();
 		typeName = _flockName;
 		
@@ -124,7 +129,12 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	
 	public float getInitMass(){return (float)(massForType[0] + (massForType[1] - massForType[0])*ThreadLocalRandom.current().nextFloat());}
 	
-	//set initial values
+	/**
+	 * 
+	 * @param _initRadMult
+	 * @param _initSpnPct
+	 * @param _initPredRad
+	 */
 	private void initFlockVals(float _initRadMult, float _initSpnPct, float _initPredRad){
 		//radius to avoid pred/find prey
 		predRad = _initPredRad;		
@@ -315,7 +325,8 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 		String[] resAra = getInfoForFlkVars("Flock Vars for ");
 		return Arrays.toString(resAra);
 	}
-
+	@Override
+	public final int getID() {return ID;}
 	@Override
 	public String getClassName() {return className;	}
 	/**

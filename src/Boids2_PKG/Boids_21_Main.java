@@ -6,7 +6,6 @@ import Boids2_PKG.ui.Boids_2DWin;
 import Boids2_PKG.ui.Boids_3DWin;
 import base_Render_Interface.IRenderInterface;
 import base_UI_Objects.GUI_AppManager;
-import base_UI_Objects.windowUI.sidebar.SidebarMenu;
 import base_Utils_Objects.io.messaging.MsgCodes;
 
 /**
@@ -261,18 +260,6 @@ public class Boids_21_Main extends GUI_AppManager {
 			case disp3DResIDX 		: {return menuRectVals;}
 			case disp2DResIDX 		: {return menuRectVals;}
 			default :  return menuRectVals;
-		}
-	}
-
-	@Override
-	public void handleShowWin(int btn, int val, boolean callFlags) {
-		if(!callFlags){//called from setflags - only sets button state in UI to avoid infinite loop
-			setMenuBtnState(SidebarMenu.btnShowWinIdx,btn, val);
-		} else {//called from clicking on buttons in UI
-			//val is btn state before transition 
-			boolean bVal = (val == 1?  false : true);
-			//each entry in this array should correspond to a clickable window
-			setWinVisFlag(winFlagsXOR[btn], bVal);
 		}
 	}
 	
