@@ -8,7 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import base_Math_Objects.MyMathUtils;
 import base_UI_Objects.windowUI.base.IUIManagerOwner;
 import base_UI_Objects.windowUI.uiData.UIDataUpdater;
-import base_UI_Objects.windowUI.uiObjs.base.base.GUIObj_Type;
+import base_UI_Objects.windowUI.uiObjs.base.GUIObj_Type;
 
 
 /**
@@ -176,6 +176,24 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 		boolean[] formatFlagsAra = new boolean[] {true, true, true};
 		
 		return new Object[] {minMaxMod, initVal, UI_Labels[idx], GUIObj_Type.FloatVal, cfgFlagsAra, formatFlagsAra};
+	}
+	
+	
+	/**
+	 * UIObjectManager will call this.
+	 */
+	@Override
+	public void initOwnerStateDispFlags() {
+		//TODO
+	}
+	/**
+	 * UI Manager access to this function to retrieve appropriate initial uiClkCoords.
+	 * @return
+	 */
+	@Override
+	public final float[] getOwnerParentWindowUIClkCoords() {
+		//TODO
+		return new float[0];
 	}
 	
 	/**

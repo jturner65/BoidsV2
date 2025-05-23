@@ -515,7 +515,6 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	public void drawCustMenuObjs(float animTimeMod){
 		ri.pushMatState();	
 		//all flock menu drawing within push mat call
-		ri.translate(5,custMenuOffset+AppMgr.getTextHeightOffset());
 		for(int i =0; i<flocks.length; ++i){
 			drawFlockMenu(i, flocks[i].numBoids);
 		}		
