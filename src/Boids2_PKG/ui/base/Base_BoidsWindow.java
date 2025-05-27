@@ -22,12 +22,12 @@ import base_Math_Objects.vectorObjs.doubles.myVector;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Render_Interface.IRenderInterface;
 import base_UI_Objects.GUI_AppManager;
-import base_UI_Objects.my_procApplet;
 import base_UI_Objects.renderedObjs.Boat_RenderObj;
 import base_UI_Objects.renderedObjs.JFish_RenderObj;
 import base_UI_Objects.renderedObjs.Sphere_RenderObj;
 import base_UI_Objects.renderedObjs.base.Base_RenderObj;
 import base_UI_Objects.renderedObjs.base.RenderObj_ClrPalette;
+import base_UI_Objects.renderer.ProcessingRenderer;
 import base_UI_Objects.windowUI.base.Base_DispWindow;
 import base_UI_Objects.windowUI.drawnTrajectories.DrawnSimpleTraj;
 import base_UI_Objects.windowUI.uiData.UIDataUpdater;
@@ -327,7 +327,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		bdgSizeX = new float[maxNumFlocks];
 		mnBdgBox = new myPointf[maxNumFlocks][];
 		for(int i=0; i<maxNumFlocks; ++i){	
-			flkSails[i] = ((my_procApplet) ri).loadImage(flkNames[i]+".jpg");
+			flkSails[i] = ((ProcessingRenderer) ri).loadImage(flkNames[i]+".jpg");
 
 			float scale = flkSails[i].width / (1.0f*flkSails[i].height);
 			bdgSizeX[i] = bdgSizeX_base * scale; 
@@ -494,8 +494,8 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	
 	public void drawMenuBadge(myPointf[] ara, myPointf[] uvAra, int type) {
 		ri.gl_beginShape(); 
-		((my_procApplet)ri).texture(flkSails[type]);
-		for(int i=0;i<ara.length;++i){	((my_procApplet)ri).vTextured(ara[i], uvAra[i].y, uvAra[i].x);} 
+		((ProcessingRenderer)ri).texture(flkSails[type]);
+		for(int i=0;i<ara.length;++i){	((ProcessingRenderer)ri).vTextured(ara[i], uvAra[i].y, uvAra[i].x);} 
 		ri.gl_endShape(true);
 	}//
 		
@@ -536,7 +536,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 			case drawBoids			    : {break;}
 			case drawScaledBoids		: {break;}		
 			case clearPath			    : {
-				//TODO this needs to change how it works so that initialization doesn't call my_procApplet before it is ready
+				//TODO this needs to change how it works so that initialization doesn't call ProcessingRenderer before it is ready
 				//ri.setClearBackgroundEveryStep( !val);//turn on or off background clearing in main window
 				break;}
 			case showVel			    : {break;}
