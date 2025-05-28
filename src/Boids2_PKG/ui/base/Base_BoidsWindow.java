@@ -216,26 +216,26 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	@Override
 	public int initAllUIButtons(ArrayList<Object[]> tmpBtnNamesArray){
 										//needs to be in order of privModFlgIdxs
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Debugging", "Enable Debug"}, Base_BoolFlags.debugIDX));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Showing Frame", "Show Frame"}, showBoidFrame));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Drawing Boids", "Drawing Spheres"}, drawBoids));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Scale Boids' Sizes", "Boids Same Size"}, drawScaledBoids));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Showing Boid Path", "Hiding Boid Path"}, clearPath));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Showing Vel Vectors", "Hiding Vel Vectors"}, showVel));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"DBG : List Flk Mmbrs", "DBG : Hide Flk Mmbrs"}, showFlkMbrs));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Mouse Click Attracts", "Mouse Click Repels"}, attractMode));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Ctr Force ON", "Ctr Force OFF"}, flkCenter));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Vel Match ON", "Vel Match OFF"}, flkVelMatch));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Col Avoid ON", "Col Avoid OFF"}, flkAvoidCol));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Wander ON", "Wander OFF"}, flkWander));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Pred Avoid ON", "Pred Avoid OFF"}, flkAvoidPred));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Hunting ON", "Hunting OFF"}, flkHunt));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Hunger ON", "Hunger OFF"}, flkHunger));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Spawning ON", "Spawning OFF"}, flkSpawn));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Orig Funcs ON", "Orig Funcs OFF"}, useOrigDistFuncs));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Tor Bnds ON", "Tor Bnds OFF"}, useTorroid));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Mod DelT By FRate", "Fixed DelT"}, modDelT));
-		tmpBtnNamesArray.add(uiObjInitAra_Btn(new String[] {"Boid-eye View", "Global View"}, viewFromBoid));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Debugging", "Enable Debug"}, Base_BoolFlags.debugIDX));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Showing Frame", "Show Frame"}, showBoidFrame));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Drawing Boids", "Drawing Spheres"}, drawBoids));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Scale Boids' Sizes", "Boids Same Size"}, drawScaledBoids));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Showing Boid Path", "Hiding Boid Path"}, clearPath));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Showing Vel Vectors", "Hiding Vel Vectors"}, showVel));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"DBG : List Flk Mmbrs", "DBG : Hide Flk Mmbrs"}, showFlkMbrs));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Mouse Click Attracts", "Mouse Click Repels"}, attractMode));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Ctr Force ON", "Ctr Force OFF"}, flkCenter));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Vel Match ON", "Vel Match OFF"}, flkVelMatch));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Col Avoid ON", "Col Avoid OFF"}, flkAvoidCol));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Wander ON", "Wander OFF"}, flkWander));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Pred Avoid ON", "Pred Avoid OFF"}, flkAvoidPred));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Hunting ON", "Hunting OFF"}, flkHunt));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Hunger ON", "Hunger OFF"}, flkHunger));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Spawning ON", "Spawning OFF"}, flkSpawn));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Orig Funcs ON", "Orig Funcs OFF"}, useOrigDistFuncs));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Tor Bnds ON", "Tor Bnds OFF"}, useTorroid));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Mod DelT By FRate", "Fixed DelT"}, modDelT));
+		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Boid-eye View", "Global View"}, viewFromBoid));
 		
 		return initAllPrivBtns_Indiv(tmpBtnNamesArray);
 	
@@ -272,10 +272,10 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		//want # of usable background threads.  Leave 2 for primary process (and potential draw loop)
 		numUsableThreads = getNumThreadsAvailable() - 2;
 		//set if this is multi-threaded capable - need more than 1 outside of 2 primary threads (i.e. only perform multithreaded calculations if 4 or more threads are available on host)
-		privFlags.setFlag(isMTCapableIDX, numUsableThreads>1);
+		uiMgr.setPrivFlag(isMTCapableIDX, numUsableThreads>1);
 		
 		//th_exec = Executors.newCachedThreadPool();// Executors.newFixedThreadPool(numUsableThreads);
-		if(privFlags.getFlag(isMTCapableIDX)) {
+		if(uiMgr.getPrivFlag(isMTCapableIDX)) {
 			//th_exec = Executors.newFixedThreadPool(numUsableThreads+1);//fixed is better in that it will not block on the draw - this seems really slow on the prospect mapping
 			th_exec = Executors.newCachedThreadPool();// this is performing much better even though it is using all available threads
 		} else {//setting this just so that it doesn't fail somewhere - won't actually be exec'ed
@@ -389,10 +389,10 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 * @param val
 	 */
 	public final void setFlocking(boolean val){
-		privFlags.setFlag(flkCenter, val);
-		privFlags.setFlag(flkVelMatch, val);
-		privFlags.setFlag(flkAvoidCol, val);
-		privFlags.setFlag(flkWander, val);
+		uiMgr.setPrivFlag(flkCenter, val);
+		uiMgr.setPrivFlag(flkVelMatch, val);
+		uiMgr.setPrivFlag(flkAvoidCol, val);
+		uiMgr.setPrivFlag(flkWander, val);
 	}
 	/**
 	 * turn on/off all hunting control boolean variables
@@ -401,17 +401,17 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	public final void setHunting(boolean val){
 		//should generally only be enabled if multiple flocks present
 		//TODO set up to enable single flock to cannibalize
-		privFlags.setFlag(flkAvoidPred, val);
-		privFlags.setFlag(flkHunt, val);
-		privFlags.setFlag(flkHunger, val);
-		privFlags.setFlag(flkSpawn, val);		
+		uiMgr.setPrivFlag(flkAvoidPred, val);
+		uiMgr.setPrivFlag(flkHunt, val);
+		uiMgr.setPrivFlag(flkHunger, val);
+		uiMgr.setPrivFlag(flkSpawn, val);		
 	}//setHunting
 
-	public final boolean getDoHunt() {return privFlags.getFlag(flkHunt);}
-	public final boolean getDoSpawn() {return privFlags.getFlag(flkSpawn);}
-	public final boolean getDoCheckHunger() {return privFlags.getFlag(flkHunger);}
+	public final boolean getDoHunt() {return uiMgr.getPrivFlag(flkHunt);}
+	public final boolean getDoSpawn() {return uiMgr.getPrivFlag(flkSpawn);}
+	public final boolean getDoCheckHunger() {return uiMgr.getPrivFlag(flkHunger);}
 	
-	public final boolean getIsTorroidal() {return privFlags.getFlag(useTorroid);}
+	public final boolean getIsTorroidal() {return uiMgr.getPrivFlag(useTorroid);}
 	
 	/**
 	 * set up current flock configuration, based on ui selections
@@ -459,7 +459,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 */
 	@SuppressWarnings("unchecked")
 	private void buildBoidHuntCallables() {
-		if(privFlags.getFlag(flkHunt)) {
+		if(uiMgr.getPrivFlag(flkHunt)) {
 			callHuntBoidCalcs.clear();
 			//Get each flock's boidThreadFrame, and merge them
 			List<Boid>[][] boidThreadFramePerFlock = new List[flocks.length][];
@@ -490,7 +490,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 * Retrieve the first 32 flag bits from the privFlags structure, used to hold all the flocking menu flags
 	 * @return
 	 */
-	public int getFlkFlagsInt(){		return privFlags.getFlagsAsInt(0);} //get first 32 flag settings
+	public int getFlkFlagsInt(){		return uiMgr.getPrivFlagAsInt(0);} //get first 32 flag settings
 	
 	public void drawMenuBadge(myPointf[] ara, myPointf[] uvAra, int type) {
 		ri.gl_beginShape(); 
@@ -586,7 +586,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 * Whether we're showing the flock members 
 	 * @return
 	 */
-	public final boolean getShowFlkMbrs() {return privFlags.getFlag(showFlkMbrs);}
+	public final boolean getShowFlkMbrs() {return uiMgr.getPrivFlag(showFlkMbrs);}
 	
 	/**
 	 * Return the current flock vars for the flock specified by flockIDX
@@ -621,12 +621,12 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		tmpListObjVals.put(gIDX_BoidType, boidTypeNames);
 		tmpListObjVals.put(gIDX_FlockToObs, flkNames);
 			
-		tmpUIObjArray.put(gIDX_TimeStep, uiObjInitAra_Float(new double[]{0,1.0f,.0001f}, curTimeStep, "Time Step"));   			                                                            
-		tmpUIObjArray.put(gIDX_NumFlocks, uiObjInitAra_Int(new double[]{1,maxNumFlocks,1.0f}, 1.0, "# of Flocks"));   				                                                        
-		tmpUIObjArray.put(gIDX_BoidType, uiObjInitAra_List(new double[]{0,boidTypeNames.length-1,1.1f}, 0.0, "Flock Species"));   	                                                                    
-		tmpUIObjArray.put(gIDX_FlockToObs, uiObjInitAra_List(new double[]{0,flkNames.length-1,1.1f}, 0.0, "Flock To Watch"));   	                                                                    
-		tmpUIObjArray.put(gIDX_ModNumBoids, uiObjInitAra_Int(new double[]{-50,50,1.0f}, 0.0, "Modify Flock Pop"));   				                                                        
-		tmpUIObjArray.put(gIDX_BoidToObs, uiObjInitAra_Int(new double[]{0,initNumBoids-1,1.0f}, 0.0, "Boid To Board"));   			
+		tmpUIObjArray.put(gIDX_TimeStep, uiMgr.uiObjInitAra_Float(new double[]{0,1.0f,.0001f}, curTimeStep, "Time Step"));   			                                                            
+		tmpUIObjArray.put(gIDX_NumFlocks, uiMgr.uiObjInitAra_Int(new double[]{1,maxNumFlocks,1.0f}, 1.0, "# of Flocks"));   				                                                        
+		tmpUIObjArray.put(gIDX_BoidType, uiMgr.uiObjInitAra_List(new double[]{0,boidTypeNames.length-1,1.1f}, 0.0, "Flock Species"));   	                                                                    
+		tmpUIObjArray.put(gIDX_FlockToObs, uiMgr.uiObjInitAra_List(new double[]{0,flkNames.length-1,1.1f}, 0.0, "Flock To Watch"));   	                                                                    
+		tmpUIObjArray.put(gIDX_ModNumBoids, uiMgr.uiObjInitAra_Int(new double[]{-50,50,1.0f}, 0.0, "Modify Flock Pop"));   				                                                        
+		tmpUIObjArray.put(gIDX_BoidToObs, uiMgr.uiObjInitAra_Int(new double[]{0,initNumBoids-1,1.0f}, 0.0, "Boid To Board"));   			
 		setupGUIObjsAras_Indiv(tmpUIObjArray, tmpListObjVals);
 	}
 	/**
@@ -637,8 +637,8 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	protected abstract void setupGUIObjsAras_Indiv(TreeMap<Integer, Object[]> tmpUIObjArray, TreeMap<Integer, String[]> tmpListObjVals);
 	
 	//when flockToWatch changes, reset maxBoidToWatch value ((Base_NumericGUIObj)guiObjs_Numeric[gIDX_BoidToObs])
-	private void setMaxUIBoidToWatch(int flkIdx){setNewUIMaxVal(gIDX_BoidToObs,flocks[flkIdx].boidFlock.size()-1);setUIWinVals(gIDX_BoidToObs);}	
-	private void setMaxUIFlockToWatch(){setNewUIMaxVal(gIDX_FlockToObs, numFlocks - 1);	setUIWinVals(gIDX_FlockToObs);}		
+	private void setMaxUIBoidToWatch(int flkIdx){uiMgr.setNewUIMaxVal(gIDX_BoidToObs,flocks[flkIdx].boidFlock.size()-1);uiMgr.setUIWinVals(gIDX_BoidToObs);}	
+	private void setMaxUIFlockToWatch(){uiMgr.setNewUIMaxVal(gIDX_FlockToObs, numFlocks - 1);	uiMgr.setUIWinVals(gIDX_FlockToObs);}		
 	
 	/**
 	 * Called if int-handling guiObjs_Numeric[UIidx] (int or list) has new data which updated UI adapter. 
@@ -657,7 +657,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 				break;}
 			case gIDX_BoidType		:{
 				currRndrTmplPerFlockAra = cmplxRndrTmpls.get(boidTypeNames[ival]);
-				privFlags.setFlag(flkCyclesFrc, boidCyclesFrc[ival]);//set whether this flock cycles animation/force output
+				uiMgr.setPrivFlag(flkCyclesFrc, boidCyclesFrc[ival]);//set whether this flock cycles animation/force output
 				setCurrPerFlockRenderTemplate(); 
 				break;}
 			case gIDX_FlockToObs 	:{
@@ -729,14 +729,14 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	/**
 	 * Once boid count has been modified, reset mod UI obj
 	 */
-	public void clearModNumBoids() {	resetUIObj(gIDX_ModNumBoids);}
+	public void clearModNumBoids() {	uiMgr.resetUIObj(gIDX_ModNumBoids);}
 	
 	@Override
 	public void initDrwnTraj_Indiv(){}	
 	//set camera to either be global or from pov of one of the boids
 	@Override
 	protected void setCamera_Indiv(float[] camVals){
-		if (privFlags.getFlag(viewFromBoid)){	setBoidCam(getCamRotX(),getCamRotY(),getCamDist());		}
+		if (uiMgr.getPrivFlag(viewFromBoid)){	setBoidCam(getCamRotX(),getCamRotY(),getCamDist());		}
 		else {						setCameraBase(camVals);	}
 	}
 	
@@ -747,15 +747,15 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		ri.pushMatState();
 		initTransform();
 		
-		if (privFlags.getFlag(showBoidFrame)){			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidFrames(ri);}}
-		if (privFlags.getFlag(showVel)){				for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidVels(ri);}}
+		if (uiMgr.getPrivFlag(showBoidFrame)){			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidFrames(ri);}}
+		if (uiMgr.getPrivFlag(showVel)){				for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidVels(ri);}}
 
-		if(privFlags.getFlag(drawBoids)){//broken apart to minimize if checks - only potentially 2 per flock per frame instead of thousands
-			if (privFlags.getFlag(drawScaledBoids)) {	for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsScaled(ri);}}				
+		if(uiMgr.getPrivFlag(drawBoids)){//broken apart to minimize if checks - only potentially 2 per flock per frame instead of thousands
+			if (uiMgr.getPrivFlag(drawScaledBoids)) {	for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsScaled(ri);}}				
 			else {										for(int i =0; i<flocks.length; ++i){flocks[i].drawBoids(ri);}}
 		} else {
 			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsAsBall(ri);  }
-			if(privFlags.getFlag(showFlkMbrs)){			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsFlkMmbrs(ri);}}
+			if(uiMgr.getPrivFlag(showFlkMbrs)){			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsFlkMmbrs(ri);}}
 		}	
 		ri.popMatState();
 	}//drawMe
@@ -776,20 +776,20 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		//TODO verify not clicking in menu
 		boolean checkForce = (AppMgr.mouseIsClicked()) && (!AppMgr.shiftIsPressed());
 		//Derive forces
-		if(privFlags.getFlag(useOrigDistFuncs)){for(int i =0; i<flocks.length; ++i){flocks[i].moveBoidsOrigMultTH(checkForce);}} 
+		if(uiMgr.getPrivFlag(useOrigDistFuncs)){for(int i =0; i<flocks.length; ++i){flocks[i].moveBoidsOrigMultTH(checkForce);}} 
 		else {					for(int i =0; i<flocks.length; ++i){flocks[i].moveBoidsLinMultTH(checkForce);}}
 		//Apply forces and derive velocity and location updates
 		for(int i =0; i<flocks.length; ++i){flocks[i].updateBoidState(BoidUpdate_Type.Move);}
 		//Solve for spawning	
-		if(privFlags.getFlag(flkSpawn)) {for(int i =0; i<flocks.length; ++i){flocks[i].updateBoidState(BoidUpdate_Type.Spawn);}}
+		if(uiMgr.getPrivFlag(flkSpawn)) {for(int i =0; i<flocks.length; ++i){flocks[i].updateBoidState(BoidUpdate_Type.Spawn);}}
 		//solve for hunt
 		//TODO this needs to be organized across all flocks so that one flock does not get first dibs on hunting
-		if(privFlags.getFlag(flkHunt)) {
+		if(uiMgr.getPrivFlag(flkHunt)) {
 			//invoke callables		
 			try {callHuntFutures = th_exec.invokeAll(callHuntBoidCalcs);for(Future<Boolean> f: callHuntFutures) {f.get();}} catch (Exception e) {			e.printStackTrace();}			
 		}
 		//solve for hunger
-		if(privFlags.getFlag(flkHunger)) {for(int i =0; i<flocks.length; ++i){flocks[i].updateBoidState(BoidUpdate_Type.Hunger);}}
+		if(uiMgr.getPrivFlag(flkHunger)) {for(int i =0; i<flocks.length; ++i){flocks[i].updateBoidState(BoidUpdate_Type.Hunger);}}
 		
 		//Finish up - remove dead boids, add newborns
 		for(int i =0; i<flocks.length; ++i){flocks[i].finalizeBoids();setMaxUIBoidToWatch(i);}
@@ -844,7 +844,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	protected boolean hndlMouseClick_Indiv(int mouseX, int mouseY, myPoint mseClckInWorld, int mseBtn) {
 		boolean res = false;
 		//not in ui buttons, check if in flk vars region
-		if((mouseX < uiClkCoords[2]) && (mouseY >= custMenuOffset)){
+		if((mouseX < uiMgr.getUIClkCoords()[2]) && (mouseY >= custMenuOffset)){
 			float relY = mouseY - custMenuOffset;
 			flkVarIDX = Math.round(relY) / 100;
 			//msgObj.dispInfoMessage(className, "hndlMouseClickIndiv","ui drag in UI coords : [" + mouseX + "," + mouseY + "; rel Y : " +relY + " ] flkIDX : " + flkVarIDX);

@@ -164,7 +164,9 @@ public class Boid {
 		bd_flags[canSpawn]=(spawnCntr<=0);
 	}//updateBoidCounters	
 	
-	//update hunger counters
+	/**
+	 * update hunger counters
+	 */
 	public void updateHungerCntr(){
 		--starveCntr;
 		if (starveCntr<=0){killMe("Starvation"); return;}//if can get hungry then can starve to death
@@ -184,22 +186,33 @@ public class Boid {
 	 * @return
 	 */
 	public boolean isDead() {return bd_flags[isDead];}
-	//init bd_flags state machine
+	/**
+	 * init bd_flags state machine
+	 */
 	public void initbd_flags(){bd_flags = new boolean[NumBoidFlags];for(int i=0;i<NumBoidFlags;++i){bd_flags[i]=false;}}
 	
-	//initialize newborn velocity, forces, and orientation
+	/**
+	 * initialize newborn velocity, forces, and orientation
+	 * @param bVelFrc
+	 */
 	public void initNewborn(myVectorf[] bVelFrc){
 		velocity.set(bVelFrc[0]);
 		forces.set(bVelFrc[1]);
 	}	
-	//align the boid along the current orientation matrix
+	/**
+	 * align the boid along the current orientation matrix
+	 * @param ri
+	 */
 	private void alignBoid(IRenderInterface ri){
 		rotVec.set(O_axisAngle[1],O_axisAngle[2],O_axisAngle[3]);
 		float rotAngle = (float) (oldRotAngle + ((O_axisAngle[0]-oldRotAngle) * flk.getDeltaT()));
 		ri.rotate(rotAngle,rotVec.x, rotVec.y, rotVec.z);
 		oldRotAngle = rotAngle;
 	}//alignBoid	
-	//kill this boid
+	/**
+	 * kill this boid
+	 * @param cause
+	 */
 	public void killMe(String cause){
 		if(AppMgr.isDebugMode()){AppMgr.msgObj.dispConsoleDebugMessage("myBoid", "killMe", "Boid : " +ID+" killed by : " + cause);}
 		bd_flags[isDead]=true;
@@ -255,7 +268,18 @@ public class Boid {
 			drawTmpl(ri);
 		ri.popMatState();
 		animIncr(velocity.magn*.1f);
-	}//drawme	
+	}//drawMeScaled
+	
+	/**
+	 * Draw this boids past locations 
+	 * @param ri
+	 */
+	public void drawMyTrajectory(IRenderInterface ri){
+		ri.pushMatState();
+		ri.translate(coords.x,coords.y,coords.z);		//move to location
+		
+		ri.popMatState();	
+	}
 	
 	/**
 	 * Only called when animated object is drawn
