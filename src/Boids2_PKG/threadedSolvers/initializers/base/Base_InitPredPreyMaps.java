@@ -19,9 +19,9 @@ public abstract class Base_InitPredPreyMaps implements Callable<Boolean> {
 	protected GUI_AppManager AppMgr;
 	
 	protected List<Boid> bAra;								//boid ara being worked on
-	public BoidFlock f, pry, prd;
+	public BoidFlock flock, pry, prd;
 	protected int flagInt;						//bitmask of current flags
-	protected int type, nearCount;
+	protected int nearCount;
 	protected float predRad, mass, totMaxRadSq,tot2MaxRad, minNghbDistSq, minPredDistSq, min2DistPrey,min2DistNghbr, colRadSq, spawnRadSq;
 	protected boolean[] stFlags; // tor, doHunt, doSpawn;							//is torroidal
 	protected final int 		
@@ -41,11 +41,11 @@ public abstract class Base_InitPredPreyMaps implements Callable<Boolean> {
 	 * @param _flagInt
 	 * @param _bAra
 	 */
-	public Base_InitPredPreyMaps(GUI_AppManager _AppMgr, BoidFlock _f, BoidFlock _pry, BoidFlock _prd, Boid_UIFlkVars _fv, int _flagInt, List<Boid> _bAra) {
-		AppMgr = _AppMgr;	f = _f; pry=_pry; prd=_prd; bAra=_bAra; type = f.type;
+	public Base_InitPredPreyMaps(GUI_AppManager _AppMgr, BoidFlock _flk, BoidFlock _pry, BoidFlock _prd, Boid_UIFlkVars _fv, int _flagInt, List<Boid> _bAra) {
+		AppMgr = _AppMgr;	flock = _flk; pry=_pry; prd=_prd; bAra=_bAra;
 		gridDims = AppMgr.get3dGridDims();
-		tot2MaxRad = 2* f.totMaxRad;
-		totMaxRadSq = f.totMaxRad * f.totMaxRad;
+		tot2MaxRad = 2* flock.totMaxRad;
+		totMaxRadSq = flock.totMaxRad * flock.totMaxRad;
 		//TODO set these via passed int
 		flagInt = _flagInt;
 		setStFlags();
@@ -173,7 +173,7 @@ public abstract class Base_InitPredPreyMaps implements Callable<Boolean> {
 		
 	public void run(){	
 		for(Boid b : bAra){	findMyNeighbors(b);}										//find neighbors to each boid		
-		if(stFlags[doHunt] && (f!=pry)){												//f==pry means only 1 flock
+		if(stFlags[doHunt] && (flock!=pry)){												//flock==pry means only 1 flock
 			for(Boid b : bAra){if(b.isHungry()){srchForPrey(b, pry.boidFlock);}}		//find nearby prey to each boid		
 		}
 		if (stFlags[doSpawn]) {	for(Boid b : bAra){	if(b.canSpawn()){	b.copySubSetBoidsMate(spawnRadSq);	}}	}

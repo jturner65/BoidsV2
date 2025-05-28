@@ -22,7 +22,7 @@ public class LinearForceSolver extends Base_ForceSolver{
 		myVectorf frcVec = new myVectorf();
 		for(Float bd_k : b.neighLoc.keySet()){	
 			wtDist = bd_k;
-			frcVec._add(myVectorf._mult(myVectorf._sub(b.neighLoc.get(bd_k), b.coords), wtDist));
+			frcVec._add(myVectorf._mult(myVectorf._sub(b.neighLoc.get(bd_k), b.getCoords()), wtDist));
 			wtSqSum += wtDist;	
 		}
 		frcVec._div(wtSqSum);				
@@ -35,7 +35,7 @@ public class LinearForceSolver extends Base_ForceSolver{
 		myVectorf frcVec = new myVectorf(), tmpVec;
 		float subRes;
 		for(Float bd_k : otherLoc.keySet()){	//already limited to those closer than colRadSq
-			tmpVec = myVectorf._sub(b.coords,otherLoc.get(bd_k));
+			tmpVec = myVectorf._sub(b.getCoords(),otherLoc.get(bd_k));
 			subRes = (frcThresh - bd_k); 	//old
 			frcVec._add(myVectorf._mult(tmpVec, subRes ));
 		}

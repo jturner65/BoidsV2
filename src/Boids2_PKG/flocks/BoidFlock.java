@@ -68,13 +68,24 @@ public class BoidFlock {
 	 */
 	public final float  nearPct = .4f;
 	
-	public float totMaxRad;						//max search distance for neighbors
-	public int nearCount;						//# of creatures required to have a neighborhood - some % of total # of creatures, or nearMinCnt, whichever is larger
-	public final int nearMinCnt = 5;			//smallest neighborhood size allowed -> 5 or total # of creatures, whichever is smaller
+	/**
+	 * max search distance for neighbors
+	 */
+	public float totMaxRad;
+	/**
+	 * # of creatures required to have a neighborhood - some % of total # of creatures, or nearMinCnt, whichever is larger
+	 */
+	public int nearCount;
+	/**
+	 * TODO : smallest neighborhood size allowed -> 5 or total # of creatures, whichever is smaller
+	 */
+	private final int nearMinCnt = 5;			
+	/**
+	 * holds current state of first 32 flags from win/UI
+	 */
+	private int curWinFlagState;					//holds current state of first 32 flags from win/UI
 	
-	public int curFlagState;					//holds current state of first 32 flags from win/UI
-	
-	public final int type, mtFrameSize = 100;		//mtFrameSize is # of boids per thread
+	public final int mtFrameSize = 100;		//mtFrameSize is # of boids per thread
 	private Base_RenderObj tmpl, sphTmpl;				//template to render boid; simplified sphere template
 	public BoidFlock preyFlock, predFlock;		//direct reference to flock that is my prey and my predator -- set in main program after init is called
 	
@@ -93,12 +104,11 @@ public class BoidFlock {
 	
 	protected final float[] grid3dDims;
 	
-	public BoidFlock(Base_BoidsWindow _win, Boid_UIFlkVars _flv, int _numBoids, int _type, int _numThrdsToUse){
+	public BoidFlock(Base_BoidsWindow _win, Boid_UIFlkVars _flv, int _numBoids, int _numThrdsToUse){
 		win=_win;	
 		flv = _flv;
 		name = flv.typeName; 
-		AppMgr = Base_DispWindow.AppMgr;	
-		type = _type;
+		AppMgr = Base_DispWindow.AppMgr;
 		th_exec = win.getTh_Exec();
 		numThrdsToUse = _numThrdsToUse;
 		
@@ -121,7 +131,7 @@ public class BoidFlock {
 		callResetBoidCalcs = new ArrayList<Callable<Boolean>>();
 		callResetBoidFutures = new ArrayList<Future<Boolean>>(); 	
 		
-		curFlagState = win.getFlkFlagsInt();
+		curWinFlagState = win.getFlkFlagsInt();
 
 	}//myBoidFlock constructor
 	//init bflk_flags state machine
@@ -132,7 +142,7 @@ public class BoidFlock {
 	public void initFlock(){
 		boidFlock = new ArrayList<Boid>(numBoids);
 		for(int c = 0; c < numBoids; ++c){
-			boidFlock.add( new Boid(this, randBoidStLoc(), type));
+			boidFlock.add( new Boid(this, randBoidStLoc()));
 		}
 		setNumBoids(boidFlock.size());
 		//initial build of per-thread boid population
@@ -184,7 +194,7 @@ public class BoidFlock {
 	
 	protected Boid addBoid(){	return addBoid(randBoidStLoc());	}	
 	protected Boid addBoid(myPointf stLoc){
-		Boid tmp = new Boid(this, stLoc, type); 
+		Boid tmp = new Boid(this, stLoc); 
 		boidFlock.add(tmp);
 		setNumBoids(boidFlock.size());
 		return tmp;
@@ -200,7 +210,7 @@ public class BoidFlock {
 	/**
 	 * move creatures to random start positions
 	 */
-	public void scatterBoids() {for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).coords.set(randBoidStLoc());}}//	randInit
+	public void scatterBoids() {for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).setCoords(randBoidStLoc());}}//	randInit
 
 	public void drawBoids(IRenderInterface ri) {				for(Boid b : boidFlock){b.drawMe(ri);}}
 	public void drawBoidsScaled(IRenderInterface ri) {			for(Boid b : boidFlock){b.drawMeScaled(ri);}}
@@ -208,7 +218,7 @@ public class BoidFlock {
 	
 	public void drawBoidVels(IRenderInterface ri) {			for(Boid b : boidFlock){b.drawMyVel(ri);}}
 	public void drawBoidFrames(IRenderInterface ri) {			for(Boid b : boidFlock){b.drawMyFrame(ri);}}
-	public void drawBoidsFlkMmbrs(IRenderInterface ri) {		for(Boid b : boidFlock){b.drawClosestPrey(ri);b.drawClosestPredator(ri);}}
+	public void drawBoidsFlkMmbrs(IRenderInterface ri) {		for(Boid b : boidFlock){b.drawClosestPredAndPrey(ri);}}
 	
 	/**
 	 * If this is being animated and has a template, return that template's max animation counter, otherwise return 1
@@ -255,13 +265,13 @@ public class BoidFlock {
 	 * clear out all data for each boid
 	 */
 	public void clearOutBoids(){
-		curFlagState = win.getFlkFlagsInt();
+		curWinFlagState = win.getFlkFlagsInt();
 		//sets current time step from UI
 		delT = (float) win.getTimeStep();
 		callResetBoidCalcs.clear();
 		//find next turn's motion for every creature by finding total force to act on creature
 		for(List<Boid> subL : boidThrdFrames){
-			callResetBoidCalcs.add(new BoidValsResetter(this, curFlagState, subL));
+			callResetBoidCalcs.add(new BoidValsResetter(this, curWinFlagState, subL));
 		}
 		try {callResetBoidFutures = th_exec.invokeAll(callResetBoidCalcs);for(Future<Boolean> f: callResetBoidFutures) {f.get();}} catch (Exception e) {e.printStackTrace();}			
 	}
@@ -272,11 +282,11 @@ public class BoidFlock {
 		callInitBoidCalcs.clear();
 		if(win.getIsTorroidal()) {
 			for(List<Boid> subL : boidThrdFrames){
-				callInitBoidCalcs.add(new InitPredPreyMapsTor(AppMgr, this, preyFlock, predFlock, flv, curFlagState, subL));
+				callInitBoidCalcs.add(new InitPredPreyMapsTor(AppMgr, this, preyFlock, predFlock, flv, curWinFlagState, subL));
 			}			
 		} else {
 			for(List<Boid> subL : boidThrdFrames){
-				callInitBoidCalcs.add(new InitPredPreyMaps(AppMgr, this, preyFlock, predFlock, flv, curFlagState, subL));
+				callInitBoidCalcs.add(new InitPredPreyMaps(AppMgr, this, preyFlock, predFlock, flv, curWinFlagState, subL));
 			}
 		}
 		try {callInitFutures = th_exec.invokeAll(callInitBoidCalcs);for(Future<Boolean> f: callInitFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }			
@@ -289,7 +299,7 @@ public class BoidFlock {
 	public void moveBoidsLinMultTH(boolean addFrc){
 		callFwdBoidCalcs.clear();
 		for(List<Boid> subL : boidThrdFrames){
-			callFwdBoidCalcs.add(new LinearForceSolver(AppMgr,  this, curFlagState, addFrc, subL));
+			callFwdBoidCalcs.add(new LinearForceSolver(AppMgr,  this, curWinFlagState, addFrc, subL));
 		}
 		try {callFwdSimFutures = th_exec.invokeAll(callFwdBoidCalcs);for(Future<Boolean> f: callFwdSimFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }		
 	}
@@ -301,7 +311,7 @@ public class BoidFlock {
 	public void moveBoidsOrigMultTH(boolean addFrc){
 		callFwdBoidCalcs.clear();
 		for(List<Boid> subL : boidThrdFrames){
-			callFwdBoidCalcs.add(new OriginalForceSolver(AppMgr,  this, curFlagState, addFrc, subL));
+			callFwdBoidCalcs.add(new OriginalForceSolver(AppMgr,  this, curWinFlagState, addFrc, subL));
 		}
 		try {callFwdSimFutures = th_exec.invokeAll(callFwdBoidCalcs);for(Future<Boolean> f: callFwdSimFutures) { f.get(); }} catch (Exception e) { e.printStackTrace(); }		
 	}
@@ -343,7 +353,7 @@ public class BoidFlock {
         		removeBoid(c); 
         		continue;
         	}
-        	if(b.bd_flags[Boid.isDead]){       				removeBoid(c);       	}
+        	if(b.boidFlags[Boid.isDead]){       				removeBoid(c);       	}
         	else if(b.hadAChild(birthLoc,bVelFrc)){  		Boid tmpBby = addBoid(birthLoc[0]); tmpBby.initNewborn(bVelFrc);   	}
         } 	
         //Handle adding/removing new boids from UI input
@@ -376,6 +386,7 @@ public class BoidFlock {
 
 	public String[] getInfoString(){return this.toString().split("\n",-1);}
 	
+	@Override
 	public String toString(){
 		String res = "Flock Size " + boidFlock.size() + "\n";
 		for(Boid bd : boidFlock){			res+="\t     "+bd.toString(); res+="\n";	}

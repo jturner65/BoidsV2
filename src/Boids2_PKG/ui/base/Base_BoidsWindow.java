@@ -103,33 +103,44 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	///////////
 	//graphical constructs for boids 
 	///////////
-	// colors for render objects
-	//divisors for stroke color from fill color
 	private static final int
 		sphereClrIDX = 0,
 		boatClrIDX = 1,
 		jFishClrIDX = 2;
 	private static final int numBoidTypes = 3;
+	/**
+	 * Specular color
+	 */
 	private static final int[][] specClr = new int[][]{
 		{255,255,255,255},		//sphere
 		{255,255,255,255},		//boat
 		{255,255,255,255}};		//jellyfish
-	//Divide fill color for each type by these values for stroke
+	/**
+	 * Divide fill color for each type by these values for stroke
+	 */
 	private static final float[][] strokeScaleFact = new float[][]{
 		{1.25f,0.42f,1.33f,0.95f,3.3f},    			//sphere    
 		{1.25f,0.42f,1.33f,0.95f,3.3f},    			//boat      
 		{1.25f,1.25f,1.25f,1.25f,1.25f}};      //jellyfish 
 		
-	//scale all fill colors by this value for emissive value
+	/**
+	 * scale all fill colors by this value for emissive value
+	 */
 	private static final float[] emitScaleFact = new float[] {0.7f, 0.9f, 0.8f};
-	//stroke weight for sphere, boat, jellyfish
+	/**
+	 * stroke weight for sphere, boat, jellyfish
+	 */
 	private static final float[] strkWt = new float[] {1.0f, 1.0f,.1f};
-	//shininess for sphere, boat, jellyfish
+	/**
+	 * shininess for sphere, boat, jellyfish
+	 */
 	private static final float[] shn = new float[] {5.0f,5.0f,5.0f};
 	
-	//per type, per flock fill colors
+	/**
+	 * per type, per flock fill colors
+	 */
 	private static final int[][][] objFillColors = new int[][][]{
-		{{110, 65, 30,255},	{30, 30, 30,255}, {130, 22, 10,255}, {22, 188, 110,255},	{22, 10, 130,255}},		//sphere
+		{{110, 65, 30,255},	{30, 30, 30,255}, {130, 22, 10,255}, {22, 188, 110,255}, {22, 10, 130,255}},		//sphere
 		{{110, 65, 30,255}, {20, 20, 20,255}, {130, 22, 10,255}, {22, 128, 50,255}, {22, 10, 150,255}},				//boats
 		{{180, 125, 100,255}, {90, 130, 80, 255}, {180, 82, 90,255}, {190, 175, 60,255}, {50, 90, 240,255}}	//jellyfish
 	};
@@ -139,14 +150,23 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 */
 	protected PImage[] flkSails;				
 	/**
-	 * badge size
+	 * global badge sizes
 	 */
 	protected final float bdgSizeX_base, bdgSizeY;
+	/**
+	 * badge size in x per flock
+	 */
 	protected float[] bdgSizeX;
 
 	protected myPointf[][] mnBdgBox;
+	/**
+	 * UV coordinates
+	 */
 	protected static final myPointf[] mnUVBox = new myPointf[]{new myPointf(0,0,0),new myPointf(1,0,0),new myPointf(1,1,0),new myPointf(0,1,0)};
 	
+	/**
+	 * Types of boids
+	 */
 	protected String[] boidTypeNames = new String[]{"Pirate Boats", "Jellyfish"};
 	
 	/**
@@ -154,7 +174,9 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 */	
 	protected int[] numAnimFramesPerType = new int[] {90,120};
 	
-	//whether this boid exhibits cyclic motion
+	/**
+	 * whether this boid exhibits cyclic motion/animation
+	 */
 	protected boolean[] boidCyclesFrc = new boolean[]{false, true};
 	
 	protected final int maxNumFlocks = flkNames.length;			//max # of flocks we'll support
@@ -187,7 +209,9 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 */
 	protected int flkVarIDX, flkVarObjIDX;
 	
-	//threading constructions - allow map manager to own its own threading executor
+	/**
+	 * threading constructions - allow map manager to own its own threading executor
+	 */
 	protected ExecutorService th_exec;	//to access multithreading - instance from calling program
 	protected int numUsableThreads;		//# of threads usable by the application
 	
@@ -197,8 +221,8 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	protected List<Future<Boolean>> callHuntFutures;
 	protected List<Callable<Boolean>> callHuntBoidCalcs;
 	
-	private final float fvDataTxtStY;// = -Base_DispWindow.txtHeightOff*.5f;
-	private final float fvDataNewLineY;// = Base_DispWindow.txtHeightOff*.75f;
+	private final float fvDataTxtStY;
+	private final float fvDataNewLineY;
 	
 	public Base_BoidsWindow(IRenderInterface _p, GUI_AppManager _AppMgr, int _winIdx) {
 		super(_p, _AppMgr, _winIdx);
@@ -215,7 +239,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 */
 	@Override
 	public int initAllUIButtons(ArrayList<Object[]> tmpBtnNamesArray){
-										//needs to be in order of privModFlgIdxs
+		//needs to be in order of privModFlgIdxs
 		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Debugging", "Enable Debug"}, Base_BoolFlags.debugIDX));
 		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Showing Frame", "Show Frame"}, showBoidFrame));
 		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Drawing Boids", "Drawing Spheres"}, drawBoids));
@@ -429,10 +453,8 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		float[] gridDims = AppMgr.get3dGridDims();
 		float initPredRad = MyMathUtils.min(gridDims);
 		for(int i =0; i<flocks.length; ++i){
-			// ??? 
-			// flockVars[i] = new myFlkVars(this, flkNames[i],(float)ThreadLocalRandom.current().nextDouble(0.65, 1.0));
-			flockVars[i] = new Boid_UIFlkVars(flkNames[i], flkRadMults[i], initPredRad);
-			flocks[i] = new BoidFlock(this,flockVars[i],initNumBoids,i, numUsableThreads);
+			flockVars[i] = new Boid_UIFlkVars(AppMgr, flkNames[i], flkRadMults[i], initPredRad);
+			flocks[i] = new BoidFlock(this,flockVars[i], initNumBoids, numUsableThreads);
 		}
 		
 		int predIDX, preyIDX;
@@ -441,9 +463,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 			preyIDX = (((i+flocks.length)-1)%flocks.length);
 			flocks[i].setPredPreySphereTmpl(flocks[predIDX], flocks[preyIDX], currRndrTmplPerFlockAra[i], sphrRndrTmplPerFlockAra[i]);
 		}	
-		for(int i =0; i<flocks.length; ++i){
-			flocks[i].initFlock();
-		}
+		for(int i =0; i<flocks.length; ++i){			flocks[i].initFlock();		}
 		
 		callHuntBoidCalcs = new ArrayList<Callable<Boolean>>();
 		callHuntFutures = new ArrayList<Future<Boolean>>();
@@ -484,7 +504,11 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	}//buildBoidHuntCallables()
 	
 	
-	private void setCurrPerFlockRenderTemplate(){		for(int i =0; i<flocks.length; ++i){flocks[i].setCurrTemplate(currRndrTmplPerFlockAra[i]);}}
+	private void setCurrPerFlockRenderTemplate(){
+		for(int i =0; i<flocks.length; ++i){
+			flocks[i].setCurrTemplate(currRndrTmplPerFlockAra[i]);
+		}
+	}
 	
 	/**
 	 * Retrieve the first 32 flag bits from the privFlags structure, used to hold all the flocking menu flags
@@ -754,7 +778,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 			if (uiMgr.getPrivFlag(drawScaledBoids)) {	for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsScaled(ri);}}				
 			else {										for(int i =0; i<flocks.length; ++i){flocks[i].drawBoids(ri);}}
 		} else {
-			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsAsBall(ri);  }
+			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsAsBall(ri);}
 			if(uiMgr.getPrivFlag(showFlkMbrs)){			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsFlkMmbrs(ri);}}
 		}	
 		ri.popMatState();

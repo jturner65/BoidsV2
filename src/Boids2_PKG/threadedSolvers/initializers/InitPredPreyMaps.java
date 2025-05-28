@@ -45,10 +45,10 @@ public class InitPredPreyMaps extends Base_InitPredPreyMaps {
 		//int numAdded = 0;
 		for(Boid chk : flock){
 			if(chk.ID == _src.ID){continue;}
-			distSq = myPointf._SqrDist(_src.coords, chk.coords);
+			distSq = myPointf._SqrDist(_src.getCoords(), chk.getCoords());
 			if(distSq>minDistSq){continue;}
 			//what if same dist as another? nudge distance a tiny amount. Introduces bias, FIFO	
-			distSq = chkPutDistInMap(_src.neighLoc,chk.neighLoc,distSq,_src.coords, chk.coords);
+			distSq = chkPutDistInMap(_src.neighLoc,chk.neighLoc,distSq,_src.getCoords(), chk.getCoords());
 			_src.neighbors.put(distSq,chk);
 			chk.neighbors.put(distSq, _src);		
 		}
@@ -64,10 +64,10 @@ public class InitPredPreyMaps extends Base_InitPredPreyMaps {
 		Float distSq;
 		if(_src == null){return;}//_src boid might have been eaten
 		for(Boid prey : preyflock){
-			distSq = myPointf._SqrDist(_src.coords, prey.coords);
+			distSq = myPointf._SqrDist(_src.getCoords(), prey.getCoords());
 			if(distSq>minPredDistSq){continue;}
 			//what if same dist as another? nudge distance a tiny amount. Introduces bias, FIFO		
-			distSq = chkPutDistInMap(_src.preyFlkLoc,prey.predFlkLoc,distSq,_src.coords, prey.coords);
+			distSq = chkPutDistInMap(_src.preyFlkLoc,prey.predFlkLoc,distSq,_src.getCoords(), prey.getCoords());
 			_src.preyFlk.put(distSq, prey);
 		}	
 	}//srchForPrey

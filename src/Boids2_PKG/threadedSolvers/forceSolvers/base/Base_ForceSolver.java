@@ -90,7 +90,7 @@ public abstract class Base_ForceSolver implements Callable<Boolean> {
 	public void runMe(){
 		//if((p.flags[p.mouseClicked] ) && (!p.flags[p.shiftKeyPressed])){//add click force : overwhelms all forces - is not scaled
 		if (addFrc){
-			for(Boid b : bAra){b.forces._add(AppMgr.mouseForceAtLoc(msClickForce, b.coords, stFlags[attractMode]));}
+			for(Boid b : bAra){b.forces._add(AppMgr.mouseForceAtLoc(msClickForce, b.getCoords(), stFlags[attractMode]));}
 		}
 		//if(!stFlags[singleFlock]){
 		if (stFlags[flkHunt]) {//go to closest prey
@@ -111,15 +111,15 @@ public abstract class Base_ForceSolver implements Callable<Boolean> {
 			}			
 			for(Boid b : bAra){
 //					if ((b.preyFlkLoc.size() !=0) || (b.predFlkLoc.size() !=0)){//if prey exists
-//						System.out.println("Flock : " + f.name+" ID : " + b.ID + " preyFlock size : " + b.preyFlkLoc.size()+ " pred flk size : " + b.predFlkLoc.size());
+//						System.out.println("Flock : " + flock.name+" ID : " + b.ID + " preyFlock size : " + b.preyFlkLoc.size()+ " pred flk size : " + b.predFlkLoc.size());
 //					}										
 				if (b.preyFlkLoc.size() !=0){//if prey exists
 					myPointf tar = b.preyFlkLoc.firstEntry().getValue(); 
 					//add force at single boid target
 					float mult = (fv.eatFreq/(b.starveCntr + 1.0f));
-					myVectorf chase = setFrcVal(myVectorf._mult(myVectorf._sub(tar, b.coords),  mult),fv.wts, fv.maxFrcs,fv.wFrcChsPrey); 
+					myVectorf chase = setFrcVal(myVectorf._mult(myVectorf._sub(tar, b.getCoords()),  mult),fv.wts, fv.maxFrcs,fv.wFrcChsPrey); 
 //						if(b.ID % 100 == 0){
-//							System.out.println("Flock : " + f.name+" ID : " + b.ID + " Chase force : " + chase.toString() + " mult : " + mult + " starve : " + b.starveCntr);
+//							System.out.println("Flock : " + flock.name+" ID : " + b.ID + " Chase force : " + chase.toString() + " mult : " + mult + " starve : " + b.starveCntr);
 //							
 //						}						
 					b.forces._add(chase);						
@@ -128,7 +128,7 @@ public abstract class Base_ForceSolver implements Callable<Boolean> {
 		}		
 //		}//if ! single flock
 		
-		if(stFlags[flkAvoidCol]){//find avoidance forces, if appropriate within f.colRad
+		if(stFlags[flkAvoidCol]){//find avoidance forces, if appropriate within flock.colRad
 			for(Boid b : bAra){
 				if(b.colliderLoc.size()==0){continue;}
 				//b.forces._add(setFrcVal(frcAvoidCol(b, b.colliders, b.colliderLoc, colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvd));
@@ -136,13 +136,13 @@ public abstract class Base_ForceSolver implements Callable<Boolean> {
 			}
 		}				
 		
-		if(stFlags[flkVelMatch]){		//find velocity matching forces, if appropriate within f.colRad	
+		if(stFlags[flkVelMatch]){		//find velocity matching forces, if appropriate within flock.colRad	
 			for(Boid b : bAra){
 				if(b.neighbors.size()==0){continue;}
 				b.forces._add(setFrcVal(frcVelMatch(b),fv.wts, fv.maxFrcs,fv.wFrcVel));
 			}
 		}	
-		if(stFlags[flkCenter]){ //find attracting forces, if appropriate within f.nghbrRad	
+		if(stFlags[flkCenter]){ //find attracting forces, if appropriate within flock.nghbrRad	
 			for(Boid b : bAra){	
 				if(b.neighbors.size()==0){continue;}
 				b.forces._add(setFrcVal(frcToCenter(b),fv.wts, fv.maxFrcs,fv.wFrcCtr));

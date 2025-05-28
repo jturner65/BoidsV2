@@ -6,9 +6,11 @@ import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import base_Math_Objects.MyMathUtils;
+import base_Math_Objects.vectorObjs.doubles.myVector;
+import base_UI_Objects.GUI_AppManager;
+import base_UI_Objects.windowUI.UIObjectManager;
 import base_UI_Objects.windowUI.base.IUIManagerOwner;
 import base_UI_Objects.windowUI.uiData.UIDataUpdater;
-import base_UI_Objects.windowUI.uiObjs.base.GUIObj_Type;
 
 
 /**
@@ -18,17 +20,34 @@ import base_UI_Objects.windowUI.uiObjs.base.GUIObj_Type;
  */
 public class Boid_UIFlkVars implements IUIManagerOwner {	
 	/**
+	 * Gui-based application manager
+	 */
+	public static GUI_AppManager AppMgr;
+	/**
 	 * class name of instancing class
 	 */
 	protected final String className;
 	
+	/**
+	 * Manager of all UI objects that make up this construct
+	 */
+	protected UIObjectManager uiMgr;
+	
+	/**
+	 * Base_GUIObj that was clicked on for modification
+	 */
+	protected boolean msClickInUIObj;
+	
+	protected boolean objsModified;
+	
+	
+	/**
+	 * ID for this flock variable struct
+	 */
 	public final int ID;
 	//Counter of how many windows are built in the application. Used to specify unique ID for each new window
 	private static int objCnt = 0;
-	/**
-	 * structure to facilitate communicating UI changes with functional code
-	 */
-	private UIDataUpdater uiUpdateData;		
+	
 	
 	private final float neighborMult = .5f;							//multiplier for neighborhood consideration against zone size - all rads built off this
 	
@@ -74,7 +93,7 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 
 	protected static final float[] 
 			defWtAra = new float[]{.5f, .75f, .5f, .5f, .5f, .1f},									//default array of weights for different forces
-			defOrigWtAra = new float[]{5.0f, 12.0f, 7.0f, 3.5f, .5f, .1f},							//default array of weights for different forces
+			defOrigWtAra = new float[]{5.0f, 12.0f, 7.0f, 3.5f, .5f, .1f},							//default array of weights for different forces using original calcs
 			MaxWtAra = new float[]{15, 15, 15, 15, 15, 15},								
 			MinWtAra = new float[]{.01f, .01f, .01f, .01f, .001f, .001f},			
 			MaxSpAra = new float[]{1,10000,100000},								
@@ -102,10 +121,13 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 		"Hunt Freq"			
 	};
 	
+	/**
+	 * Idxs for the UI objects this construct holds
+	 */
 	public final static int 
 		fv_flkRadius = 0,
 		fv_flkFrcWeight = 1,
-		fv_colAvoidRadius = 2,
+		fv_colAvoidRadius = 2, 
 		fv_colAvoidWeight = 3,
 		fv_velMatchRadius = 4,
 		fv_velMatchWeight = 5,
@@ -118,11 +140,14 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 		fv_huntingRadius = 12,
 		fv_huntingSuccessPct = 13,
 		fv_huntingFrequency = 14;
+	public final static int numFlockUIObjs = 15;
 	
-	public Boid_UIFlkVars(String _flockName, float _nRadMult, float _predRad) {
+	public Boid_UIFlkVars(GUI_AppManager _AppMgr, String _flockName, float _nRadMult, float _predRad) {
 		ID = objCnt++;
+		AppMgr = _AppMgr;
 		className = this.getClass().getSimpleName();
 		typeName = _flockName;
+		msClickInUIObj = false;
 		
 		initFlockVals(_nRadMult, .05f, _predRad);
 	}//ctor
@@ -163,22 +188,7 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 		maxFrcs = new float[]{100,200,100,10,400,20};		//maybe scale forces?
 		minVelMag = maxVelMag*.0025f;
 	}
-	
-	private final Object[] uiObjInitAra(double[] minMaxMod, double initVal, int idx) {
-		// idx 0: value is sent to owning window,  
-		// idx 1: value is sent on any modifications (while being modified, not just on release), 
-		// idx 2: changes to value must be explicitly sent to consumer (are not automatically sent),
 		
-		boolean[] cfgFlagsAra = new boolean[] {true, false, false};
-		// idx 0: whether multi-line(stacked) or not
-		// idx 1: if true, build prefix ornament
-		// idx 2: if true and prefix ornament is built, make it the same color as the text fill color. 
-		boolean[] formatFlagsAra = new boolean[] {true, true, true};
-		
-		return new Object[] {minMaxMod, initVal, UI_Labels[idx], GUIObj_Type.FloatVal, cfgFlagsAra, formatFlagsAra};
-	}
-	
-	
 	/**
 	 * UIObjectManager will call this.
 	 */
@@ -194,42 +204,6 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	public final float[] getOwnerParentWindowUIClkCoords() {
 		//TODO
 		return new float[0];
-	}
-	
-	/**
-	 * Build all UI objects to be shown in left side bar menu for this window.  This is the first child class function called by initThisWin
-	 * @param tmpUIObjArray : map of object data, keyed by UI object idx, with array values being :                    
-	 *           the first element double array of min/max/mod values                                                   
-	 *           the 2nd element is starting value                                                                      
-	 *           the 3rd elem is label for object                                                                       
-	 *           the 4th element is object type (GUIObj_Type enum)
-	 *           the 5th element is boolean array of : (unspecified values default to false)
-	 *           	{value is sent to owning window, 
-	 *           	value is sent on any modifications (while being modified, not just on release), 
-	 *           	changes to value must be explicitly sent to consumer (are not automatically sent)}    
-	 * @param tmpListObjVals
-	 */
-	protected final void setupGUIObjsAras(TreeMap<Integer, Object[]> tmpUIObjArray, TreeMap<Integer, String[]> tmpListObjVals){	
-//		//build list select box values
-//		//keyed by object idx (uiXXXIDX), entries are lists of values to use for list select ui objects
-//	
-		tmpUIObjArray.put(fv_flkRadius, uiObjInitAra(new double[]{0.01f,1000.0f,0.01f}, nghbrRad, fv_flkRadius));
-		tmpUIObjArray.put(fv_flkFrcWeight, uiObjInitAra(new double[]{.0001f,1.0f,.0001f}, 0.5f , fv_flkFrcWeight));
-		tmpUIObjArray.put(fv_colAvoidRadius, uiObjInitAra(new double[]{0.01f,1000.0f,0.01f}, colRad, fv_colAvoidRadius));
-		tmpUIObjArray.put(fv_colAvoidWeight, uiObjInitAra(new double[]{.0001f,1.0f,.0001f}, 0.75f, fv_colAvoidWeight));
-		tmpUIObjArray.put(fv_velMatchRadius, uiObjInitAra(new double[]{0.01f,1000.0f,0.01f}, velRad, fv_velMatchRadius));
-		tmpUIObjArray.put(fv_velMatchWeight, uiObjInitAra(new double[]{.0001f,1.0f,.0001f}, 0.5f, fv_velMatchWeight));
-		tmpUIObjArray.put(fv_wanderFrcWeight, uiObjInitAra(new double[]{.0001f,1.0f,.0001f}, 0.5f, fv_wanderFrcWeight));
-		tmpUIObjArray.put(fv_predAvoidWeight, uiObjInitAra(new double[]{.0001f,1.0f,.0001f}, 0.5f, fv_predAvoidWeight));
-		tmpUIObjArray.put(fv_preyChaseWeight, uiObjInitAra(new double[]{.0001f,1.0f,.0001f}, 0.1f, fv_preyChaseWeight));
-		tmpUIObjArray.put(fv_matingRadius, uiObjInitAra(new double[]{0.01f,1000.0f,0.01f}, colRad, fv_matingRadius));
-		tmpUIObjArray.put(fv_matingSuccessPct, uiObjInitAra(new double[]{.1f,100.0f,.1f}, spawnPct, fv_matingSuccessPct));
-		tmpUIObjArray.put(fv_matingFrequency, uiObjInitAra(new double[]{100.0f,10000.0f,10.0f}, spawnFreq, fv_matingFrequency));
-		tmpUIObjArray.put(fv_huntingRadius, uiObjInitAra(new double[]{0.01f,100.0f,0.01f}, killRad, fv_huntingRadius));
-		tmpUIObjArray.put(fv_huntingSuccessPct, uiObjInitAra(new double[]{.1f,100.0f,.1f}, killPct, fv_huntingSuccessPct));
-		tmpUIObjArray.put(fv_huntingFrequency, uiObjInitAra(new double[]{100.0f,10000.0f,10.0f}, eatFreq, fv_huntingFrequency));
-
-	
 	}
 
 	//if set default weight mults based on whether using force calcs based on original inverted distance functions or linear distance functions
@@ -396,7 +370,7 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	 * @return
 	 */
 	@Override
-	public UIDataUpdater getUIDataUpdater() {return uiUpdateData;}
+	public UIDataUpdater getUIDataUpdater() {return uiMgr.getUIDataUpdater();}
 
 	/**
 	 * Build all UI objects to be shown in left side bar menu for this window.  This is the first child class function called by initThisWin
@@ -418,11 +392,48 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	@Override
 	public void setupOwnerGUIObjsAras(TreeMap<Integer, Object[]> tmpUIObjArray,
 			TreeMap<Integer, String[]> tmpListObjVals) {
-		// Build all UI objects in here.
-		
-		// TODO Auto-generated method stub
-		
+		setupGUIObjsAras(tmpUIObjArray,tmpListObjVals);	
 	}
+
+	/**
+	 * Build all UI objects to be shown in left side bar menu for this window.  This is the first child class function called by initThisWin
+	 * @param tmpUIObjArray : map of object data, keyed by UI object idx, with array values being :                    
+	 *           the first element double array of min/max/mod values                                                   
+	 *           the 2nd element is starting value                                                                      
+	 *           the 3rd elem is label for object                                                                       
+	 *           the 4th element is object type (GUIObj_Type enum)
+	 *           the 5th element is boolean array of : (unspecified values default to false)
+	 *           	idx 0: value is sent to owning window,  
+	 *           	idx 1: value is sent on any modifications (while being modified, not just on release), 
+	 *           	idx 2: changes to value must be explicitly sent to consumer (are not automatically sent),
+	 *           the 6th element is a boolean array of format values :(unspecified values default to false)
+	 *           	idx 0: whether multi-line(stacked) or not                                                  
+	 *              idx 1: if true, build prefix ornament                                                      
+	 *              idx 2: if true and prefix ornament is built, make it the same color as the text fill color.
+	 * @param tmpListObjVals
+	 */
+	protected final void setupGUIObjsAras(TreeMap<Integer, Object[]> tmpUIObjArray, TreeMap<Integer, String[]> tmpListObjVals){	
+//		//build list select box values
+//		//keyed by object idx (uiXXXIDX), entries are lists of values to use for list select ui objects
+//	
+		tmpUIObjArray.put(fv_flkRadius, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{0.01f,1000.0f,0.01f}, nghbrRad, UI_Labels[fv_flkRadius]));
+		tmpUIObjArray.put(fv_flkFrcWeight, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{.0001f,1.0f,.0001f}, 0.5f , UI_Labels[fv_flkFrcWeight]));
+		tmpUIObjArray.put(fv_colAvoidRadius, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{0.01f,1000.0f,0.01f}, colRad, UI_Labels[fv_colAvoidRadius]));
+		tmpUIObjArray.put(fv_colAvoidWeight, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{.0001f,1.0f,.0001f}, 0.75f, UI_Labels[fv_colAvoidWeight]));
+		tmpUIObjArray.put(fv_velMatchRadius, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{0.01f,1000.0f,0.01f}, velRad, UI_Labels[fv_velMatchRadius]));
+		tmpUIObjArray.put(fv_velMatchWeight, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{.0001f,1.0f,.0001f}, 0.5f, UI_Labels[fv_velMatchWeight]));
+		tmpUIObjArray.put(fv_wanderFrcWeight, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{.0001f,1.0f,.0001f}, 0.5f, UI_Labels[fv_wanderFrcWeight]));
+		tmpUIObjArray.put(fv_predAvoidWeight, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{.0001f,1.0f,.0001f}, 0.5f, UI_Labels[fv_predAvoidWeight]));
+		tmpUIObjArray.put(fv_preyChaseWeight, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{.0001f,1.0f,.0001f}, 0.1f, UI_Labels[fv_preyChaseWeight]));
+		tmpUIObjArray.put(fv_matingRadius, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{0.01f,1000.0f,0.01f}, colRad, UI_Labels[fv_matingRadius]));
+		tmpUIObjArray.put(fv_matingSuccessPct, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{.1f,100.0f,.1f}, spawnPct, UI_Labels[fv_matingSuccessPct]));
+		tmpUIObjArray.put(fv_matingFrequency, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{100.0f,10000.0f,10.0f}, spawnFreq, UI_Labels[fv_matingFrequency]));
+		tmpUIObjArray.put(fv_huntingRadius, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{0.01f,100.0f,0.01f}, killRad, UI_Labels[fv_huntingRadius]));
+		tmpUIObjArray.put(fv_huntingSuccessPct, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{.1f,100.0f,.1f}, killPct, UI_Labels[fv_huntingSuccessPct]));
+		tmpUIObjArray.put(fv_huntingFrequency, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{100.0f,10000.0f,10.0f}, eatFreq, UI_Labels[fv_huntingFrequency]));	
+	}//setupGUIObjsAras
+		
+	
 	/**
 	 * Build button descriptive arrays : each object array holds true label, false label, and idx of button in owning child class
 	 * this must return count of -all- booleans managed by privFlags, not just those that are interactive buttons (some may be 
@@ -433,29 +444,128 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	@Override
 	public int initAllOwnerUIButtons(ArrayList<Object[]> tmpBtnNamesArray) {
 		// Build all UI Buttons in here; return number of buttons
-		return 0;
+		// tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"<true string>", "<false string>"}, <button index>));
+		return tmpBtnNamesArray.size();
 	}
 
 	@Override
-	public int[] getOwnerFlagIDXsToInitToTrue() {
-		return new int[0];
-	}
+	public int[] getOwnerFlagIDXsToInitToTrue() {	return new int[0];}
+
+	/**
+	 * Called by privFlags bool struct, to update uiUpdateData when boolean flags have changed
+	 * @param idx
+	 * @param val
+	 */
+	@Override
+	public final void checkSetBoolAndUpdate(int idx, boolean val) {uiMgr.checkSetBoolAndUpdate(idx, val);	}
+	
+	/**
+	 * These are called externally from execution code object to synchronize ui values that might change during execution
+	 * @param idx of particular type of object
+	 * @param value value to set
+	 */
+	@Override
+	public final void updateBoolValFromExecCode(int idx, boolean value) {uiMgr.updateBoolValFromExecCode(idx, value);}
+	/**
+	 * These are called externally from execution code object to synchronize ui values that might change during execution
+	 * @param idx of particular type of object
+	 * @param value value to set
+	 */
+	@Override
+	public final void updateIntValFromExecCode(int idx, int value) {uiMgr.updateIntValFromExecCode(idx, value);}
+	/**
+	 * These are called externally from execution code object to synchronize ui values that might change during execution
+	 * @param idx of particular type of object
+	 * @param value value to set
+	 */
+	@Override
+	public final void updateFloatValFromExecCode(int idx, float value) {uiMgr.updateFloatValFromExecCode(idx, value);}
+	
 
 	@Override
-	public void checkSetBoolAndUpdate(int idx, boolean val) {
-		// TODO Auto-generated method stub
+	public void handleOwnerPrivFlags(int idx, boolean val, boolean oldVal) {}
+
+	@Override
+	public void handlePrivFlagsDebugMode(boolean val) {}
+	
+	///////////////////////////////////////////////////////
+	/// Start mouse interaction
+	
+	/**
+	 * Handle mouse interaction via a mouse click
+	 * @param mouseX current mouse x on screen
+	 * @param mouseY current mouse y on screen
+	 * @param mseBtn which button is pressed : 0 is left, 1 is right
+	 * @return whether a UI object was clicked in
+	 */
+	@Override
+	public final boolean handleMouseClick(int mouseX, int mouseY, int mseBtn){
+		boolean[] retVals = new boolean[] {false,false};
+		msClickInUIObj = uiMgr.handleMouseClick(mouseX, mouseY, mseBtn, retVals);
+		if (retVals[1]){objsModified = true;}
+		if (retVals[0]){return true;}
+		return false;
+	}//handleMouseClick
 		
-	}
-
+	/**
+	 * Handle mouse interaction via the clicked mouse drag
+	 * @param mouseX current mouse x on screen
+	 * @param mouseY current mouse y on screen
+	 * @param pmouseX previous mouse x on screen
+	 * @param pmouseY previous mouse y on screen
+	 * @param mseDragInWorld vector of mouse drag in the world, for interacting with trajectories
+	 * @param mseBtn what mouse btn is pressed
+	 * @return whether a UI object has been modified via a drag action
+	 */
 	@Override
-	public void handleOwnerPrivFlags(int idx, boolean val, boolean oldVal) {
-		// TODO Auto-generated method stub
-		
-	}
-
+	public final boolean handleMouseDrag(int mouseX, int mouseY,int pmouseX, int pmouseY, myVector mseDragInWorld, int mseBtn){
+		int delX = (mouseX-pmouseX), delY = (mouseY-pmouseY);
+		boolean shiftPressed = AppMgr.shiftIsPressed();
+		boolean retVals[] = uiMgr.handleMouseDrag(delX, delY, shiftPressed);
+		if (retVals[1]){objsModified = true;}
+		if (retVals[0]){return true;}
+		return false;
+	}//handleMouseDrag
+	
+	/**
+	 * Handle mouse interaction via the mouse moving over a UI object
+	 * @param mouseX current mouse x on screen
+	 * @param mouseY current mouse y on screen
+	 * @return whether a UI object has the mouse pointer moved over it
+	 */
 	@Override
-	public void handlePrivFlagsDebugMode(boolean val) {
-		// TODO Auto-generated method stub
-		
+	public boolean handleMouseMove(int mouseX, int mouseY) {
+		boolean uiObjMseOver = uiMgr.handleMouseMove(mouseX, mouseY);
+		if (uiObjMseOver){return true;}
+		return false;
 	}
+	
+	/**
+	 * Handle mouse interaction via the mouse wheel
+	 * @param ticks
+	 * @param mult amount to modify view based on sensitivity and whether shift is pressed or not
+	 * @return whether a UI object has been modified via the mouse wheel
+	 */
+	@Override
+	public final boolean handleMouseWheel(int ticks, float mult) {
+		if (msClickInUIObj) {
+			//modify object that was clicked in by mouse motion
+			boolean retVals[] = uiMgr.handleMouseWheel(ticks, mult);
+			if (retVals[1]){objsModified = true;}
+			if (retVals[0]){return true;}		
+		}
+		return false;
+	}//handleMouseWheel
+	
+	/**
+	 * Handle mouse interactive when the mouse button is released - in general consider this the end of a mouse-driven interaction
+	 */
+	@Override
+	public final void handleMouseRelease(){
+		//TODO no buttons currently built to be cleared on future draw
+		if(uiMgr.handleMouseRelease(objsModified)) {}
+		msClickInUIObj = false;
+		objsModified = false;
+	}//handleMouseRelease
+	
 }//class myFlkVars 

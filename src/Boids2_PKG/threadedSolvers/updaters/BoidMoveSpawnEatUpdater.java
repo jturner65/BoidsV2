@@ -42,10 +42,10 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
 
 	private void reproduce(Boid b){
 		float chance;
-		for(Boid ptWife : b.ptnWife.values()){
+		for(Boid ptWife : b.posMate.values()){
 			chance = ThreadLocalRandom.current().nextFloat();
 			if(chance < spawnPct){
-				b.haveChild(new myPointf(ptWife.coords,.5f,b.coords), new myVectorf(ptWife.velocity,.5f,b.velocity), new myVectorf(ptWife.forces,.5f,b.forces));
+				b.haveChild(new myPointf(ptWife.getCoords(),.5f,b.getCoords()), new myVectorf(ptWife.velocity,.5f,b.velocity), new myVectorf(ptWife.forces,.5f,b.forces));
 				ptWife.hasSpawned();	
 				b.hasSpawned();	return;
 			}
@@ -135,9 +135,9 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
 				if(b.velocity.magn < minVelMag){b.velocity._mult(minVelMag/b.velocity.magn);}
 				else if(b.velocity.magn > maxVelMag){b.velocity._mult(maxVelMag/b.velocity.magn);}
 			}
-			b.coords.set(integrate(b.velocity, b.coords, deltaT));												// myVectorf._add(coords[0], myVectorf._mult(velocity[1], p.delT));	
+			//b.coords.set(integrate(b.velocity, b.getCoords(), deltaT));												// myVectorf._add(coords[0], myVectorf._mult(velocity[1], p.delT));	
 			//Account for wrapping if torroidal
-			setValWrapCoordsForDraw(b.coords);
+			setValWrapCoordsForDraw(b, integrate(b.velocity, b.getCoords(), deltaT));
 			setOrientation(b, deltaT);
 		}			
 	}
@@ -204,11 +204,11 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
 		return ((val - minVal) % distVal) + minVal;
 	}//wrapVal
 	
-	private void setValWrapCoordsForDraw(myPointf _coords){
-		_coords.x = wrapVal(_coords.x, 0.0f, gridDims[0]);
-		_coords.y = wrapVal(_coords.y, 0.0f, gridDims[1]);
-		_coords.z = wrapVal(_coords.z, 0.0f, gridDims[2]);
-
+	private void setValWrapCoordsForDraw(Boid _b, myPointf _coords){
+		_b.setCoords(
+				wrapVal(_coords.x, 0.0f, gridDims[0]), 
+				wrapVal(_coords.y, 0.0f, gridDims[1]), 
+				wrapVal(_coords.z, 0.0f, gridDims[2]));
 	}//findValidWrapCoords	
 
 	@Override

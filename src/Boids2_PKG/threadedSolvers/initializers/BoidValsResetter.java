@@ -37,7 +37,7 @@ public class BoidValsResetter implements Callable<Boolean> {
 	public void run(){	
 		for(Boid b:bAra){	b.forces.set(myPointf.ZEROPT); b.clearNeighborMaps();	}
 		if (stFlags[doHunt]){	for(Boid b:bAra){b.clearHuntMaps();			}}
-		if (stFlags[doSpawn]) {	for(Boid b : bAra){	b.ptnWife.clear();}}	
+		if (stFlags[doSpawn]) {	for(Boid b : bAra){	b.posMate.clear();}}	
 	}//run()	
 	
 	@Override
