@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadLocalRandom;
 
 import Boids2_PKG.flocks.boids.Boid;
 import Boids2_PKG.threadedSolvers.forceSolvers.LinearForceSolver;
@@ -18,6 +17,7 @@ import Boids2_PKG.threadedSolvers.updaters.BoidMoveSpawnEatUpdater;
 import Boids2_PKG.ui.Boid_UIFlkVars;
 import Boids2_PKG.ui.base.Base_BoidsWindow;
 import base_Render_Interface.IRenderInterface;
+import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
 import base_UI_Objects.GUI_AppManager;
@@ -179,7 +179,7 @@ public class BoidFlock {
 	public myPointf findValidWrapCoordsForDraw(myPointf _coords){return new myPointf(((_coords.x+grid3dDims[0]) % grid3dDims[0]),((_coords.y+grid3dDims[1]) % grid3dDims[1]),((_coords.z+grid3dDims[2]) % grid3dDims[2]));	}//findValidWrapCoords	
 	public void setValidWrapCoordsForDraw(myPointf _coords){_coords.set(((_coords.x+grid3dDims[0]) % grid3dDims[0]),((_coords.y+grid3dDims[1]) % grid3dDims[1]),((_coords.z+grid3dDims[2]) % grid3dDims[2]));	}//findValidWrapCoords	
 	public float calcRandLocation(float randNum1, float randNum2, float sqDim, float mathCalc, float mult){return ((sqDim/2.0f) + (randNum2 * (sqDim/3.0f) * mathCalc * mult));}
-	public myPointf randBoidStLoc(){		return new myPointf(ThreadLocalRandom.current().nextFloat()*grid3dDims[0],ThreadLocalRandom.current().nextFloat()*grid3dDims[1],ThreadLocalRandom.current().nextFloat()*grid3dDims[2]);	}
+	public myPointf randBoidStLoc(){		return new myPointf(MyMathUtils.randomFloat()*grid3dDims[0],MyMathUtils.randomFloat()*grid3dDims[1],MyMathUtils.randomFloat()*grid3dDims[2]);	}
 	
 	private void setNumBoids(int _numBoids){
 		numBoids = _numBoids;

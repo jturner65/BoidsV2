@@ -3,7 +3,6 @@ package Boids2_PKG.ui;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.TreeMap;
-import java.util.concurrent.ThreadLocalRandom;
 
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.doubles.myVector;
@@ -152,7 +151,7 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 		initFlockVals(_nRadMult, .05f, _predRad);
 	}//ctor
 	
-	public float getInitMass(){return (float)(massForType[0] + (massForType[1] - massForType[0])*ThreadLocalRandom.current().nextFloat());}
+	public float getInitMass(){return (float)(massForType[0] + (massForType[1] - massForType[0])*MyMathUtils.randomFloat());}
 	
 	/**
 	 * 

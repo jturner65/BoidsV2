@@ -2,7 +2,6 @@ package Boids2_PKG.threadedSolvers.updaters;
 
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ThreadLocalRandom;
 
 import Boids2_PKG.flocks.BoidFlock;
 import Boids2_PKG.flocks.boids.Boid;
@@ -43,7 +42,7 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
 	private void reproduce(Boid b){
 		float chance;
 		for(Boid ptWife : b.posMate.values()){
-			chance = ThreadLocalRandom.current().nextFloat();
+			chance = MyMathUtils.randomFloat();
 			if(chance < spawnPct){
 				b.haveChild(new myPointf(ptWife.getCoords(),.5f,b.getCoords()), new myVectorf(ptWife.velocity,.5f,b.velocity), new myVectorf(ptWife.forces,.5f,b.forces));
 				ptWife.hasSpawned();	

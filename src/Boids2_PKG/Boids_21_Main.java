@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 import Boids2_PKG.ui.Boids_2DWin;
 import Boids2_PKG.ui.Boids_3DWin;
-import base_Render_Interface.IRenderInterface;
 import base_UI_Objects.GUI_AppManager;
 import base_Utils_Objects.io.messaging.MsgCodes;
 
@@ -278,33 +277,5 @@ public class Boids_21_Main extends GUI_AppManager {
 			default : {break;}
 		}
 	}//setFlags  
-	/**
-	 * custom boid colors
-	 */
-	public static final int gui_boatBody1 = IRenderInterface.gui_nextColorIDX + 0;
-	public static final int gui_boatBody2 = IRenderInterface.gui_nextColorIDX + 1;
-	public static final int gui_boatBody3 = IRenderInterface.gui_nextColorIDX + 2;	
-	public static final int gui_boatBody4 = IRenderInterface.gui_nextColorIDX + 3;	
-	public static final int gui_boatBody5 = IRenderInterface.gui_nextColorIDX + 4;	
-	public static final int gui_boatStrut = IRenderInterface.gui_nextColorIDX + 5;
-
-	/**
-	 * any instancing-class-specific colors - colorVal set to be higher than IRenderInterface.gui_OffWhite
-	 * @param colorVal
-	 * @param alpha
-	 * @return
-	 */
-	@Override
-	public int[] getClr_Custom(int colorVal, int alpha) {
-		switch(colorVal) {
-	    	case gui_boatBody1 	  	: {return new int[] {80, 40, 25,alpha};}
-	    	case gui_boatBody2 	  	: {return new int[] {0, 0, 0,alpha};}
-	    	case gui_boatBody3 	  	: {return new int[] {40, 0, 0,alpha};}
-	    	case gui_boatBody4 	  	: {return new int[] {0, 80, 0,alpha};}
-	    	case gui_boatBody5 	  	: {return new int[] {40, 0, 80,alpha};}
-	    	case gui_boatStrut 	  	: {return new int[] {80, 40, 25,alpha};}
-			default 				: {return new int[] {255,255,255,alpha};}
-		}
-	}
 
 }//class Boids_21_Main extends GUI_AppManager

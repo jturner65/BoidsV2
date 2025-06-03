@@ -3,7 +3,6 @@ package Boids2_PKG.threadedSolvers.forceSolvers.base;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.ThreadLocalRandom;
 
 import Boids2_PKG.flocks.BoidFlock;
 import Boids2_PKG.flocks.boids.Boid;
@@ -73,7 +72,7 @@ public abstract class Base_ForceSolver implements Callable<Boolean> {
 	protected abstract myVectorf frcAvoidCol(Boid b, ConcurrentSkipListMap<Float,myPointf> otherLoc, float frcThresh);
 	protected abstract myVectorf frcVelMatch(Boid b);
 
-	protected myVectorf frcWander(Boid b){ return new myVectorf((float)ThreadLocalRandom.current().nextDouble(-b.mass,b.mass),(float)ThreadLocalRandom.current().nextDouble(-b.mass,b.mass),(float)ThreadLocalRandom.current().nextDouble(-b.mass,b.mass));}			//boid independent
+	protected myVectorf frcWander(Boid b){ return new myVectorf(MyMathUtils.randomFloat(-b.mass,b.mass),MyMathUtils.randomFloat(-b.mass,b.mass),MyMathUtils.randomFloat(-b.mass,b.mass));}			//boid independent
 
 	//pass arrays since 2d arrays are arrays of references in java
 	private myVectorf setFrcVal(myVectorf frc, float[] multV, float[] maxV, int idx){

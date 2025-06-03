@@ -1,10 +1,10 @@
 package Boids2_PKG.flocks.boids;
 
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.ThreadLocalRandom;
 
 import Boids2_PKG.flocks.BoidFlock;
 import base_Render_Interface.IRenderInterface;
+import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
@@ -159,7 +159,7 @@ public class Boid {
 		orientation[O_RHT] = myVectorf.RIGHT.cloneMe();
 		orientation[O_UP] = myVectorf.UP.cloneMe();
 		//keep initial phase between .25 and .75 so that cyclic-force boids start moving right away
-		animPhase = (float) ThreadLocalRandom.current().nextDouble(.25f, .75f ) ;
+		animPhase = MyMathUtils.randomFloat(.25f, .75f);
 		maxAnimCntr = flk.getMaxAnimCounter();
 		animCntr = animPhase * maxAnimCntr;
 		
@@ -169,7 +169,7 @@ public class Boid {
 		setInitState();
 		O_axisAngle=new float[]{0,1,0,0};
 		oldRotAngle = 0;
-		gender = ThreadLocalRandom.current().nextInt(1000)%2;												//0 or 1
+		gender =  MyMathUtils.randomInt(1000)%2;												//0 or 1
 		neighbors 	= new ConcurrentSkipListMap<Float, Boid>();
 		preyFlk 	= new ConcurrentSkipListMap<Float, Boid>();
 		posMate 	= new ConcurrentSkipListMap<Float, Boid>();
@@ -254,7 +254,7 @@ public class Boid {
 	 * Only reset spawn counters once boid has spawned
 	 */
 	public void hasSpawned(){
-		spawnCntr = resetCntrs(flk.flv.spawnFreq,ThreadLocalRandom.current().nextFloat()); 
+		spawnCntr = resetCntrs(flk.flv.spawnFreq, MyMathUtils.randomFloat()); 
 		boidFlags[canSpawn] = false;
 	}
 	public boolean canSpawn(){return boidFlags[canSpawn];}
@@ -273,7 +273,7 @@ public class Boid {
 		--starveCntr;
 		if (starveCntr<=0){killMe("Starvation"); return;}//if can get hungry then can starve to death
 		//once boid is hungry he stays hungry unless he eats (hungry set to false elsewhere)
-		boidFlags[isHungry] = (boidFlags[isHungry] || (ThreadLocalRandom.current().nextInt(flk.flv.eatFreq)>=starveCntr)); 
+		boidFlags[isHungry] = (boidFlags[isHungry] || ( MyMathUtils.randomInt(flk.flv.eatFreq)>=starveCntr)); 
 	}	
 	public void eat(float tarMass){	
 		starveCntr = resetCntrs(flk.flv.eatFreq,tarMass);
