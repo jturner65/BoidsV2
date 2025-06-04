@@ -235,31 +235,36 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	public ExecutorService getTh_Exec() {return th_exec;}
 	
 	/**
-	 * initialize all private-flag based UI buttons here - called by base class
+	 * Build button descriptive arrays : each object array holds true label, false label, and idx of button in owning child class
+	 * this must return count of -all- booleans managed by privFlags, not just those that are interactive buttons (some may be 
+	 * hidden to manage booleans that manage or record state)
+	 * @param tmpBtnNamesArray ArrayList of Object arrays to be built containing all button definitions. 
+	 * @return count of -all- booleans to be managed by privFlags
 	 */
 	@Override
-	public int initAllUIButtons(ArrayList<Object[]> tmpBtnNamesArray){
+	public int initAllUIButtons(TreeMap<Integer, Object[]> tmpBtnNamesArray){
 		//needs to be in order of privModFlgIdxs
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Debugging", "Enable Debug"}, Base_BoolFlags.debugIDX));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Showing Frame", "Show Frame"}, showBoidFrame));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Drawing Boids", "Drawing Spheres"}, drawBoids));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Scale Boids' Sizes", "Boids Same Size"}, drawScaledBoids));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Showing Boid Path", "Hiding Boid Path"}, clearPath));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Showing Vel Vectors", "Hiding Vel Vectors"}, showVel));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"DBG : List Flk Mmbrs", "DBG : Hide Flk Mmbrs"}, showFlkMbrs));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Mouse Click Attracts", "Mouse Click Repels"}, attractMode));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Ctr Force ON", "Ctr Force OFF"}, flkCenter));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Vel Match ON", "Vel Match OFF"}, flkVelMatch));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Col Avoid ON", "Col Avoid OFF"}, flkAvoidCol));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Wander ON", "Wander OFF"}, flkWander));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Pred Avoid ON", "Pred Avoid OFF"}, flkAvoidPred));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Hunting ON", "Hunting OFF"}, flkHunt));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Hunger ON", "Hunger OFF"}, flkHunger));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Spawning ON", "Spawning OFF"}, flkSpawn));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Orig Funcs ON", "Orig Funcs OFF"}, useOrigDistFuncs));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Tor Bnds ON", "Tor Bnds OFF"}, useTorroid));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Mod DelT By FRate", "Fixed DelT"}, modDelT));
-		tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"Boid-eye View", "Global View"}, viewFromBoid));
+		int idx=0;
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Debugging", "Enable Debug"}, Base_BoolFlags.debugIDX));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Showing Frame", "Show Frame"}, showBoidFrame));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Drawing Boids", "Drawing Spheres"}, drawBoids));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Scale Boids' Sizes", "Boids Same Size"}, drawScaledBoids));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Showing Boid Path", "Hiding Boid Path"}, clearPath));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Showing Vel Vectors", "Hiding Vel Vectors"}, showVel));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"DBG : List Flk Mmbrs", "DBG : Hide Flk Mmbrs"}, showFlkMbrs));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Mouse Click Attracts", "Mouse Click Repels"}, attractMode));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Ctr Force ON", "Ctr Force OFF"}, flkCenter));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Vel Match ON", "Vel Match OFF"}, flkVelMatch));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Col Avoid ON", "Col Avoid OFF"}, flkAvoidCol));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Wander ON", "Wander OFF"}, flkWander));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Pred Avoid ON", "Pred Avoid OFF"}, flkAvoidPred));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Hunting ON", "Hunting OFF"}, flkHunt));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Hunger ON", "Hunger OFF"}, flkHunger));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Spawning ON", "Spawning OFF"}, flkSpawn));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Orig Funcs ON", "Orig Funcs OFF"}, useOrigDistFuncs));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Tor Bnds ON", "Tor Bnds OFF"}, useTorroid));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Mod DelT By FRate", "Fixed DelT"}, modDelT));
+		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Boid-eye View", "Global View"}, viewFromBoid));
 		
 		return initAllPrivBtns_Indiv(tmpBtnNamesArray);
 	
@@ -267,10 +272,13 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	
 	/**
 	 * Instance-specific button init
-	 * @param tmpBtnNamesArray
-	 * @return size of tmpBtnNamesArray
+	 * Build button descriptive arrays : each object array holds true label, false label, and idx of button in owning child class
+	 * this must return count of -all- booleans managed by privFlags, not just those that are interactive buttons (some may be 
+	 * hidden to manage booleans that manage or record state)
+	 * @param tmpBtnNamesArray ArrayList of Object arrays to be built containing all button definitions. 
+	 * @return count of -all- booleans to be managed by privFlags
 	 */
-	protected abstract int initAllPrivBtns_Indiv(ArrayList<Object[]> tmpBtnNamesArray);
+	protected abstract int initAllPrivBtns_Indiv(TreeMap<Integer, Object[]> tmpBtnNamesArray);
 	
 	/**
 	 * Initialize any UI control flags appropriate for all boids window applications

@@ -1,6 +1,5 @@
 package Boids2_PKG.ui;
 
-import java.util.ArrayList;
 import java.util.TreeMap;
 
 import Boids2_PKG.ui.base.Base_BoidsWindow;
@@ -23,9 +22,9 @@ public class Boids_3DWin extends Base_BoidsWindow {
 	}
 
 	@Override
-	protected int initAllPrivBtns_Indiv(ArrayList<Object[]> tmpBtnNamesArray) {
+	protected int initAllPrivBtns_Indiv(TreeMap<Integer, Object[]> tmpBtnNamesArray) {
 		//TODO : Add instance-specific boolean buttons to tmpBtnNamesArray and return new size
-		return tmpBtnNamesArray.size();
+		return numBasePrivFlags;
 	}
 
 	@Override

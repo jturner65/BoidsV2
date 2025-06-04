@@ -1,6 +1,5 @@
 package Boids2_PKG.ui;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.TreeMap;
 
@@ -441,9 +440,9 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	 * @return count of -all- booleans to be managed by privFlags
 	 */
 	@Override
-	public int initAllOwnerUIButtons(ArrayList<Object[]> tmpBtnNamesArray) {
+	public int initAllOwnerUIButtons(TreeMap<Integer, Object[]> tmpBtnNamesArray) {
 		// Build all UI Buttons in here; return number of buttons
-		// tmpBtnNamesArray.add(uiMgr.uiObjInitAra_Btn(new String[] {"<true string>", "<false string>"}, <button index>));
+		// tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"<true string>", "<false string>"}, <button index>));
 		return tmpBtnNamesArray.size();
 	}
 
