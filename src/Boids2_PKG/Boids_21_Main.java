@@ -131,7 +131,7 @@ public class Boids_21_Main extends GUI_AppManager {
 	protected void initAllDispWindows() {
 		showInfo = true;
 		String[] _winTitles = new String[]{"","Boids ver2.0 3D","Boids ver2.0 2D"},
-				_winDescr = new String[] {"", "Multi Flock Predator/Prey Boids 3D Simulation","Multi Flock Predator/Prey Boids 2D Simulation"};
+				_winDescr = new String[]{"", "Multi Flock Predator/Prey Boids 3D Simulation","Multi Flock Predator/Prey Boids 2D Simulation"};
 		//instanced window dims when open and closed - only showing 1 open at a time - and init cam vals
 		float[][] _floatDims  = getDefaultWinAndCameraDims();	
 
@@ -224,7 +224,7 @@ public class Boids_21_Main extends GUI_AppManager {
 			case 'a' :
 			case 'A' : {toggleSaveAnim();break;}						//start/stop saving every frame for making into animation
 			case 's' :
-			case 'S' : {break;}//{saveSS(prjNmShrt);break;}//save picture of current image			
+			case 'S' : {break;}
 //			case ';' :
 //			case ':' : {((mySideBarMenu)dispWinFrames[dispMenuIDX]).guiObjs_Numeric[((mySideBarMenu)dispWinFrames[dispMenuIDX]).gIDX_cycModDraw].modVal(-1); break;}//decrease the number of cycles between each draw, to some lower bound
 //			case '\'' :

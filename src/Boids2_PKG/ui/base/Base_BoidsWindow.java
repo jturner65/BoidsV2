@@ -31,8 +31,8 @@ import base_UI_Objects.renderer.ProcessingRenderer;
 import base_UI_Objects.windowUI.base.Base_DispWindow;
 import base_UI_Objects.windowUI.drawnTrajectories.DrawnSimpleTraj;
 import base_UI_Objects.windowUI.uiData.UIDataUpdater;
+import base_UI_Objects.windowUI.uiObjs.base.GUIObj_Params;
 import base_Utils_Objects.io.messaging.MsgCodes;
-import base_Utils_Objects.tools.flags.Base_BoolFlags;
 import processing.core.PImage;
 
 public abstract class Base_BoidsWindow extends Base_DispWindow {
@@ -584,89 +584,102 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	
 	/**
 	 * Build all UI objects to be shown in left side bar menu for this window.  This is the first child class function called by initThisWin
-	 * @param tmpUIObjArray : map of object data, keyed by UI object idx, with array values being :                    
-	 *           the first element double array of min/max/mod values                                                   
-	 *           the 2nd element is starting value                                                                      
-	 *           the 3rd elem is label for object                                                                       
-	 *           the 4th element is object type (GUIObj_Type enum)
-	 *           the 5th element is boolean array of : (unspecified values default to false)
+	 * @param tmpUIObjMap : map of GUIObj_Params, keyed by unique string, with values describing the UI object
+	 * 			- The object IDX                   
+	 *          - A double array of min/max/mod values                                                   
+	 *          - The starting value                                                                      
+	 *          - The label for object                                                                       
+	 *          - The object type (GUIObj_Type enum)
+	 *          - A boolean array of behavior configuration values : (unspecified values default to false)
 	 *           	idx 0: value is sent to owning window,  
 	 *           	idx 1: value is sent on any modifications (while being modified, not just on release), 
 	 *           	idx 2: changes to value must be explicitly sent to consumer (are not automatically sent),
-	 *           the 6th element is a boolean array of format values :(unspecified values default to false)
+	 *          - A boolean array of renderer format values :(unspecified values default to false)
 	 *           	idx 0: whether multi-line(stacked) or not                                                  
 	 *              idx 1: if true, build prefix ornament                                                      
 	 *              idx 2: if true and prefix ornament is built, make it the same color as the text fill color.
-	 * @param tmpListObjVals : map of string arrays, keyed by UI object idx, with array values being each element in the list
-	 * @param tmpBtnNamesArray : map of Object arrays to be built containing all button definitions, keyed by sequential value == objId
-	 * 				the first element is true label
-	 * 				the second element is false label
 	 */
 	@Override
-	protected final void setupGUIObjsAras(TreeMap<Integer, Object[]> tmpUIObjArray, TreeMap<Integer, String[]> tmpListObjVals, TreeMap<Integer,Object[]> tmpBtnNamesArray){	
-		//build list select box values
+	protected final void setupGUIObjsAras(TreeMap<String, GUIObj_Params> tmpUIObjMap){		//keyed by object idx (uiXXXIDX), entries are lists of values to use for list select ui objects			
 		//keyed by object idx (uiXXXIDX), entries are lists of values to use for list select ui objects
-		
-		tmpListObjVals.put(gIDX_BoidType, boidTypeNames);
-		tmpListObjVals.put(gIDX_FlockToObs, flkNames);
-			
-		tmpUIObjArray.put(gIDX_TimeStep, uiMgr.uiObjInitAra_Float(new double[]{0,1.0f,.0001f}, curTimeStep, "Time Step"));   			                                                            
-		tmpUIObjArray.put(gIDX_NumFlocks, uiMgr.uiObjInitAra_Int(new double[]{1,maxNumFlocks,1.0f}, 1.0, "# of Flocks"));   				                                                        
-		tmpUIObjArray.put(gIDX_BoidType, uiMgr.uiObjInitAra_List(new double[]{0,boidTypeNames.length-1,1.1f}, 0.0, "Flock Species"));   	                                                                    
-		tmpUIObjArray.put(gIDX_FlockToObs, uiMgr.uiObjInitAra_List(new double[]{0,flkNames.length-1,1.1f}, 0.0, "Flock To Watch"));   	                                                                    
-		tmpUIObjArray.put(gIDX_ModNumBoids, uiMgr.uiObjInitAra_Int(new double[]{-50,50,1.0f}, 0.0, "Modify Flock Pop"));   				                                                        
-		tmpUIObjArray.put(gIDX_BoidToObs, uiMgr.uiObjInitAra_Int(new double[]{0,initNumBoids-1,1.0f}, 0.0, "Boid To Board"));   			
+					
+		tmpUIObjMap.put("gIDX_TimeStep", uiMgr.uiObjInitAra_Float(gIDX_TimeStep, new double[]{0,1.0f,.0001f}, curTimeStep, "Time Step"));   			                                                            
+		tmpUIObjMap.put("gIDX_NumFlocks", uiMgr.uiObjInitAra_Int(gIDX_NumFlocks, new double[]{1,maxNumFlocks,1.0f}, 1.0, "# of Flocks"));   				                                                        
+		tmpUIObjMap.put("gIDX_BoidType", uiMgr.uiObjInitAra_List(gIDX_BoidType, 0.0, "Flock Species", boidTypeNames));   	                                                                    
+		tmpUIObjMap.put("gIDX_FlockToObs", uiMgr.uiObjInitAra_List(gIDX_FlockToObs, 0.0, "Flock To Watch", flkNames));   	                                                                    
+		tmpUIObjMap.put("gIDX_ModNumBoids", uiMgr.uiObjInitAra_Int(gIDX_ModNumBoids, new double[]{-50,50,1.0f}, 0.0, "Modify Flock Pop"));   				                                                        
+		tmpUIObjMap.put("gIDX_BoidToObs", uiMgr.uiObjInitAra_Int(gIDX_BoidToObs, new double[]{0,initNumBoids-1,1.0f}, 0.0, "Boid To Board"));   			
 	
-		//needs to be in order of privModFlgIdxs
-		int idx=0;
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Debugging", "Enable Debug"}, Base_BoolFlags.debugIDX));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Showing Frame", "Show Frame"}, showBoidFrame));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Drawing Boids", "Drawing Spheres"}, drawBoids));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Scale Boids' Sizes", "Boids Same Size"}, drawScaledBoids));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Showing Boid Path", "Hiding Boid Path"}, clearPath));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Showing Vel Vectors", "Hiding Vel Vectors"}, showVel));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"DBG : List Flk Mmbrs", "DBG : Hide Flk Mmbrs"}, showFlkMbrs));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Mouse Click Attracts", "Mouse Click Repels"}, attractMode));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Ctr Force ON", "Ctr Force OFF"}, flkCenter));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Vel Match ON", "Vel Match OFF"}, flkVelMatch));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Col Avoid ON", "Col Avoid OFF"}, flkAvoidCol));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Wander ON", "Wander OFF"}, flkWander));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Pred Avoid ON", "Pred Avoid OFF"}, flkAvoidPred));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Hunting ON", "Hunting OFF"}, flkHunt));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Hunger ON", "Hunger OFF"}, flkHunger));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Spawning ON", "Spawning OFF"}, flkSpawn));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Orig Funcs ON", "Orig Funcs OFF"}, useOrigDistFuncs));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Tor Bnds ON", "Tor Bnds OFF"}, useTorroid));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Mod DelT By FRate", "Fixed DelT"}, modDelT));
-		tmpBtnNamesArray.put(idx++, uiMgr.uiObjInitAra_Btn(new String[] {"Boid-eye View", "Global View"}, viewFromBoid));
-
-		setupGUIObjsAras_Indiv(tmpUIObjArray, tmpListObjVals, tmpBtnNamesArray.size(), tmpBtnNamesArray);
-
+		setupGUIObjsAras_Indiv(tmpUIObjMap);
 	}//setupGUIObjsAras
+	
+	/**
+	 * Build UI button objects to be shown in left side bar menu for this window.  This is the first child class function called by initThisWin
+	 * @param firstIdx : the first index to use in the map/as the objIdx
+	 * @param tmpUIBtnObjMap : map of GUIObj_Params to be built containing all button definitions, keyed by sequential value == objId
+	 * 				the first element is the object index
+	 * 				the second element is true label
+	 * 				the third element is false label
+	 * 				the final element is integer flag idx 
+	 */
+	@Override
+	protected final void setupGUIBtnAras(int firstIdx, TreeMap<String, GUIObj_Params> tmpUIBtnObjMap) {		
+		//add an entry for each button, in the order they are wished to be displayed
+		int idx=firstIdx;
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.buildDebugButton(idx++,"Debugging", "Enable Debug"));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "ShowBoidFrame","Showing Frame", "Show Frame", showBoidFrame));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "DrawBoids","Drawing Boids", "Drawing Spheres", drawBoids));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "DrawScaledBoids","Scale Boids' Sizes", "Boids Same Size", drawScaledBoids));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "ClearPath","Showing Boid Path", "Hiding Boid Path", clearPath));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "ShowVel","Showing Vel Vectors", "Hiding Vel Vectors", showVel));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "ShowFlockMembers","DBG : List Flk Mmbrs", "DBG : Hide Flk Mmbrs", showFlkMbrs));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "AttractMode","Mouse Click Attracts", "Mouse Click Repels", attractMode));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "FlkCenter","Ctr Force ON", "Ctr Force OFF", flkCenter));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "FlkVelMatch","Vel Match ON", "Vel Match OFF", flkVelMatch));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "FlkAvoidCol","Col Avoid ON", "Col Avoid OFF", flkAvoidCol));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "FlkWander","Wander ON", "Wander OFF", flkWander));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "FlkAvoidPred","Pred Avoid ON", "Pred Avoid OFF", flkAvoidPred));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "FlkHunt","Hunting ON", "Hunting OFF", flkHunt));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "FlkHunger","Hunger ON", "Hunger OFF", flkHunger));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "FlkSpawn","Spawning ON", "Spawning OFF", flkSpawn));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "UseOrigDistFuncs","Orig Funcs ON", "Orig Funcs OFF", useOrigDistFuncs));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "UseTorroid","Tor Bnds ON", "Tor Bnds OFF", useTorroid));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "ModDelT","Mod DelT By FRate", "Fixed DelT", modDelT));
+		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "ViewFromBoid","Boid-eye View", "Global View", viewFromBoid));
+
+		//populate instancing application objects, including instancing-class specific buttons
+		setupGUIBtnAras_Indiv(tmpUIBtnObjMap);		
+	}//setupGUIBtnAras
 
 	/**
 	 * Build all UI objects to be shown in left side bar menu for this window.  This is the first child class function called by initThisWin
-	 * @param tmpUIObjArray : map of object data, keyed by UI object idx, with array values being :                    
-	 *           the first element double array of min/max/mod values                                                   
-	 *           the 2nd element is starting value                                                                      
-	 *           the 3rd elem is label for object                                                                       
-	 *           the 4th element is object type (GUIObj_Type enum)
-	 *           the 5th element is boolean array of : (unspecified values default to false)
+	 * @param tmpUIObjMap : map of GUIObj_Params, keyed by unique string, with values describing the UI object
+	 * 			- The object IDX                   
+	 *          - A double array of min/max/mod values                                                   
+	 *          - The starting value                                                                      
+	 *          - The label for object                                                                       
+	 *          - The object type (GUIObj_Type enum)
+	 *          - A boolean array of behavior configuration values : (unspecified values default to false)
 	 *           	idx 0: value is sent to owning window,  
 	 *           	idx 1: value is sent on any modifications (while being modified, not just on release), 
 	 *           	idx 2: changes to value must be explicitly sent to consumer (are not automatically sent),
-	 *           the 6th element is a boolean array of format values :(unspecified values default to false)
+	 *          - A boolean array of renderer format values :(unspecified values default to false)
 	 *           	idx 0: whether multi-line(stacked) or not                                                  
 	 *              idx 1: if true, build prefix ornament                                                      
 	 *              idx 2: if true and prefix ornament is built, make it the same color as the text fill color.
-	 * @param tmpListObjVals : map of string arrays, keyed by UI object idx, with array values being each element in the list
-	 * @param firstBtnIDX : first index to place button objects in @tmpBtnNamesArray 
-	 * @param tmpBtnNamesArray : map of Object arrays to be built containing all button definitions, keyed by sequential value == objId
-	 * 				the first element is true label
-	 * 				the second element is false label
-	 * 				the third element is integer flag idx 
 	 */
-	protected abstract void setupGUIObjsAras_Indiv(TreeMap<Integer, Object[]> tmpUIObjArray, TreeMap<Integer, String[]> tmpListObjVals, int firstBtnIDX, TreeMap<Integer,Object[]> tmpBtnNamesArray);
+	protected abstract void setupGUIObjsAras_Indiv(TreeMap<String, GUIObj_Params> tmpUIObjMap);
+
+	/**
+	 * Build all UI buttons to be shown in left side bar menu for this window. This is for instancing windows to add to button region
+	 * USE tmpUIBtnObjMap.size() for start idx
+	 * @param tmpUIBtnObjMap : map of GUIObj_Params to be built containing all button definitions, keyed by sequential value == objId
+	 * 				the first element is the object index
+	 * 				the second element is true label
+	 * 				the third element is false label
+	 * 				the final element is integer flag idx 
+	 */
+	protected abstract void setupGUIBtnAras_Indiv(TreeMap<String, GUIObj_Params> tmpUIBtnObjMap);
 
 	
 	//when flockToWatch changes, reset maxBoidToWatch value ((Base_NumericGUIObj)guiObjs_Numeric[gIDX_BoidToObs])

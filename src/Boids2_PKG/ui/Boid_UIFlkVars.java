@@ -9,6 +9,7 @@ import base_UI_Objects.GUI_AppManager;
 import base_UI_Objects.windowUI.UIObjectManager;
 import base_UI_Objects.windowUI.base.IUIManagerOwner;
 import base_UI_Objects.windowUI.uiData.UIDataUpdater;
+import base_UI_Objects.windowUI.uiObjs.base.GUIObj_Params;
 
 
 /**
@@ -101,7 +102,7 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	
 	public final String typeName;
 	
-	public final String[] UI_Labels = new String[] {
+	public final String[] UI_Labels = new String[]{
 		"Flock Rad",
 		"Flock Frc Wt",
 		"Col Avd Rad",
@@ -371,44 +372,46 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	public UIDataUpdater getUIDataUpdater() {return uiMgr.getUIDataUpdater();}
 	/**
 	 * Build all UI objects to be shown in left side bar menu for this window.  This is the first child class function called by initThisWin
-	 * @param tmpUIObjArray : map of object data, keyed by UI object idx, with array values being :                    
-	 *           the first element double array of min/max/mod values                                                   
-	 *           the 2nd element is starting value                                                                      
-	 *           the 3rd elem is label for object                                                                       
-	 *           the 4th element is object type (GUIObj_Type enum)
-	 *           the 5th element is boolean array of : (unspecified values default to false)
+	 * @param tmpUIObjMap : map of GUIObj_Params, keyed by unique string, with values describing the UI object
+	 * 			- The object IDX                   
+	 *          - A double array of min/max/mod values                                                   
+	 *          - The starting value                                                                      
+	 *          - The label for object                                                                       
+	 *          - The object type (GUIObj_Type enum)
+	 *          - A boolean array of behavior configuration values : (unspecified values default to false)
 	 *           	idx 0: value is sent to owning window,  
 	 *           	idx 1: value is sent on any modifications (while being modified, not just on release), 
 	 *           	idx 2: changes to value must be explicitly sent to consumer (are not automatically sent),
-	 *           the 6th element is a boolean array of format values :(unspecified values default to false)
+	 *          - A boolean array of renderer format values :(unspecified values default to false)
 	 *           	idx 0: whether multi-line(stacked) or not                                                  
 	 *              idx 1: if true, build prefix ornament                                                      
 	 *              idx 2: if true and prefix ornament is built, make it the same color as the text fill color.
-	 * @param tmpListObjVals : map of string arrays, keyed by UI object idx, with array values being each element in the list
-	 * @param tmpBtnNamesArray : map of Object arrays to be built containing all button definitions, keyed by sequential value == objId
-	 * 				the first element is true label
-	 * 				the second element is false label
+	 * @param tmpUIBtnObjMap : map of GUIObj_Params to be built containing all button definitions, keyed by sequential value == objId
+	 * 				the first element is the object index
+	 * 				the second element is true label
+	 * 				the third element is false label
+	 * 				the final element is integer flag idx 
 	 */
 	@Override
-	public void setupOwnerGUIObjsAras(TreeMap<Integer, Object[]> tmpUIObjArray, TreeMap<Integer, String[]> tmpListObjVals,TreeMap<Integer, Object[]> tmpBtnNamesArray) {
+	public void setupOwnerGUIObjsAras(TreeMap<String, GUIObj_Params> tmpUIObjMap, TreeMap<String, GUIObj_Params> tmpUIBtnObjMap) {
 //		//build list select box values
 //		//keyed by object idx (uiXXXIDX), entries are lists of values to use for list select ui objects
 //	
-		tmpUIObjArray.put(fv_flkRadius, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{0.01f,1000.0f,0.01f}, nghbrRad, UI_Labels[fv_flkRadius]));
-		tmpUIObjArray.put(fv_flkFrcWeight, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{.0001f,1.0f,.0001f}, 0.5f , UI_Labels[fv_flkFrcWeight]));
-		tmpUIObjArray.put(fv_colAvoidRadius, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{0.01f,1000.0f,0.01f}, colRad, UI_Labels[fv_colAvoidRadius]));
-		tmpUIObjArray.put(fv_colAvoidWeight, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{.0001f,1.0f,.0001f}, 0.75f, UI_Labels[fv_colAvoidWeight]));
-		tmpUIObjArray.put(fv_velMatchRadius, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{0.01f,1000.0f,0.01f}, velRad, UI_Labels[fv_velMatchRadius]));
-		tmpUIObjArray.put(fv_velMatchWeight, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{.0001f,1.0f,.0001f}, 0.5f, UI_Labels[fv_velMatchWeight]));
-		tmpUIObjArray.put(fv_wanderFrcWeight, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{.0001f,1.0f,.0001f}, 0.5f, UI_Labels[fv_wanderFrcWeight]));
-		tmpUIObjArray.put(fv_predAvoidWeight, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{.0001f,1.0f,.0001f}, 0.5f, UI_Labels[fv_predAvoidWeight]));
-		tmpUIObjArray.put(fv_preyChaseWeight, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{.0001f,1.0f,.0001f}, 0.1f, UI_Labels[fv_preyChaseWeight]));
-		tmpUIObjArray.put(fv_matingRadius, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{0.01f,1000.0f,0.01f}, colRad, UI_Labels[fv_matingRadius]));
-		tmpUIObjArray.put(fv_matingSuccessPct, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{.1f,100.0f,.1f}, spawnPct, UI_Labels[fv_matingSuccessPct]));
-		tmpUIObjArray.put(fv_matingFrequency, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{100.0f,10000.0f,10.0f}, spawnFreq, UI_Labels[fv_matingFrequency]));
-		tmpUIObjArray.put(fv_huntingRadius, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{0.01f,100.0f,0.01f}, killRad, UI_Labels[fv_huntingRadius]));
-		tmpUIObjArray.put(fv_huntingSuccessPct, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{.1f,100.0f,.1f}, killPct, UI_Labels[fv_huntingSuccessPct]));
-		tmpUIObjArray.put(fv_huntingFrequency, uiMgr.uiObjInitAra_FloatMultiLine(new double[]{100.0f,10000.0f,10.0f}, eatFreq, UI_Labels[fv_huntingFrequency]));
+		tmpUIObjMap.put("fv_flkRadius", uiMgr.uiObjInitAra_FloatMultiLine(fv_flkRadius, new double[]{0.01f,1000.0f,0.01f}, nghbrRad, UI_Labels[fv_flkRadius]));
+		tmpUIObjMap.put("fv_flkFrcWeight", uiMgr.uiObjInitAra_FloatMultiLine(fv_flkFrcWeight, new double[]{.0001f,1.0f,.0001f}, 0.5f , UI_Labels[fv_flkFrcWeight]));
+		tmpUIObjMap.put("fv_colAvoidRadius", uiMgr.uiObjInitAra_FloatMultiLine(fv_colAvoidRadius, new double[]{0.01f,1000.0f,0.01f}, colRad, UI_Labels[fv_colAvoidRadius]));
+		tmpUIObjMap.put("fv_colAvoidWeight", uiMgr.uiObjInitAra_FloatMultiLine(fv_colAvoidWeight, new double[]{.0001f,1.0f,.0001f}, 0.75f, UI_Labels[fv_colAvoidWeight]));
+		tmpUIObjMap.put("fv_velMatchRadius", uiMgr.uiObjInitAra_FloatMultiLine(fv_velMatchRadius, new double[]{0.01f,1000.0f,0.01f}, velRad, UI_Labels[fv_velMatchRadius]));
+		tmpUIObjMap.put("fv_velMatchWeight", uiMgr.uiObjInitAra_FloatMultiLine(fv_velMatchWeight, new double[]{.0001f,1.0f,.0001f}, 0.5f, UI_Labels[fv_velMatchWeight]));
+		tmpUIObjMap.put("fv_wanderFrcWeight", uiMgr.uiObjInitAra_FloatMultiLine(fv_wanderFrcWeight, new double[]{.0001f,1.0f,.0001f}, 0.5f, UI_Labels[fv_wanderFrcWeight]));
+		tmpUIObjMap.put("fv_predAvoidWeight", uiMgr.uiObjInitAra_FloatMultiLine(fv_predAvoidWeight, new double[]{.0001f,1.0f,.0001f}, 0.5f, UI_Labels[fv_predAvoidWeight]));
+		tmpUIObjMap.put("fv_preyChaseWeight", uiMgr.uiObjInitAra_FloatMultiLine(fv_preyChaseWeight, new double[]{.0001f,1.0f,.0001f}, 0.1f, UI_Labels[fv_preyChaseWeight]));
+		tmpUIObjMap.put("fv_matingRadius", uiMgr.uiObjInitAra_FloatMultiLine(fv_matingRadius, new double[]{0.01f,1000.0f,0.01f}, colRad, UI_Labels[fv_matingRadius]));
+		tmpUIObjMap.put("fv_matingSuccessPct", uiMgr.uiObjInitAra_FloatMultiLine(fv_matingSuccessPct, new double[]{.1f,100.0f,.1f}, spawnPct, UI_Labels[fv_matingSuccessPct]));
+		tmpUIObjMap.put("fv_matingFrequency", uiMgr.uiObjInitAra_FloatMultiLine(fv_matingFrequency, new double[]{100.0f,10000.0f,10.0f}, spawnFreq, UI_Labels[fv_matingFrequency]));
+		tmpUIObjMap.put("fv_huntingRadius", uiMgr.uiObjInitAra_FloatMultiLine(fv_huntingRadius, new double[]{0.01f,100.0f,0.01f}, killRad, UI_Labels[fv_huntingRadius]));
+		tmpUIObjMap.put("fv_huntingSuccessPct", uiMgr.uiObjInitAra_FloatMultiLine(fv_huntingSuccessPct, new double[]{.1f,100.0f,.1f}, killPct, UI_Labels[fv_huntingSuccessPct]));
+		tmpUIObjMap.put("fv_huntingFrequency", uiMgr.uiObjInitAra_FloatMultiLine(fv_huntingFrequency, new double[]{100.0f,10000.0f,10.0f}, eatFreq, UI_Labels[fv_huntingFrequency]));
 	}//setupOwnerGUIObjsAras
 		
 	/**
@@ -458,7 +461,7 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	public void handleOwnerPrivFlags(int idx, boolean val, boolean oldVal) {}
 
 	@Override
-	public void handlePrivFlagsDebugMode(boolean val) {}
+	public void handleOwnerPrivFlagsDebugMode(boolean val) {}
 	
 	///////////////////////////////////////////////////////
 	/// Start mouse interaction
@@ -493,7 +496,7 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	public final boolean handleMouseDrag(int mouseX, int mouseY,int pmouseX, int pmouseY, myVector mseDragInWorld, int mseBtn){
 		int delX = (mouseX-pmouseX), delY = (mouseY-pmouseY);
 		boolean shiftPressed = AppMgr.shiftIsPressed();
-		boolean retVals[] = uiMgr.handleMouseDrag(delX, delY, shiftPressed);
+		boolean retVals[] = uiMgr.handleMouseDrag(delX, delY, mseBtn, shiftPressed);
 		if (retVals[1]){objsModified = true;}
 		if (retVals[0]){return true;}
 		return false;

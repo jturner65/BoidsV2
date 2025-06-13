@@ -10,11 +10,11 @@ public enum BoidUpdate_Type {
 	Move, 
 	Spawn, 
 	Hunger;
-	private static final String[] _typeExplanation = new String[] {
+	private static final String[] _typeExplanation = new String[]{
 			"Integrate forces and move boid",
 			"Reproduce if able",
 			"Update Hunger state"};
-	private static final String[] _typeName = new String[] {"Move Boid","Reproduce","Update Hunger"};
+	private static final String[] _typeName = new String[]{"Move Boid","Reproduce","Update Hunger"};
 	public static String[] getListOfTypes() {return _typeName;}
 	private static Map<Integer, BoidUpdate_Type> map = new HashMap<Integer, BoidUpdate_Type>(); 
 	static { for (BoidUpdate_Type enumV : BoidUpdate_Type.values()) { map.put(enumV.ordinal(), enumV);}}
