@@ -616,40 +616,40 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	/**
 	 * Build UI button objects to be shown in left side bar menu for this window.  This is the first child class function called by initThisWin
 	 * @param firstIdx : the first index to use in the map/as the objIdx
-	 * @param tmpUIBtnObjMap : map of GUIObj_Params to be built containing all button definitions, keyed by sequential value == objId
+	 * @param tmpUIBoolSwitchObjMap : map of GUIObj_Params to be built containing all flag-backed boolean switch definitions, keyed by sequential value == objId
 	 * 				the first element is the object index
 	 * 				the second element is true label
 	 * 				the third element is false label
 	 * 				the final element is integer flag idx 
 	 */
 	@Override
-	protected final void setupGUIBtnAras(int firstIdx, TreeMap<String, GUIObj_Params> tmpUIBtnObjMap) {		
+	protected final void setupGUIBoolSwitchAras(int firstIdx, TreeMap<String, GUIObj_Params> tmpUIBoolSwitchObjMap) {		
 		//add an entry for each button, in the order they are wished to be displayed
 		int idx=firstIdx;
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.buildDebugButton(idx++,"Debugging", "Enable Debug"));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "ShowBoidFrame","Showing Frame", "Show Frame", showBoidFrame));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "DrawBoids","Drawing Boids", "Drawing Spheres", drawBoids));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "DrawScaledBoids","Scale Boids' Sizes", "Boids Same Size", drawScaledBoids));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "ClearPath","Showing Boid Path", "Hiding Boid Path", clearPath));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "ShowVel","Showing Vel Vectors", "Hiding Vel Vectors", showVel));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "ShowFlockMembers","DBG : List Flk Mmbrs", "DBG : Hide Flk Mmbrs", showFlkMbrs));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "AttractMode","Mouse Click Attracts", "Mouse Click Repels", attractMode));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "FlkCenter","Ctr Force ON", "Ctr Force OFF", flkCenter));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "FlkVelMatch","Vel Match ON", "Vel Match OFF", flkVelMatch));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "FlkAvoidCol","Col Avoid ON", "Col Avoid OFF", flkAvoidCol));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "FlkWander","Wander ON", "Wander OFF", flkWander));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "FlkAvoidPred","Pred Avoid ON", "Pred Avoid OFF", flkAvoidPred));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "FlkHunt","Hunting ON", "Hunting OFF", flkHunt));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "FlkHunger","Hunger ON", "Hunger OFF", flkHunger));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "FlkSpawn","Spawning ON", "Spawning OFF", flkSpawn));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "UseOrigDistFuncs","Orig Funcs ON", "Orig Funcs OFF", useOrigDistFuncs));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "UseTorroid","Tor Bnds ON", "Tor Bnds OFF", useTorroid));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "ModDelT","Mod DelT By FRate", "Fixed DelT", modDelT));
-		tmpUIBtnObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Btn(idx++, "ViewFromBoid","Boid-eye View", "Global View", viewFromBoid));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.buildDebugButton(idx++,"Debugging", "Enable Debug"));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "ShowBoidFrame","Showing Frame", "Show Frame", showBoidFrame));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "DrawBoids","Drawing Boids", "Drawing Spheres", drawBoids));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "DrawScaledBoids","Scale Boids' Sizes", "Boids Same Size", drawScaledBoids));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "ClearPath","Showing Boid Path", "Hiding Boid Path", clearPath));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "ShowVel","Showing Vel Vectors", "Hiding Vel Vectors", showVel));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "ShowFlockMembers","DBG : List Flk Mmbrs", "DBG : Hide Flk Mmbrs", showFlkMbrs));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "AttractMode","Mouse Click Attracts", "Mouse Click Repels", attractMode));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "FlkCenter","Ctr Force ON", "Ctr Force OFF", flkCenter));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "FlkVelMatch","Vel Match ON", "Vel Match OFF", flkVelMatch));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "FlkAvoidCol","Col Avoid ON", "Col Avoid OFF", flkAvoidCol));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "FlkWander","Wander ON", "Wander OFF", flkWander));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "FlkAvoidPred","Pred Avoid ON", "Pred Avoid OFF", flkAvoidPred));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "FlkHunt","Hunting ON", "Hunting OFF", flkHunt));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "FlkHunger","Hunger ON", "Hunger OFF", flkHunger));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "FlkSpawn","Spawning ON", "Spawning OFF", flkSpawn));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "UseOrigDistFuncs","Orig Funcs ON", "Orig Funcs OFF", useOrigDistFuncs));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "UseTorroid","Tor Bnds ON", "Tor Bnds OFF", useTorroid));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "ModDelT","Mod DelT By FRate", "Fixed DelT", modDelT));
+		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.uiObjInitAra_Switch(idx++, "ViewFromBoid","Boid-eye View", "Global View", viewFromBoid));
 
 		//populate instancing application objects, including instancing-class specific buttons
-		setupGUIBtnAras_Indiv(tmpUIBtnObjMap);		
-	}//setupGUIBtnAras
+		setupGUIBoolSwitchAras_Indiv(tmpUIBoolSwitchObjMap);		
+	}//setupGUIBoolSwitchAras
 
 	/**
 	 * Build all UI objects to be shown in left side bar menu for this window.  This is the first child class function called by initThisWin
@@ -672,14 +672,14 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 
 	/**
 	 * Build all UI buttons to be shown in left side bar menu for this window. This is for instancing windows to add to button region
-	 * USE tmpUIBtnObjMap.size() for start idx
-	 * @param tmpUIBtnObjMap : map of GUIObj_Params to be built containing all button definitions, keyed by sequential value == objId
+	 * USE tmpUIBoolSwitchObjMap.size() for start idx
+	 * @param tmpUIBoolSwitchObjMap : map of GUIObj_Params to be built containing all flag-backed boolean switch definitions, keyed by sequential value == objId
 	 * 				the first element is the object index
 	 * 				the second element is true label
 	 * 				the third element is false label
 	 * 				the final element is integer flag idx 
 	 */
-	protected abstract void setupGUIBtnAras_Indiv(TreeMap<String, GUIObj_Params> tmpUIBtnObjMap);
+	protected abstract void setupGUIBoolSwitchAras_Indiv(TreeMap<String, GUIObj_Params> tmpUIBoolSwitchObjMap);
 
 	
 	//when flockToWatch changes, reset maxBoidToWatch value ((Base_NumericGUIObj)guiObjs_Numeric[gIDX_BoidToObs])

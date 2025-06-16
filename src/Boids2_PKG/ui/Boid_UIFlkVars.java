@@ -386,14 +386,14 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	 *           	idx 0: whether multi-line(stacked) or not                                                  
 	 *              idx 1: if true, build prefix ornament                                                      
 	 *              idx 2: if true and prefix ornament is built, make it the same color as the text fill color.
-	 * @param tmpUIBtnObjMap : map of GUIObj_Params to be built containing all button definitions, keyed by sequential value == objId
+	 * @param tmpUIBoolSwitchObjMap : map of GUIObj_Params to be built containing all flag-backed boolean switch definitions, keyed by sequential value == objId
 	 * 				the first element is the object index
 	 * 				the second element is true label
 	 * 				the third element is false label
 	 * 				the final element is integer flag idx 
 	 */
 	@Override
-	public void setupOwnerGUIObjsAras(TreeMap<String, GUIObj_Params> tmpUIObjMap, TreeMap<String, GUIObj_Params> tmpUIBtnObjMap) {
+	public void setupOwnerGUIObjsAras(TreeMap<String, GUIObj_Params> tmpUIObjMap, TreeMap<String, GUIObj_Params> tmpUIBoolSwitchObjMap) {
 //		//build list select box values
 //		//keyed by object idx (uiXXXIDX), entries are lists of values to use for list select ui objects
 //	
@@ -476,7 +476,7 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	@Override
 	public final boolean handleMouseClick(int mouseX, int mouseY, int mseBtn){
 		boolean[] retVals = new boolean[] {false,false};
-		msClickInUIObj = uiMgr.handleMouseClick(mouseX, mouseY, mseBtn, retVals);
+		msClickInUIObj = uiMgr.handleMouseClick(mouseX, mouseY, mseBtn, AppMgr.isClickModUIVal(), retVals);
 		if (retVals[1]){objsModified = true;}
 		if (retVals[0]){return true;}
 		return false;
