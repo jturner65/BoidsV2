@@ -3,10 +3,13 @@ package Boids2_PKG.ui;
 import java.util.Arrays;
 import java.util.TreeMap;
 
+import Boids2_PKG.ui.base.Base_BoidsWindow;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.doubles.myVector;
+import base_Render_Interface.IRenderInterface;
 import base_UI_Objects.GUI_AppManager;
 import base_UI_Objects.windowUI.UIObjectManager;
+import base_UI_Objects.windowUI.base.Base_DispWindow;
 import base_UI_Objects.windowUI.base.IUIManagerOwner;
 import base_UI_Objects.windowUI.uiData.UIDataUpdater;
 import base_UI_Objects.windowUI.uiObjs.base.GUIObj_Params;
@@ -17,7 +20,15 @@ import base_UI_Objects.windowUI.uiObjs.base.GUIObj_Params;
  * @author John Turner
  *
  */
-public class Boid_UIFlkVars implements IUIManagerOwner {	
+public class Boid_UIFlkVars implements IUIManagerOwner {
+	/**
+	 * Owning window
+	 */
+	public final Base_BoidsWindow owner;
+	/**
+	 * Interface to drawing/graphics engine
+	 */
+	protected static IRenderInterface ri;
 	/**
 	 * Gui-based application manager
 	 */
@@ -141,9 +152,12 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 		fv_huntingFrequency = 14;
 	public final static int numFlockUIObjs = 15;
 	
-	public Boid_UIFlkVars(GUI_AppManager _AppMgr, String _flockName, float _nRadMult, float _predRad) {
+	public Boid_UIFlkVars(Base_BoidsWindow _owner, String _flockName, float _nRadMult, float _predRad) {
 		ID = objCnt++;
-		AppMgr = _AppMgr;
+		owner = _owner;
+		ri = Base_DispWindow.ri;
+		AppMgr = Base_BoidsWindow.AppMgr;
+		uiMgr = new UIObjectManager(ri, this, AppMgr, owner.getMsgObj());
 		className = this.getClass().getSimpleName();
 		typeName = _flockName;
 		msClickInUIObj = false;
@@ -201,8 +215,8 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	 */
 	@Override
 	public final float[] getOwnerParentWindowUIClkCoords() {
-		//TODO
-		return new float[0];
+		float[] clickCoords = owner.getOwnerParentWindowUIClkCoords();
+		return clickCoords;
 	}
 
 	//if set default weight mults based on whether using force calcs based on original inverted distance functions or linear distance functions
@@ -260,6 +274,13 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 		}//switch
 		
 	}//modFlckVal
+	
+	public final void drawMe(float animTimeMod) {
+		ri.pushMatState();
+			uiMgr.drawGUIObjs(AppMgr.isDebugMode(), animTimeMod); 
+		ri.popMatState();
+		
+	}
 	
 	//call after neighborhood, collision or avoidance radii have been modified
 	private void fixNCVRads(boolean modC, boolean modV){
@@ -337,10 +358,7 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	 * @param oldVal integer value of old data in UIUpdater
 	 */
 	@Override
-	public void setUI_OwnerIntValsCustom(int UIidx, int ival, int oldVal) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void setUI_OwnerIntValsCustom(int UIidx, int ival, int oldVal) {	}
 	/**
 	 * Called if float-handling guiObjs[UIidx] has new data which updated UI adapter.  
 	 * Intended to support custom per-object handling by owning window.
@@ -350,10 +368,7 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	 * @param oldVal float value of old data in UIUpdater
 	 */
 	@Override
-	public void setUI_OwnerFloatValsCustom(int UIidx, float val, float oldVal) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void setUI_OwnerFloatValsCustom(int UIidx, float val, float oldVal) {	}
 	
 	/**
 	 * Build flkVars UIDataUpdater instance for application
@@ -382,18 +397,16 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	 *           	idx 0: value is sent to owning window,  
 	 *           	idx 1: value is sent on any modifications (while being modified, not just on release), 
 	 *           	idx 2: changes to value must be explicitly sent to consumer (are not automatically sent),
-	 *          - A boolean array of renderer format values :(unspecified values default to false)
-	 *           	idx 0: whether multi-line(stacked) or not                                                  
-	 *              idx 1: if true, build prefix ornament                                                      
-	 *              idx 2: if true and prefix ornament is built, make it the same color as the text fill color.
-	 * @param tmpUIBoolSwitchObjMap : map of GUIObj_Params to be built containing all flag-backed boolean switch definitions, keyed by sequential value == objId
-	 * 				the first element is the object index
-	 * 				the second element is true label
-	 * 				the third element is false label
-	 * 				the final element is integer flag idx 
+	 *          - A boolean array of renderer format values :(unspecified values default to false) - Behavior Boolean array must also be provided!
+	 * 				idx 0 : Should be multiline
+	 * 				idx 1 : One object per row in UI space (i.e. default for multi-line and btn objects is false, single line non-buttons is true)
+	 * 				idx 2 : Text should be centered (default is false)
+	 * 				idx 3 : Object should be rendered with outline (default for btns is true, for non-buttons is false)
+	 * 				idx 4 : Should have ornament
+	 * 				idx 5 : Ornament color should match label color 
 	 */
 	@Override
-	public void setupOwnerGUIObjsAras(TreeMap<String, GUIObj_Params> tmpUIObjMap, TreeMap<String, GUIObj_Params> tmpUIBoolSwitchObjMap) {
+	public void setupOwnerGUIObjsAras(TreeMap<String, GUIObj_Params> tmpUIObjMap) {
 //		//build list select box values
 //		//keyed by object idx (uiXXXIDX), entries are lists of values to use for list select ui objects
 //	
@@ -413,7 +426,17 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 		tmpUIObjMap.put("fv_huntingSuccessPct", uiMgr.uiObjInitAra_FloatMultiLine(fv_huntingSuccessPct, new double[]{.1f,100.0f,.1f}, killPct, UI_Labels[fv_huntingSuccessPct]));
 		tmpUIObjMap.put("fv_huntingFrequency", uiMgr.uiObjInitAra_FloatMultiLine(fv_huntingFrequency, new double[]{100.0f,10000.0f,10.0f}, eatFreq, UI_Labels[fv_huntingFrequency]));
 	}//setupOwnerGUIObjsAras
-		
+	/**
+	 * Build UI button objects to be shown in left side bar menu for this window. This is the first child class function called by initThisWin
+	 * @param firstIdx : the first index to use in the map/as the objIdx
+	 * @param tmpUIBoolSwitchObjMap : map of GUIObj_Params to be built containing all flag-backed boolean switch definitions, keyed by sequential value == objId
+	 * 				the first element is the object index
+	 * 				the second element is true label
+	 * 				the third element is false label
+	 * 				the final element is integer flag idx 
+	 */
+	@Override
+	public final void setupOwnerGUIBoolSwitchAras(int firstIdx, TreeMap<String, GUIObj_Params> tmpUIBoolSwitchObjMap) {	}
 	/**
 	 * Retrieve the total number of defined privFlags booleans (application-specific state bools and interactive buttons)
 	 */
