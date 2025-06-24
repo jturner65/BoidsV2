@@ -14,8 +14,7 @@ import Boids2_PKG.flocks.BoidFlock;
 import Boids2_PKG.flocks.boids.Boid;
 import Boids2_PKG.threadedSolvers.updaters.BoidHuntUpdater;
 import Boids2_PKG.threadedSolvers.updaters.BoidUpdate_Type;
-import Boids2_PKG.ui.Boids_UIDataUpdater;
-import Boids2_PKG.ui.Boid_UIFlkVars;
+import Boids2_PKG.ui.flkVars.Boid_UIFlkVars;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
 import base_Math_Objects.vectorObjs.doubles.myVector;
@@ -162,7 +161,11 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	/**
 	 * UV coordinates
 	 */
-	protected static final myPointf[] mnUVBox = new myPointf[]{new myPointf(0,0,0),new myPointf(1,0,0),new myPointf(1,1,0),new myPointf(0,1,0)};
+	protected static final myPointf[] mnUVBox = new myPointf[]{
+	        new myPointf(0,0,0),
+	        new myPointf(1,0,0),
+	        new myPointf(1,1,0),
+	        new myPointf(0,1,0)};
 	
 	/**
 	 * Types of boids
@@ -204,10 +207,10 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 */
 	protected int flockToWatch, boidToWatch;
 
-	/**
-	 * idx of zone in currently modified flkVars value during drag - set to -1 on click release
-	 */
-	protected int flkVarIDX, flkVarObjIDX;
+//	/**
+//	 * idx of zone in currently modified flkVars value during drag - set to -1 on click release
+//	 */
+//	protected int flkVarIDX, flkVarObjIDX;
 	
 	/**
 	 * threading constructions - allow map manager to own its own threading executor
@@ -221,14 +224,10 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	protected List<Future<Boolean>> callHuntFutures;
 	protected List<Callable<Boolean>> callHuntBoidCalcs;
 	
-	private final float fvDataTxtStY;
-	private final float fvDataNewLineY;
 	
 	public Base_BoidsWindow(IRenderInterface _p, GUI_AppManager _AppMgr, int _winIdx) {
 		super(_p, _AppMgr, _winIdx);
-		fvDataTxtStY = AppMgr.getTextHeightOffset() * .5f;
-		fvDataNewLineY = AppMgr.getTextHeightOffset();
-		bdgSizeX_base = AppMgr.getXOffset() * .75f;
+		bdgSizeX_base = AppMgr.getTextHeightOffset() * .75f;
 		bdgSizeY = AppMgr.getTextHeightOffset() * .75f;
 	}
 	
@@ -253,8 +252,11 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	@Override
 	protected void initMe() {
 		//called once
-		//TODO set this to be determined by UI input (?)
-		initBoidRndrObjs();
+		// initialize all rendered objects
+	    initBoidRndrObjs();
+	    // build all flockvars/ui interfaces 1 time.
+	    initFlockVars();
+		
 		//want # of usable background threads.  Leave 2 for primary process (and potential draw loop)
 		numUsableThreads = getNumThreadsAvailable() - 2;
 		//set if this is multi-threaded capable - need more than 1 outside of 2 primary threads (i.e. only perform multithreaded calculations if 4 or more threads are available on host)
@@ -318,7 +320,12 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 			float scale = flkSails[i].width / (1.0f*flkSails[i].height);
 			bdgSizeX[i] = bdgSizeX_base * scale; 
 
-			mnBdgBox[i] = new myPointf[]{new myPointf(0,0,0),new myPointf(0,bdgSizeY,0),new myPointf(bdgSizeX[i],bdgSizeY,0),new myPointf(bdgSizeX[i],0,0)};
+			mnBdgBox[i] = new myPointf[]{
+			        new myPointf(),
+			        new myPointf(0,bdgSizeY,0),
+			        new myPointf(bdgSizeX[i],bdgSizeY,0),
+			        new myPointf(bdgSizeX[i],0,0)
+			};
 		}
 		
 		cmplxRndrTmpls = new ConcurrentSkipListMap<String, Base_RenderObj[]> (); 
@@ -339,6 +346,36 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		cmplxRndrTmpls.put(boidTypeNames[0], boatRndrTmplPerFlockAra);
 		cmplxRndrTmpls.put(boidTypeNames[1], jellyFishRndrTmplPerFlockAra);
 		currRndrTmplPerFlockAra = cmplxRndrTmpls.get(boidTypeNames[0]);//start by rendering boats
+	}
+	
+	/**
+	 * Initialize all individual flock variable UI groups. Called 1 time
+	 */
+	protected void initFlockVars() {
+	    // Get dimensions of 3d box region
+        float[] gridDims = AppMgr.get3dGridDims();
+        float initPredRad = MyMathUtils.min(gridDims);
+        flockVars = new Boid_UIFlkVars[maxNumFlocks];
+        for(int i = 0; i<flockVars.length; ++i){         
+            flockVars[i] = new Boid_UIFlkVars(this, i, flkNames[i], flkRadMults[i], initPredRad);    
+        }
+        // Now build flock vars - each will use the UIclickara of the previous
+        for(int i = 0; i<flockVars.length; ++i){  
+            flockVars[i].initFlkVarsUI();
+        }
+	}//initFlockVars
+	
+	/**
+	 * Return the previous flock vars entry's click coordinates, to know where to initialize next 
+	 * flock vars coords. If idx is 0 return base window uiMgr click coords
+	 * @param idx index of current flock vars
+	 * @return previous flock vars' click coordinates
+	 */
+	public final float[] getPrevFlkVarsUIClckCoords(int idx) {
+	    float[] flkVars = (idx == 0) ? uiMgr.getUIClkCoords() : flockVars[idx-1].getUIClkCoords();	
+	    //make old ending new beginning
+        flkVars[1] = flkVars[3];
+        return flkVars;
 	}
 
 	
@@ -411,13 +448,10 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		boidToWatch = 0;
 		setMaxUIFlockToWatch();
 		flocks = new BoidFlock[numFlocks];
-		flockVars = new Boid_UIFlkVars[numFlocks];
-		float[] gridDims = AppMgr.get3dGridDims();
-		float initPredRad = MyMathUtils.min(gridDims);
 		float[] UIFlkVarClkCoords = getUIClkCoords();
-		UIFlkVarClkCoords[1] = custMenuOffset;
+		// make new ui flk var clk coords start at end of old
+		UIFlkVarClkCoords[1] = UIFlkVarClkCoords[3];
 		for(int i =0; i<flocks.length; ++i){
-			flockVars[i] = new Boid_UIFlkVars(this, flkNames[i], flkRadMults[i], initPredRad);
 			flocks[i] = new BoidFlock(this,flockVars[i], initNumBoids, numUsableThreads);
 		}
 		
@@ -480,33 +514,44 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 */
 	public int getFlkFlagsInt(){		return uiMgr.getPrivFlagAsInt(0);} //get first 32 flag settings
 	
-	public void drawMenuBadge(myPointf[] ara, myPointf[] uvAra, int type) {
+	public void drawMenuBadge(myPointf[] uvAra, int type) {
 		ri.gl_beginShape(); 
 		((ProcessingRenderer)ri).texture(flkSails[type]);
-		for(int i=0;i<ara.length;++i){	((ProcessingRenderer)ri).vTextured(ara[i], uvAra[i].y, uvAra[i].x);} 
+		for(int i=0;i<mnBdgBox[type].length;++i){	((ProcessingRenderer)ri).vTextured(mnBdgBox[type][i], uvAra[i].y, uvAra[i].x);} 
 		ri.gl_endShape(true);
 	}//
 		
-	public void drawFlockMenu(int i, int numBoids){
-		ri.translate(0,-bdgSizeY-6);
-		drawMenuBadge(mnBdgBox[i],mnUVBox,i);
-		ri.translate(bdgSizeX[i]+4,0);
-		//p.setColorValFill(flkMenuClr);
-		currRndrTmplPerFlockAra[i].setMenuColor();
-		String fvData[] = flockVars[i].getData(numBoids);
-		ri.showText(fvData[0],0, fvDataTxtStY);ri.translate(0,fvDataNewLineY);
-		ri.translate(-bdgSizeX[i]-3,0);
-		for(int j=1;j<fvData.length; ++j){ri.showText(fvData[j],0,fvDataTxtStY);ri.translate(0,fvDataNewLineY);}
-	}//drawFlockMenu
+//	public void drawFlockMenu(int i, int numBoids){
+//		drawMenuBadge(mnUVBox,i);
+//		ri.translate(bdgSizeX[i]+4,0);
+//		//p.setColorValFill(flkMenuClr);
+//		currRndrTmplPerFlockAra[i].setMenuColor();
+//		String fvData[] = flockVars[i].getData(numBoids);
+//		ri.showText(fvData[0],0, fvDataTxtStY);ri.translate(0,fvDataNewLineY);
+//		ri.translate(-bdgSizeX[i]-3,0);
+//		for(int j=1;j<fvData.length; ++j){ri.showText(fvData[j],0,fvDataTxtStY);ri.translate(0,fvDataNewLineY);}
+//	}//drawFlockMenu
 	
 	@Override
 	public void drawCustMenuObjs(float animTimeMod){
-		ri.pushMatState();	
-		//all flock menu drawing within push mat call
+///	    var parentUIClkCoords = uiMgr.getUIClkCoords();
+//		ri.pushMatState();	
+//		//all flock menu drawing within push mat call
+//		ri.translate(parentUIClkCoords[2],parentUIClkCoords[3]);
+//		ri.setFill(255,255,255,255);
+//		ri.drawRect(0,0,parentUIClkCoords[2], 1000);
+//		for(int i =0; i<flocks.length; ++i){
+//			drawFlockMenu(i, flocks[i].numBoids);
+//			ri.translate(0,fvDataNewLineY);
+//		}		
+//		ri.popMatState();
+		ri.pushMatState();    
 		for(int i =0; i<flocks.length; ++i){
-			drawFlockMenu(i, flocks[i].numBoids);
-			ri.translate(0,fvDataNewLineY);
-		}		
+	        drawMenuBadge(mnUVBox,i);
+	        //ri.translate(bdgSizeX[i]+4,0);
+	        currRndrTmplPerFlockAra[i].setMenuColor();
+		    flockVars[i].drawMe(animTimeMod);
+		}
 		ri.popMatState();
 	}
 	
@@ -548,8 +593,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 				break;}	//whether viewpoint is from a boid's perspective or global
 			case useOrigDistFuncs 	    : {
 				if(flocks == null){break;}
-				for(int i =0; i<flocks.length; ++i){
-					flockVars[i].setDefaultWtVals(val);}
+				for(int i =0; i<flocks.length; ++i){flockVars[i].setDefaultWtVals(val);}
 				break;
 			}
 			case useTorroid			    : { break;}		
@@ -731,8 +775,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 				if (!setUI_IntValsCustom_Indiv(UIidx, ival, oldVal)) {
 					msgObj.dispWarningMessage(className, "setUI_IntValsCustom", "No int-defined gui object mapped to idx :"+UIidx);
 				}
-				break;
-			}				
+				break;}				
 		}
 	}//setUI_IntValsCustom
 	
@@ -780,9 +823,11 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 */
 	protected abstract boolean setUI_FloatValsCustom_Indiv(int UIidx, float val, float oldVal);
 	
-	public double getTimeStep(){
-		return curTimeStep * timeStepMult;
-	}
+	/**
+	 * 
+	 * @return
+	 */
+	public double getTimeStep(){		return curTimeStep * timeStepMult;	}
 	/**
 	 * Once boid count has been modified, reset mod UI obj
 	 */
@@ -804,15 +849,15 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		ri.pushMatState();
 		initTransform();
 		
-		if (uiMgr.getPrivFlag(showBoidFrame)){			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidFrames(ri);}}
-		if (uiMgr.getPrivFlag(showVel)){				for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidVels(ri);}}
+		if (uiMgr.getPrivFlag(showBoidFrame)){            for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidFrames(ri);}}
+		if (uiMgr.getPrivFlag(showVel)){                  for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidVels(ri);}}
 
 		if(uiMgr.getPrivFlag(drawBoids)){//broken apart to minimize if checks - only potentially 2 per flock per frame instead of thousands
-			if (uiMgr.getPrivFlag(drawScaledBoids)) {	for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsScaled(ri);}}				
-			else {										for(int i =0; i<flocks.length; ++i){flocks[i].drawBoids(ri);}}
+			if (uiMgr.getPrivFlag(drawScaledBoids)) {    for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsScaled(ri);}}				
+			else {                                       for(int i =0; i<flocks.length; ++i){flocks[i].drawBoids(ri);}}
 		} else {
 			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsAsBall(ri);}
-			if(uiMgr.getPrivFlag(showFlkMbrs)){			for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsFlkMmbrs(ri);}}
+			if(uiMgr.getPrivFlag(showFlkMbrs)){          for(int i =0; i<flocks.length; ++i){flocks[i].drawBoidsFlkMmbrs(ri);}}
 		}	
 		ri.popMatState();
 	}//drawMe
@@ -857,88 +902,50 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	@Override
 	protected void stopMe() {	}		
 
-	@Override
-	protected boolean hndlMouseMove_Indiv(int mouseX, int mouseY, myPoint mseClckInWorld){
-		return false;
-	}
+    
+    ///////////////////////////////////////////////////////
+    /// Start mouse interaction
 
-	/**
-	 * handle click in menu region - return idx of mod obj or -1
-	 * @param mouseX
-	 * @param mouseY
-	 * @return
-	 */
-	private int handleFlkMenuClick(int mouseX, int mouseY){
-		int vIdx = -1;
-		//float mod = 0;
-		int clkRow = (mouseY/12);//UI values modifiable in rows 1,3,5 and 6
-		switch(clkRow){
-		case 1 : {//radii 45 -110 | 110-183 | 183 ->
-			if((mouseX >= 45) && (mouseX < 110)) {			vIdx = 0;} 
-			else if((mouseX >= 110) && (mouseX < 185)) {	vIdx = 1;} 
-			else if (mouseX >= 185) {						vIdx = 2;} 
-			break;	}
-		case 3 : {//weight vals : ctr : 10-45; av 50-90; velM 95-125; wander 130-165; avPred 170-200   ; chase 205->    ;
-			if(10 > mouseX) {		vIdx = -1;	} 
-			else {		vIdx = 3 + (mouseX - 10)/40;vIdx = (vIdx > 8 ? 8 : vIdx);}
-			break;	}
-		case 5 : {//spawn vals ( 60-85; 90-125; 130-165 )
-			if(60 > mouseX) {		vIdx = -1;	} 
-			else {		vIdx = 9 +  (mouseX - 60)/30;vIdx = (vIdx > 11 ? 11 : vIdx);}
-			break;		}
-		case 6 : {//hunt vals (  60-85; 90-135; 140-175 )
-			if(60 > mouseX) {		vIdx = -1;	} 
-			else {		vIdx = 12 + (mouseX - 60)/30;vIdx = (vIdx > 14 ? 14 : vIdx);}
-			break;	}		
-		default : {break;}
-		}//switch			
-		//msgObj.dispDebugMessage(className,"handleFlkMenuClick","Flock vars click : [" + mouseX + "," + mouseY + "] row : " +clkRow + " obj idx : " + vIdx);	
-		return vIdx;
-	}//handleFlkMenuClick
-	
-	
 	@Override
 	protected boolean hndlMouseClick_Indiv(int mouseX, int mouseY, myPoint mseClckInWorld, int mseBtn) {
-		boolean res = false;
 		//not in ui buttons, check if in flk vars region
-		if((mouseX < uiMgr.getUIClkCoords()[2]) && (mouseY >= custMenuOffset)){
-			float relY = mouseY - custMenuOffset;
-			flkVarIDX = Math.round(relY) / 100;
-			//msgObj.dispInfoMessage(className, "hndlMouseClickIndiv","ui drag in UI coords : [" + mouseX + "," + mouseY + "; rel Y : " +relY + " ] flkIDX : " + flkVarIDX);
-			if(flkVarIDX < numFlocks){	
-				flkVarObjIDX = handleFlkMenuClick(mouseX, Math.round(relY) % 100);
-				res = (flkVarIDX != -1);	
-			} else {			flkVarIDX = -1;			}
+		if((mouseX < uiMgr.getUIClkCoords()[2]) && (mouseY >= uiMgr.getUIClkCoords()[3])){
+	        for(int i = 0; i<flockVars.length; ++i){if(flockVars[i].handleMouseClick(mouseX, mouseY, mseBtn)) {return true;}}
 		}			
-		return res;
+		return false;
 	}//hndlMouseClickIndiv
 
+    @Override
+    protected boolean handleMouseWheel_Indiv(int ticks, float mult) {
+        for(int i = 0; i<flockVars.length; ++i){if(flockVars[i].handleMouseWheel(ticks, mult)) {return true;}}
+        return false;
+    }
+
+    @Override
+    protected boolean hndlMouseMove_Indiv(int mouseX, int mouseY, myPoint mseClckInWorld){
+        for(int i = 0; i<flockVars.length; ++i){if(flockVars[i].handleMouseMove(mouseX, mouseY)) {return true;}}
+        return false;
+    }
+	
 	@Override
 	protected boolean hndlMouseDrag_Indiv(int mouseX, int mouseY, int pmouseX, int pmouseY, myPoint mouseClickIn3D, myVector mseDragInWorld, int mseBtn) {
-		boolean res = false;
-		//not in ui buttons, check if in flk vars region
-		if ((flkVarIDX != -1 ) && (flkVarObjIDX != -1)) {	res = handleFlkMenuDrag(flkVarIDX, flkVarObjIDX, mouseX, mouseY, pmouseX, pmouseY, mseBtn);		}
-		return res;
+	    for(int i = 0; i<flockVars.length; ++i){
+            if(flockVars[i].handleMouseDrag(mouseX, mouseY, pmouseX, pmouseY, mseDragInWorld, mseBtn)) {return true;}
+        }
+        return false;
 	}
 	
-	//handle click in menu region - abs x, rel to start y
-	private boolean handleFlkMenuDrag(int flkIDX, int flkValIDX, int mouseX, int mouseY, int pmx, int pmy, int mseBtn){
-		boolean res = true;
-		float mod = (mouseX-pmx) + (mouseY-pmy)*-5.0f;		
-		flockVars[flkIDX].modFlkVal(flkValIDX, mod);		
-		//msgObj.dispInfoMessage("myBoidFlock","handleFlkMenuDrag","Flock : " + name + " flkVar IDX : " + flkVarIDX + " mod amt : " + mod);		
-		return res;
-	}//handleFlkMenuDrag
+	// pass release to all active flock vars 
+    @Override
+    protected void hndlMouseRel_Indiv() {
+        for(int i = 0; i<flockVars.length; ++i){flockVars[i].handleMouseRelease();}
+    }
+
+    ///////////////////////////////////////////////////////
+    /// End mouse interaction	
 	
 	@Override
 	protected void snapMouseLocs(int oldMouseX, int oldMouseY, int[] newMouseLoc) {}	
-
-	@Override
-	protected void hndlMouseRel_Indiv() {
-		//release always clears mod variable
-		flkVarIDX = -1;
-		flkVarObjIDX = -1;		
-	}
 	@Override
 	protected void endShiftKey_Indiv() {}
 	@Override

@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import Boids2_PKG.flocks.BoidFlock;
 import Boids2_PKG.flocks.boids.Boid;
 import Boids2_PKG.ui.Boids_3DWin;
-import Boids2_PKG.ui.Boid_UIFlkVars;
+import Boids2_PKG.ui.flkVars.Boid_UIFlkVars;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_UI_Objects.GUI_AppManager;
 

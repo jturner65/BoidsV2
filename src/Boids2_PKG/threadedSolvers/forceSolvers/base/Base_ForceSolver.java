@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import Boids2_PKG.flocks.BoidFlock;
 import Boids2_PKG.flocks.boids.Boid;
 import Boids2_PKG.ui.Boids_3DWin;
-import Boids2_PKG.ui.Boid_UIFlkVars;
+import Boids2_PKG.ui.flkVars.Boid_UIFlkVars;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
@@ -97,11 +97,11 @@ public abstract class Base_ForceSolver implements Callable<Boolean> {
 				for(Boid b : bAra){
 					if (b.predFlkLoc.size() !=0){//avoid predators if they are nearby
 						//b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlk, b.predFlkLoc, predRadSq), fv.wts, fv.maxFrcs,fv.wFrcAvdPred));	//flee from predators
-						b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlkLoc, predRadSq), fv.wts, fv.maxFrcs,fv.wFrcAvdPred));	//flee from predators
+						b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlkLoc, predRadSq), fv.wts, fv.maxFrcs,fv.wFrcAvdPredIDX));	//flee from predators
 						if(b.canSprint()){ 
 							//add greater force if within collision radius
 							//b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlk, b.predFlkLoc,  colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvdPred));
-							b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlkLoc,  colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvdPred));
+							b.forces._add(setFrcVal(frcAvoidCol(b, b.predFlkLoc,  colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvdPredIDX));
 							//expensive to sprint, hunger increases
 							--b.starveCntr;
 						}//last gasp, only a brief period for sprint allowed, and can starve prey
@@ -116,7 +116,7 @@ public abstract class Base_ForceSolver implements Callable<Boolean> {
 					myPointf tar = b.preyFlkLoc.firstEntry().getValue(); 
 					//add force at single boid target
 					float mult = (fv.eatFreq/(b.starveCntr + 1.0f));
-					myVectorf chase = setFrcVal(myVectorf._mult(myVectorf._sub(tar, b.getCoords()),  mult),fv.wts, fv.maxFrcs,fv.wFrcChsPrey); 
+					myVectorf chase = setFrcVal(myVectorf._mult(myVectorf._sub(tar, b.getCoords()),  mult),fv.wts, fv.maxFrcs,fv.wFrcChsPreyIDX); 
 //						if(b.ID % 100 == 0){
 //							System.out.println("Flock : " + flock.name+" ID : " + b.ID + " Chase force : " + chase.toString() + " mult : " + mult + " starve : " + b.starveCntr);
 //							
@@ -131,24 +131,24 @@ public abstract class Base_ForceSolver implements Callable<Boolean> {
 			for(Boid b : bAra){
 				if(b.colliderLoc.size()==0){continue;}
 				//b.forces._add(setFrcVal(frcAvoidCol(b, b.colliders, b.colliderLoc, colRadSq),fv.wts, fv.maxFrcs,fv.wFrcAvd));
-				b.forces._add(setFrcVal(frcAvoidCol(b, b.colliderLoc, colRadSq),fv.wts, fv.maxFrcs, fv.wFrcAvd));
+				b.forces._add(setFrcVal(frcAvoidCol(b, b.colliderLoc, colRadSq),fv.wts, fv.maxFrcs, fv.wFrcAvdIDX));
 			}
 		}				
 		
 		if(stFlags[flkVelMatch]){		//find velocity matching forces, if appropriate within flock.colRad	
 			for(Boid b : bAra){
 				if(b.neighbors.size()==0){continue;}
-				b.forces._add(setFrcVal(frcVelMatch(b),fv.wts, fv.maxFrcs,fv.wFrcVel));
+				b.forces._add(setFrcVal(frcVelMatch(b),fv.wts, fv.maxFrcs,fv.wFrcVelIDX));
 			}
 		}	
 		if(stFlags[flkCenter]){ //find attracting forces, if appropriate within flock.nghbrRad	
 			for(Boid b : bAra){	
 				if(b.neighbors.size()==0){continue;}
-				b.forces._add(setFrcVal(frcToCenter(b),fv.wts, fv.maxFrcs,fv.wFrcCtr));
+				b.forces._add(setFrcVal(frcToCenter(b),fv.wts, fv.maxFrcs,fv.wFrcCtrIDX));
 			}
 		}		
 		if(stFlags[flkWander]){//brownian motion
-			for(Boid b : bAra){	b.forces._add(setFrcVal(frcWander(b),fv.wts, fv.maxFrcs,fv.wFrcWnd));}
+			for(Boid b : bAra){	b.forces._add(setFrcVal(frcWander(b),fv.wts, fv.maxFrcs,fv.wFrcWndIDX));}
 		}
 		//for(myBoid b : bAra){b.forces.set(getForceAtLocation(b));}
 		if(stFlags[flkCyclesFrc]){
