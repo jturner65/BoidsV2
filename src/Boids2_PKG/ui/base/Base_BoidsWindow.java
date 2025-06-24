@@ -3,7 +3,7 @@ package Boids2_PKG.ui.base;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
+import java.util.LinkedHashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutorService;
@@ -41,12 +41,12 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 * idxs - need one per ui object
 	 */
 	public final static int
-		gIDX_TimeStep 		= 0,
-		gIDX_NumFlocks		= 1,
-		gIDX_BoidType		= 2,
-		gIDX_FlockToObs		= 3,
-		gIDX_ModNumBoids	= 4,
-		gIDX_BoidToObs		= 5;
+		gIDX_TimeStep       = 0,
+		gIDX_NumFlocks      = 1,
+		gIDX_BoidType       = 2,
+		gIDX_FlockToObs     = 3,
+		gIDX_ModNumBoids    = 4,
+		gIDX_BoidToObs      = 5;
 
 	public static final int numBaseGUIObjs = 6;											//# of gui objects for ui
 	
@@ -55,30 +55,30 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 */
 	public static final int 
 			//debug is 0
-			showBoidFrame 		= 1,			//Show the boids RGB axes, with red being in direction of velocity
-			drawBoids			= 2,			//whether to draw boids or draw spheres (renders faster)
-			drawScaledBoids 	= 3,			//whether to draw boids scaled by their mass
-			clearPath			= 4,			//whether to clear each drawn boid, or to show path by keeping past drawn boids
-			showVel			 	= 5,			//display vel values
-			showFlkMbrs 		= 6,			//whether or not to show actual subflock members (i.e. neigbhors,colliders, preds, etc) when debugging
-			attractMode 		= 7,			// whether we are in mouse attractor mode or repel mode
+			showBoidFrame        = 1,			//Show the boids RGB axes, with red being in direction of velocity
+			drawBoids            = 2,			//whether to draw boids or draw spheres (renders faster)
+			drawScaledBoids      = 3,			//whether to draw boids scaled by their mass
+			clearPath            = 4,			//whether to clear each drawn boid, or to show path by keeping past drawn boids
+			showVel              = 5,			//display vel values
+			showFlkMbrs          = 6,			//whether or not to show actual subflock members (i.e. neigbhors,colliders, preds, etc) when debugging
+			attractMode          = 7,			// whether we are in mouse attractor mode or repel mode
 			//must stay within first 32 positions(single int) to make flocking control flag int easier (just sent first int)
 			//flocking control flags
-			flkCenter 			= 8,			// on/off : flock-centering
-			flkVelMatch 		= 9,			// on/off : flock velocity matching
-			flkAvoidCol 		= 10,			// on/off : flock collision avoidance	
-			flkWander 			= 11,			// on/off : flock wandering		
-			flkAvoidPred		= 12,			//turn on/off avoiding predators force and chasing prey force
-			flkHunt				= 13,			//whether hunting is enabled
-			flkHunger			= 14,			//can get hungry	
-			flkSpawn			= 15,			//allow breeding
-			useOrigDistFuncs 	= 16,
-			useTorroid			= 17,	
-			flkCyclesFrc		= 18,			//the force these boids exert cycles with motion
+			flkCenter            = 8,			// on/off : flock-centering
+			flkVelMatch          = 9,			// on/off : flock velocity matching
+			flkAvoidCol          = 10,			// on/off : flock collision avoidance	
+			flkWander            = 11,			// on/off : flock wandering		
+			flkAvoidPred         = 12,			//turn on/off avoiding predators force and chasing prey force
+			flkHunt              = 13,			//whether hunting is enabled
+			flkHunger            = 14,			//can get hungry	
+			flkSpawn             = 15,			//allow breeding
+			useOrigDistFuncs     = 16,
+			useTorroid           = 17,	
+			flkCyclesFrc         = 18,			//the force these boids exert cycles with motion
 			//end must stay within first 32
-			modDelT				= 19,			//whether to modify delT based on frame rate or keep it fixed (to fight lag)
-			viewFromBoid		= 20,			//whether viewpoint is from a boid's perspective or global
-			isMTCapableIDX 		= 21;			//whether this machine supports multiple threads
+			modDelT              = 19,			//whether to modify delT based on frame rate or keep it fixed (to fight lag)
+			viewFromBoid         = 20,			//whether viewpoint is from a boid's perspective or global
+			isMTCapableIDX       = 21;			//whether this machine supports multiple threads
 	
 	protected static final int numBasePrivFlags = 22;
 
@@ -91,7 +91,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	public BoidFlock[] flocks;
 	
 	/**
-	 * Array of each flock's specific flocking vars, set via UI
+	 * Array of each flock's UI variables/values
 	 */
 	protected Boid_UIFlkVars[] flockVars;
 	
@@ -598,15 +598,16 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 *           	idx 1: value is sent on any modifications (while being modified, not just on release), 
 	 *           	idx 2: changes to value must be explicitly sent to consumer (are not automatically sent),
 	 *          - A boolean array of renderer format values :(unspecified values default to false) - Behavior Boolean array must also be provided!
-	 * 				idx 0 : Should be multiline
-	 * 				idx 1 : One object per row in UI space (i.e. default for multi-line and btn objects is false, single line non-buttons is true)
-	 * 				idx 2 : Text should be centered (default is false)
-	 * 				idx 3 : Object should be rendered with outline (default for btns is true, for non-buttons is false)
-	 * 				idx 4 : Should have ornament
-	 * 				idx 5 : Ornament color should match label color 
+	 * 				- Should be multiline
+	 * 				- One object per row in UI space (i.e. default for multi-line and btn objects is false, single line non-buttons is true)
+	 * 				- Force this object to be on a new row/line (For side-by-side layouts)
+	 * 				- Text should be centered (default is false)
+	 * 				- Object should be rendered with outline (default for btns is true, for non-buttons is false)
+	 * 				- Should have ornament
+	 * 				- Ornament color should match label color 
 	 */
 	@Override
-	protected final void setupGUIObjsAras(TreeMap<String, GUIObj_Params> tmpUIObjMap){		//keyed by object idx (uiXXXIDX), entries are lists of values to use for list select ui objects			
+	protected final void setupGUIObjsAras(LinkedHashMap<String, GUIObj_Params> tmpUIObjMap){		//keyed by object idx (uiXXXIDX), entries are lists of values to use for list select ui objects			
 		//keyed by object idx (uiXXXIDX), entries are lists of values to use for list select ui objects
 					
 		tmpUIObjMap.put("gIDX_TimeStep", uiMgr.uiObjInitAra_Float(gIDX_TimeStep, new double[]{0,1.0f,.0001f}, curTimeStep, "Time Step"));   			                                                            
@@ -629,7 +630,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 * 				the final element is integer flag idx 
 	 */
 	@Override
-	protected final void setupGUIBoolSwitchAras(int firstIdx, TreeMap<String, GUIObj_Params> tmpUIBoolSwitchObjMap) {		
+	protected final void setupGUIBoolSwitchAras(int firstIdx, LinkedHashMap<String, GUIObj_Params> tmpUIBoolSwitchObjMap) {		
 		//add an entry for each button, in the order they are wished to be displayed
 		int idx=firstIdx;
 		tmpUIBoolSwitchObjMap.put("Button_"+idx, uiMgr.buildDebugButton(idx++,"Debugging", "Enable Debug"));
@@ -670,14 +671,15 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 *           	idx 1: value is sent on any modifications (while being modified, not just on release), 
 	 *           	idx 2: changes to value must be explicitly sent to consumer (are not automatically sent),
 	 *          - A boolean array of renderer format values :(unspecified values default to false) - Behavior Boolean array must also be provided!
-	 * 				idx 0 : Should be multiline
-	 * 				idx 1 : One object per row in UI space (i.e. default for multi-line and btn objects is false, single line non-buttons is true)
-	 * 				idx 2 : Text should be centered (default is false)
-	 * 				idx 3 : Object should be rendered with outline (default for btns is true, for non-buttons is false)
-	 * 				idx 4 : Should have ornament
-	 * 				idx 5 : Ornament color should match label color 
+	 * 				- Should be multiline
+	 * 				- One object per row in UI space (i.e. default for multi-line and btn objects is false, single line non-buttons is true)
+	 * 				- Force this object to be on a new row/line (For side-by-side layouts)
+	 * 				- Text should be centered (default is false)
+	 * 				- Object should be rendered with outline (default for btns is true, for non-buttons is false)
+	 * 				- Should have ornament
+	 * 				- Ornament color should match label color 
 	 */
-	protected abstract void setupGUIObjsAras_Indiv(TreeMap<String, GUIObj_Params> tmpUIObjMap);
+	protected abstract void setupGUIObjsAras_Indiv(LinkedHashMap<String, GUIObj_Params> tmpUIObjMap);
 
 	/**
 	 * Build all UI buttons to be shown in left side bar menu for this window. This is for instancing windows to add to button region
@@ -688,7 +690,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 * 				the third element is false label
 	 * 				the final element is integer flag idx 
 	 */
-	protected abstract void setupGUIBoolSwitchAras_Indiv(int firstIdx, TreeMap<String, GUIObj_Params> tmpUIBoolSwitchObjMap);
+	protected abstract void setupGUIBoolSwitchAras_Indiv(int firstIdx, LinkedHashMap<String, GUIObj_Params> tmpUIBoolSwitchObjMap);
 
 	
 	//when flockToWatch changes, reset maxBoidToWatch value ((Base_NumericGUIObj)guiObjs_Numeric[gIDX_BoidToObs])

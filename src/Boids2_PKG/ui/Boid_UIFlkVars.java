@@ -1,7 +1,7 @@
 package Boids2_PKG.ui;
 
 import java.util.Arrays;
-import java.util.TreeMap;
+import java.util.LinkedHashMap;
 
 import Boids2_PKG.ui.base.Base_BoidsWindow;
 import base_Math_Objects.MyMathUtils;
@@ -13,7 +13,6 @@ import base_UI_Objects.windowUI.base.Base_DispWindow;
 import base_UI_Objects.windowUI.base.IUIManagerOwner;
 import base_UI_Objects.windowUI.uiData.UIDataUpdater;
 import base_UI_Objects.windowUI.uiObjs.base.GUIObj_Params;
-
 
 /**
  * struct-type class to hold flocking variables for a specific flock
@@ -112,24 +111,6 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 			MinHuntAra = new float[]{.0001f, 10, 100};	
 	
 	public final String typeName;
-	
-	public final String[] UI_Labels = new String[]{
-		"Flock Rad",
-		"Flock Frc Wt",
-		"Col Avd Rad",
-		"Col Avd Wt",
-		"Vel Match Rad",
-		"Vel Match Wt",
-		"Wander Frc Wt",
-		"Pred Avd Wt",
-		"Prey Chase Wt",		
-		"Spawn Rad",
-		"Spawn %",
-		"Spawn Freq",
-		"Hunt Rad",
-		"Hunt %",
-		"Hunt Freq"			
-	};
 	
 	/**
 	 * Idxs for the UI objects this construct holds
@@ -398,33 +379,71 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	 *           	idx 1: value is sent on any modifications (while being modified, not just on release), 
 	 *           	idx 2: changes to value must be explicitly sent to consumer (are not automatically sent),
 	 *          - A boolean array of renderer format values :(unspecified values default to false) - Behavior Boolean array must also be provided!
-	 * 				idx 0 : Should be multiline
-	 * 				idx 1 : One object per row in UI space (i.e. default for multi-line and btn objects is false, single line non-buttons is true)
-	 * 				idx 2 : Text should be centered (default is false)
-	 * 				idx 3 : Object should be rendered with outline (default for btns is true, for non-buttons is false)
-	 * 				idx 4 : Should have ornament
-	 * 				idx 5 : Ornament color should match label color 
+	 * 				- Should be multiline
+	 * 				- One object per row in UI space (i.e. default for multi-line and btn objects is false, single line non-buttons is true)
+	 * 				- Force this object to be on a new row/line (For side-by-side layouts)
+	 * 				- Text should be centered (default is false)
+	 * 				- Object should be rendered with outline (default for btns is true, for non-buttons is false)
+	 * 				- Should have ornament
+	 * 				- Ornament color should match label color 
 	 */
 	@Override
-	public void setupOwnerGUIObjsAras(TreeMap<String, GUIObj_Params> tmpUIObjMap) {
+	public void setupOwnerGUIObjsAras(LinkedHashMap<String, GUIObj_Params> tmpUIObjMap) {
 //		//build list select box values
 //		//keyed by object idx (uiXXXIDX), entries are lists of values to use for list select ui objects
-//	
-		tmpUIObjMap.put("fv_flkRadius", uiMgr.uiObjInitAra_FloatMultiLine(fv_flkRadius, new double[]{0.01f,1000.0f,0.01f}, nghbrRad, UI_Labels[fv_flkRadius]));
-		tmpUIObjMap.put("fv_flkFrcWeight", uiMgr.uiObjInitAra_FloatMultiLine(fv_flkFrcWeight, new double[]{.0001f,1.0f,.0001f}, 0.5f , UI_Labels[fv_flkFrcWeight]));
-		tmpUIObjMap.put("fv_colAvoidRadius", uiMgr.uiObjInitAra_FloatMultiLine(fv_colAvoidRadius, new double[]{0.01f,1000.0f,0.01f}, colRad, UI_Labels[fv_colAvoidRadius]));
-		tmpUIObjMap.put("fv_colAvoidWeight", uiMgr.uiObjInitAra_FloatMultiLine(fv_colAvoidWeight, new double[]{.0001f,1.0f,.0001f}, 0.75f, UI_Labels[fv_colAvoidWeight]));
-		tmpUIObjMap.put("fv_velMatchRadius", uiMgr.uiObjInitAra_FloatMultiLine(fv_velMatchRadius, new double[]{0.01f,1000.0f,0.01f}, velRad, UI_Labels[fv_velMatchRadius]));
-		tmpUIObjMap.put("fv_velMatchWeight", uiMgr.uiObjInitAra_FloatMultiLine(fv_velMatchWeight, new double[]{.0001f,1.0f,.0001f}, 0.5f, UI_Labels[fv_velMatchWeight]));
-		tmpUIObjMap.put("fv_wanderFrcWeight", uiMgr.uiObjInitAra_FloatMultiLine(fv_wanderFrcWeight, new double[]{.0001f,1.0f,.0001f}, 0.5f, UI_Labels[fv_wanderFrcWeight]));
-		tmpUIObjMap.put("fv_predAvoidWeight", uiMgr.uiObjInitAra_FloatMultiLine(fv_predAvoidWeight, new double[]{.0001f,1.0f,.0001f}, 0.5f, UI_Labels[fv_predAvoidWeight]));
-		tmpUIObjMap.put("fv_preyChaseWeight", uiMgr.uiObjInitAra_FloatMultiLine(fv_preyChaseWeight, new double[]{.0001f,1.0f,.0001f}, 0.1f, UI_Labels[fv_preyChaseWeight]));
-		tmpUIObjMap.put("fv_matingRadius", uiMgr.uiObjInitAra_FloatMultiLine(fv_matingRadius, new double[]{0.01f,1000.0f,0.01f}, colRad, UI_Labels[fv_matingRadius]));
-		tmpUIObjMap.put("fv_matingSuccessPct", uiMgr.uiObjInitAra_FloatMultiLine(fv_matingSuccessPct, new double[]{.1f,100.0f,.1f}, spawnPct, UI_Labels[fv_matingSuccessPct]));
-		tmpUIObjMap.put("fv_matingFrequency", uiMgr.uiObjInitAra_FloatMultiLine(fv_matingFrequency, new double[]{100.0f,10000.0f,10.0f}, spawnFreq, UI_Labels[fv_matingFrequency]));
-		tmpUIObjMap.put("fv_huntingRadius", uiMgr.uiObjInitAra_FloatMultiLine(fv_huntingRadius, new double[]{0.01f,100.0f,0.01f}, killRad, UI_Labels[fv_huntingRadius]));
-		tmpUIObjMap.put("fv_huntingSuccessPct", uiMgr.uiObjInitAra_FloatMultiLine(fv_huntingSuccessPct, new double[]{.1f,100.0f,.1f}, killPct, UI_Labels[fv_huntingSuccessPct]));
-		tmpUIObjMap.put("fv_huntingFrequency", uiMgr.uiObjInitAra_FloatMultiLine(fv_huntingFrequency, new double[]{100.0f,10000.0f,10.0f}, eatFreq, UI_Labels[fv_huntingFrequency]));
+		// For entire group
+		LinkedHashMap<String, GUIObj_Params> tmpUIGrpBuilderMap = new LinkedHashMap<String, GUIObj_Params>(); 
+		// zero row TODO labels for count, name, velocity and mass limits
+		int grpIdx = 0;
+//		
+//		tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_header", uiMgr.buildUIObjGroupParams(tmpUIObjMap));
+//		tmpUIObjMap.clear();
+		
+		//first row
+		tmpUIObjMap.put("label_radius", uiMgr.uiObjInitAra_Label(fv_flkRadius+100000,"Radii : "));
+		tmpUIObjMap.put("fv_flkRadius", uiMgr.uiObjInitAra_FloatMultiLine(fv_flkRadius, new double[]{0.01f,1000.0f,0.01f}, nghbrRad, "Flocking"));
+		tmpUIObjMap.put("fv_colAvoidRadius", uiMgr.uiObjInitAra_FloatMultiLine(fv_colAvoidRadius, new double[]{0.01f,1000.0f,0.01f}, colRad, "Collision"));
+		tmpUIObjMap.put("fv_velMatchRadius", uiMgr.uiObjInitAra_FloatMultiLine(fv_velMatchRadius, new double[]{0.01f,1000.0f,0.01f}, velRad, "Velocity Matching"));
+		tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_radii", uiMgr.buildUIObjGroupParams(tmpUIObjMap));
+		tmpUIObjMap.clear();
+		
+		//second row
+		tmpUIObjMap.put("label_weights", uiMgr.uiObjInitAra_Label(fv_flkFrcWeight+100000,"Weights : "));
+		tmpUIObjMap.put("fv_flkFrcWeight", uiMgr.uiObjInitAra_FloatMultiLine(fv_flkFrcWeight, new double[]{.0001f,1.0f,.0001f}, 0.5f , "Center Flock"));
+		tmpUIObjMap.put("fv_colAvoidWeight", uiMgr.uiObjInitAra_FloatMultiLine(fv_colAvoidWeight, new double[]{.0001f,1.0f,.0001f}, 0.75f, "Col Avoid"));
+		tmpUIObjMap.put("fv_velMatchWeight", uiMgr.uiObjInitAra_FloatMultiLine(fv_velMatchWeight, new double[]{.0001f,1.0f,.0001f}, 0.5f, "Vel Match"));
+		tmpUIObjMap.put("fv_wanderFrcWeight", uiMgr.uiObjInitAra_FloatMultiLine(fv_wanderFrcWeight, new double[]{.0001f,1.0f,.0001f}, 0.5f, "Wander"));
+		tmpUIObjMap.put("fv_predAvoidWeight", uiMgr.uiObjInitAra_FloatMultiLine(fv_predAvoidWeight, new double[]{.0001f,1.0f,.0001f}, 0.5f, "Predator Avoid"));
+		tmpUIObjMap.put("fv_preyChaseWeight", uiMgr.uiObjInitAra_FloatMultiLine(fv_preyChaseWeight, new double[]{.0001f,1.0f,.0001f}, 0.1f, "Chase Prey"));
+		tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_weights", uiMgr.buildUIObjGroupParams(tmpUIObjMap));
+		tmpUIObjMap.clear();
+		// third row TODO labels
+//		tmpUIObjMap.put("label_activity", uiMgr.uiObjInitAra_Label(fv_matingRadius+10000,"Activity"));
+//		tmpUIObjMap.put("label_actSuccess", uiMgr.uiObjInitAra_Label(fv_matingRadius+10000,"% Success"));
+//		tmpUIObjMap.put("label_actRadius", uiMgr.uiObjInitAra_Label(fv_matingRadius+10000,"Radius"));
+//		tmpUIObjMap.put("label_actCycles", uiMgr.uiObjInitAra_Label(fv_matingRadius+10000,"# Cycles"));		
+//		tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_activityLabels", uiMgr.buildUIObjGroupParams(tmpUIObjMap));
+//		tmpUIObjMap.clear();
+		
+		// fourth row spawning
+		tmpUIObjMap.put("label_spawning", uiMgr.uiObjInitAra_Label(fv_matingRadius+100000,"Spawning : "));
+		tmpUIObjMap.put("fv_matingRadius", uiMgr.uiObjInitAra_FloatMultiLine(fv_matingRadius, new double[]{0.01f,1000.0f,0.01f}, colRad, "% Success"));
+		tmpUIObjMap.put("fv_matingSuccessPct", uiMgr.uiObjInitAra_FloatMultiLine(fv_matingSuccessPct, new double[]{.1f,100.0f,.1f}, spawnPct, "Radius"));
+		tmpUIObjMap.put("fv_matingFrequency", uiMgr.uiObjInitAra_FloatMultiLine(fv_matingFrequency, new double[]{100.0f,10000.0f,10.0f}, spawnFreq, "# Cycles"));
+		tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_spawning", uiMgr.buildUIObjGroupParams(tmpUIObjMap));
+		tmpUIObjMap.clear();
+		
+		// fifth row hunting
+		tmpUIObjMap.put("label_spawning", uiMgr.uiObjInitAra_Label(fv_huntingRadius+100000,"Hunting : "));
+		tmpUIObjMap.put("fv_huntingRadius", uiMgr.uiObjInitAra_FloatMultiLine(fv_huntingRadius, new double[]{0.01f,100.0f,0.01f}, killRad, "% Success"));
+		tmpUIObjMap.put("fv_huntingSuccessPct", uiMgr.uiObjInitAra_FloatMultiLine(fv_huntingSuccessPct, new double[]{.1f,100.0f,.1f}, killPct, "Radius"));
+		tmpUIObjMap.put("fv_huntingFrequency", uiMgr.uiObjInitAra_FloatMultiLine(fv_huntingFrequency, new double[]{100.0f,10000.0f,10.0f}, eatFreq, "# Cycles"));
+		tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_hunting", uiMgr.buildUIObjGroupParams(tmpUIObjMap));
+		tmpUIObjMap.clear();
+		
+		//copy all elements into map
+		tmpUIObjMap.putAll(tmpUIGrpBuilderMap);
+		
 	}//setupOwnerGUIObjsAras
 	/**
 	 * Build UI button objects to be shown in left side bar menu for this window. This is the first child class function called by initThisWin
@@ -436,7 +455,7 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
 	 * 				the final element is integer flag idx 
 	 */
 	@Override
-	public final void setupOwnerGUIBoolSwitchAras(int firstIdx, TreeMap<String, GUIObj_Params> tmpUIBoolSwitchObjMap) {	}
+	public final void setupOwnerGUIBoolSwitchAras(int firstIdx, LinkedHashMap<String, GUIObj_Params> tmpUIBoolSwitchObjMap) {	}
 	/**
 	 * Retrieve the total number of defined privFlags booleans (application-specific state bools and interactive buttons)
 	 */
