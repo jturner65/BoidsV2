@@ -47,8 +47,8 @@ public class LinearForceSolver extends Base_ForceSolver{
 		float dsq;
 		myVectorf frcVec = new myVectorf();		
 		for(Float bd_k : b.neighbors.keySet()){	
-			if(bd_k>velRadSq){continue;}
-			dsq=(velRadSq-bd_k);
+			if(bd_k>fv.velRadSq){continue;}
+			dsq=(fv.velRadSq-bd_k);
 			//frcVec._add(myVectorf._mult(myVectorf._sub(b.neighbors.get(bd_k).velocity[0], b.velocity[0]), dsq));
 			frcVec._add(myVectorf._mult(myVectorf._sub(b.neighbors.get(bd_k).velocity, b.velocity), dsq));
 		}

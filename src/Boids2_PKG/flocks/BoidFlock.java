@@ -15,7 +15,7 @@ import Boids2_PKG.threadedSolvers.initializers.InitPredPreyMapsTor;
 import Boids2_PKG.threadedSolvers.updaters.BoidUpdate_Type;
 import Boids2_PKG.threadedSolvers.updaters.BoidMoveSpawnEatUpdater;
 import Boids2_PKG.ui.base.Base_BoidsWindow;
-import Boids2_PKG.ui.flkVars.Boid_UIFlkVars;
+import Boids2_PKG.ui.flkVars.Boids_UIFlkVars;
 import base_Render_Interface.IRenderInterface;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
@@ -57,7 +57,7 @@ public class BoidFlock {
 	/**
 	 * Flock variables for this flock
 	 */
-	public Boid_UIFlkVars flv;
+	public Boids_UIFlkVars flv;
 	
 	/**
 	 * How the radius should grow to look for more creatures for neighbors, if haven't satisfied minimum number
@@ -104,7 +104,7 @@ public class BoidFlock {
 	
 	protected final float[] grid3dDims;
 	
-	public BoidFlock(Base_BoidsWindow _win, Boid_UIFlkVars _flv, int _numBoids, int _numThrdsToUse){
+	public BoidFlock(Base_BoidsWindow _win, Boids_UIFlkVars _flv, int _numBoids, int _numThrdsToUse){
 		win=_win;	
 		flv = _flv;
 		name = flv.typeName; 

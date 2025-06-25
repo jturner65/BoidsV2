@@ -50,7 +50,7 @@ public class OriginalForceSolver extends Base_ForceSolver{
 		float dsq, wtSqSum = 0;
 		myVectorf frcVec = new myVectorf();		
 		for(Float bd_k : b.neighbors.keySet()){	
-			if(bd_k>velRadSq){continue;}
+			if(bd_k>fv.velRadSq){continue;}
 			dsq = 1.0f/bd_k;
 			wtSqSum += dsq;
 			//frcVec._add(myVectorf._mult(myVectorf._sub(b.neighbors.get(bd_k).velocity[0], b.velocity[0]), dsq));

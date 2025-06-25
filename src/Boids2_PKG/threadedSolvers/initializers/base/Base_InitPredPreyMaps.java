@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import Boids2_PKG.flocks.BoidFlock;
 import Boids2_PKG.flocks.boids.Boid;
 import Boids2_PKG.ui.Boids_3DWin;
-import Boids2_PKG.ui.flkVars.Boid_UIFlkVars;
+import Boids2_PKG.ui.flkVars.Boids_UIFlkVars;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_UI_Objects.GUI_AppManager;
 
@@ -17,12 +17,13 @@ public abstract class Base_InitPredPreyMaps implements Callable<Boolean> {
 	//an overlay for calculations to be used to determine forces acting on a creature
 	
 	protected GUI_AppManager AppMgr;
+    protected Boids_UIFlkVars fv;
 	
+    protected float tot2MaxRad, totMaxRadSq;
 	protected List<Boid> bAra;								//boid ara being worked on
 	public BoidFlock flock, pry, prd;
 	protected int flagInt;						//bitmask of current flags
 	protected int nearCount;
-	protected float predRad, mass, totMaxRadSq,tot2MaxRad, minNghbDistSq, minPredDistSq, min2DistPrey,min2DistNghbr, colRadSq, spawnRadSq;
 	protected boolean[] stFlags; // tor, doHunt, doSpawn;							//is torroidal
 	protected final int 		
 			doHunt 		= 0,
@@ -41,20 +42,15 @@ public abstract class Base_InitPredPreyMaps implements Callable<Boolean> {
 	 * @param _flagInt
 	 * @param _bAra
 	 */
-	public Base_InitPredPreyMaps(GUI_AppManager _AppMgr, BoidFlock _flk, BoidFlock _pry, BoidFlock _prd, Boid_UIFlkVars _fv, int _flagInt, List<Boid> _bAra) {
+	public Base_InitPredPreyMaps(GUI_AppManager _AppMgr, BoidFlock _flk, BoidFlock _pry, BoidFlock _prd, Boids_UIFlkVars _fv, int _flagInt, List<Boid> _bAra) {
 		AppMgr = _AppMgr;	flock = _flk; pry=_pry; prd=_prd; bAra=_bAra;
+		fv=_fv;
 		gridDims = AppMgr.get3dGridDims();
 		tot2MaxRad = 2* flock.totMaxRad;
 		totMaxRadSq = flock.totMaxRad * flock.totMaxRad;
 		//TODO set these via passed int
 		flagInt = _flagInt;
 		setStFlags();
-		colRadSq = _fv.colRadSq ;
-		spawnRadSq = _fv.spawnRadSq;
-		minNghbDistSq = _fv.nghbrRadSq;
-		minPredDistSq = _fv.predRadSq;
-		min2DistNghbr = 2 * _fv.predRad;
-		min2DistPrey = 2 * _fv.predRad;
 	}
 	
 	//TODO set these externally when/if eventually recycling threads
@@ -70,8 +66,8 @@ public abstract class Base_InitPredPreyMaps implements Callable<Boolean> {
 	 */
 	private final void findMyNeighbors(Boid _src) {
 		if(nearCount >= bAra.size() ){		srchForNeighbors(_src, bAra, tot2MaxRad, totMaxRadSq);	}		//if we want to have more than the size of the flock, get the whole flock			
-		else{								srchForNeighbors(_src, bAra, min2DistNghbr, minNghbDistSq);	}		
-		_src.copySubSetBoidsCol(colRadSq);
+		else{								srchForNeighbors(_src, bAra, 2 * fv.predRad, fv.nghbrRadSq);	}		
+		_src.copySubSetBoidsCol(fv.colRadSq);
 	}
 	
 	/**
@@ -176,7 +172,7 @@ public abstract class Base_InitPredPreyMaps implements Callable<Boolean> {
 		if(stFlags[doHunt] && (flock!=pry)){												//flock==pry means only 1 flock
 			for(Boid b : bAra){if(b.isHungry()){srchForPrey(b, pry.boidFlock);}}		//find nearby prey to each boid		
 		}
-		if (stFlags[doSpawn]) {	for(Boid b : bAra){	if(b.canSpawn()){	b.copySubSetBoidsMate(spawnRadSq);	}}	}
+		if (stFlags[doSpawn]) {	for(Boid b : bAra){	if(b.canSpawn()){	b.copySubSetBoidsMate(fv.spawnRadSq);	}}	}
 	}// run()
 	
 	@Override

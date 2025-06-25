@@ -14,7 +14,7 @@ import Boids2_PKG.flocks.BoidFlock;
 import Boids2_PKG.flocks.boids.Boid;
 import Boids2_PKG.threadedSolvers.updaters.BoidHuntUpdater;
 import Boids2_PKG.threadedSolvers.updaters.BoidUpdate_Type;
-import Boids2_PKG.ui.flkVars.Boid_UIFlkVars;
+import Boids2_PKG.ui.flkVars.Boids_UIFlkVars;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
 import base_Math_Objects.vectorObjs.doubles.myVector;
@@ -92,7 +92,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	/**
 	 * Array of each flock's UI variables/values
 	 */
-	protected Boid_UIFlkVars[] flockVars;
+	protected Boids_UIFlkVars[] flockVars;
 	
 //	// structure holding boid flocks and the rendered versions of them - move to myRenderObj?
 	//5 different flocks will display nicely on side menu
@@ -355,9 +355,9 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	    // Get dimensions of 3d box region
         float[] gridDims = AppMgr.get3dGridDims();
         float initPredRad = MyMathUtils.min(gridDims);
-        flockVars = new Boid_UIFlkVars[maxNumFlocks];
+        flockVars = new Boids_UIFlkVars[maxNumFlocks];
         for(int i = 0; i<flockVars.length; ++i){         
-            flockVars[i] = new Boid_UIFlkVars(this, i, flkNames[i], flkRadMults[i], initPredRad);    
+            flockVars[i] = new Boids_UIFlkVars(this, i, flkNames[i], flkRadMults[i], initPredRad);    
         }
         // Now build flock vars - each will use the UIclickara of the previous
         for(int i = 0; i<flockVars.length; ++i){  
@@ -626,7 +626,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	 * @param flockIDX
 	 * @return
 	 */	
-	public Boid_UIFlkVars getFlkVars(int flockIDX) {return flockVars[flockIDX];}
+	public Boids_UIFlkVars getFlkVars(int flockIDX) {return flockVars[flockIDX];}
 	public String getFlkName(int flockIDX) {return flkNames[flockIDX];}
 	
 	/**

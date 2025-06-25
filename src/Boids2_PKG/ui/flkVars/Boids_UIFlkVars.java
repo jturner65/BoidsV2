@@ -18,9 +18,9 @@ import base_UI_Objects.windowUI.uiObjs.base.GUIObj_Params;
  * @author John Turner
  *
  */
-public class Boid_UIFlkVars implements IUIManagerOwner {
+public class Boids_UIFlkVars implements IUIManagerOwner {
     public final int ID;
-    //Counter of how many Boid_UIFlkVars are built in the application. Used to specify unique ID for each new Boid_UIFlkVars
+    //Counter of how many Boids_UIFlkVars are built in the application. Used to specify unique ID for each new Boids_UIFlkVars
     private static int flkVarCnt = 0;
     /**
      * Owning window
@@ -100,14 +100,6 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
     public float[] massForType,        //
                     maxFrcs,                                    //max forces for this flock, for each force type
                     wts;                                        //weights for flock calculations for this flock
-    //idx's of vars in wts arrays
-    public final int 
-            wFrcCtrIDX          = 0,      //idx in wts array for multiplier of centering force
-            wFrcAvdIDX          = 1,      //idx in wts array for multiplier of col avoidance force
-            wFrcVelIDX          = 2,      //idx in wts array for multiplier of velocity matching force
-            wFrcWndIDX          = 3,      //idx in wts array for multiplier of wandering force
-            wFrcAvdPredIDX      = 4,      //idx in wts array for predator avoidance
-            wFrcChsPreyIDX      = 5;      //idx in wts array for prey chasing
     
     public final float maxVelMag = 180,        //max velocity for flock member 
                 minVelMag;                                        //min velocity for flock member
@@ -132,6 +124,7 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
      * Idxs for the UI objects this construct holds
      */
     public final static int 
+        //weights also match indexes in weights array
         gIDX_FlkFrcWt              = 0,
         gIDX_ColAvoidWt            = 1,
         gIDX_VelMatchWt            = 2,
@@ -142,10 +135,10 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
         gIDX_FlkRad                = 6,
         gIDX_ColAvoidRad           = 7,
         gIDX_VelMatchRad           = 8,
-        gIDX_SpawnRadius           = 9,
+        gIDX_SpawnRad              = 9,
         gIDX_SpawnSuccessPct       = 10,
         gIDX_SpawnFrequency        = 11,
-        gIDX_HuntingRadius         = 12,
+        gIDX_HuntingRad            = 12,
         gIDX_HuntingSuccessPct     = 13,
         gIDX_HuntingFrequency      = 14;
     public final static int numFlockUIObjs = 15;
@@ -162,7 +155,7 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
      * @param _nRadMult
      * @param _predRad
      */
-    public Boid_UIFlkVars(Base_BoidsWindow _owner, int _idx, String _flockName, float _nRadMult, float _predRad) {
+    public Boids_UIFlkVars(Base_BoidsWindow _owner, int _idx, String _flockName, float _nRadMult, float _predRad) {
         ID = flkVarCnt++;
         flockIdx = _idx;
         owner = _owner;
@@ -310,48 +303,48 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
     @Override
     public final void setUI_OwnerFloatValsCustom(int UIidx, float val, float oldVal) {    
         switch(UIidx) {
+            case gIDX_FlkFrcWt          :{
+                wts[gIDX_FlkFrcWt] = val;
+                break;}       
+            case gIDX_ColAvoidWt        :{
+                wts[gIDX_ColAvoidWt] = val;
+                break;}           
+            case gIDX_VelMatchWt        :{
+                wts[gIDX_VelMatchWt] = val;
+                break;}            
+            case gIDX_WanderFrcWt       :{
+                wts[gIDX_WanderFrcWt] = val;
+                break;}           
+            case gIDX_PredAvoidWt       :{
+                wts[gIDX_PredAvoidWt] = val;
+                break;}           
+            case gIDX_PreyChaseWt       :{
+                wts[gIDX_PreyChaseWt] = val;
+                break;}           
             case gIDX_FlkRad            :{
                 nghbrRad = val;
                 // clip collision and velocity radii to be in acceptable bounds
                 fixNCVRads(true, true);
                 nghbrRadSq = nghbrRad * nghbrRad; 
                 break;}
-            case gIDX_FlkFrcWt          :{
-                wts[wFrcCtrIDX] = val;
-                break;}       
             case gIDX_ColAvoidRad       :{
                 colRad = val;
                 // clip velocity radii to be in acceptable bounds
                 fixNCVRads(false, true);
                 colRadSq = colRad * colRad;
                 break;}            
-            case gIDX_ColAvoidWt        :{
-                wts[wFrcAvdIDX] = val;
-                break;}           
             case gIDX_VelMatchRad       :{
                 velRad = val;
                 velRadSq = velRad * velRad;
                 break;}            
-            case gIDX_VelMatchWt        :{
-                wts[wFrcVelIDX] = val;
-                break;}            
-            case gIDX_WanderFrcWt       :{
-                wts[wFrcWndIDX] = val;
-                break;}           
-            case gIDX_PredAvoidWt       :{
-                wts[wFrcAvdPredIDX] = val;
-                break;}           
-            case gIDX_PreyChaseWt       :{
-                wts[wFrcChsPreyIDX] = val;
-                break;}           
-            case gIDX_SpawnRadius       :{
+            case gIDX_SpawnRad          :{
                 spawnRad = val;
                 spawnRadSq = spawnRad*spawnRad;                 
                 break;}              
             case gIDX_SpawnSuccessPct   :{
                 spawnPct = val;
                 break;}           
-            case gIDX_HuntingRadius     :{
+            case gIDX_HuntingRad        :{
                 predRad = val;
                 predRadSq = predRad * predRad;
                 break;}             
@@ -378,7 +371,7 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
      */    
     @Override
     public UIDataUpdater buildOwnerUIDataUpdateObject() {
-        return new Boids_UIFlkVarDataUpdater(this);
+        return new Boids_FlkVars(this);
     }
     /**
      * Retrieve the Owner's UIDataUpdater. Use this to update local UI variables.
@@ -448,24 +441,24 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
         tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_weights", wtsObjParams);
         tmpUIObjMap.clear();
         // third row labels
-        tmpUIObjMap.put("label_activity", uiMgr.uiObjInitAra_LabelInLine(gIDX_SpawnRadius+10000,"Activity"));
-        tmpUIObjMap.put("label_actRadius", uiMgr.uiObjInitAra_LabelInLine(gIDX_SpawnRadius+10001,"Radius"));
-        tmpUIObjMap.put("label_actSuccess", uiMgr.uiObjInitAra_LabelInLine(gIDX_SpawnRadius+10002,"% Success"));
-        tmpUIObjMap.put("label_actCycles", uiMgr.uiObjInitAra_LabelInLine(gIDX_SpawnRadius+10003,"# Cycles"));        
+        tmpUIObjMap.put("label_activity", uiMgr.uiObjInitAra_LabelInLine(gIDX_SpawnRad+10000,"Activity"));
+        tmpUIObjMap.put("label_actRadius", uiMgr.uiObjInitAra_LabelInLine(gIDX_SpawnRad+10001,"Radius"));
+        tmpUIObjMap.put("label_actSuccess", uiMgr.uiObjInitAra_LabelInLine(gIDX_SpawnRad+10002,"% Success"));
+        tmpUIObjMap.put("label_actCycles", uiMgr.uiObjInitAra_LabelInLine(gIDX_SpawnRad+10003,"# Cycles"));        
         tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_activityLabels", uiMgr.buildUIObjGroupParams(tmpUIObjMap));
         tmpUIObjMap.clear();
         
         // fourth row spawning
-        tmpUIObjMap.put("label_spawning", uiMgr.uiObjInitAra_LabelInLine(gIDX_SpawnRadius+100000,"Spawning : "));
-        tmpUIObjMap.put("gIDX_SpawnRadius", uiMgr.uiObjInitAra_FloatInLine(gIDX_SpawnRadius, new double[]{MinSpAra[1],MaxSpAra[1],radMod}, spawnRad, ""));
+        tmpUIObjMap.put("label_spawning", uiMgr.uiObjInitAra_LabelInLine(gIDX_SpawnRad+100000,"Spawning : "));
+        tmpUIObjMap.put("gIDX_SpawnRad", uiMgr.uiObjInitAra_FloatInLine(gIDX_SpawnRad, new double[]{MinSpAra[1],MaxSpAra[1],radMod}, spawnRad, ""));
         tmpUIObjMap.put("gIDX_SpawnSuccessPct", uiMgr.uiObjInitAra_FloatInLine(gIDX_SpawnSuccessPct, new double[]{MinSpAra[0],MaxSpAra[0],MinSpAra[0]}, spawnPct, ""));
         tmpUIObjMap.put("gIDX_SpawnFrequency", uiMgr.uiObjInitAra_IntInLine(gIDX_SpawnFrequency, new double[]{MinSpAra[2], MaxSpAra[2], 1.0f}, spawnFreq, ""));
         tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_spawning", uiMgr.buildUIObjGroupParams(tmpUIObjMap));
         tmpUIObjMap.clear();
         
         // fifth row hunting
-        tmpUIObjMap.put("label_spawning", uiMgr.uiObjInitAra_LabelInLine(gIDX_HuntingRadius+100000,"Hunting : "));
-        tmpUIObjMap.put("gIDX_HuntingRadius", uiMgr.uiObjInitAra_FloatInLine(gIDX_HuntingRadius, new double[]{MinHuntAra[1], MaxHuntAra[1],radMod}, killRad, ""));
+        tmpUIObjMap.put("label_spawning", uiMgr.uiObjInitAra_LabelInLine(gIDX_HuntingRad+100000,"Hunting : "));
+        tmpUIObjMap.put("gIDX_HuntingRad", uiMgr.uiObjInitAra_FloatInLine(gIDX_HuntingRad, new double[]{MinHuntAra[1], MaxHuntAra[1],radMod}, killRad, ""));
         tmpUIObjMap.put("gIDX_HuntingSuccessPct", uiMgr.uiObjInitAra_FloatInLine(gIDX_HuntingSuccessPct, new double[]{MinHuntAra[0], MaxHuntAra[0], MinHuntAra[0]}, killPct, ""));
         tmpUIObjMap.put("gIDX_HuntingFrequency", uiMgr.uiObjInitAra_IntInLine(gIDX_HuntingFrequency, new double[]{MinHuntAra[2], MaxHuntAra[2], 1.0f}, eatFreq, ""));
         tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_hunting", uiMgr.buildUIObjGroupParams(tmpUIObjMap));
@@ -634,12 +627,12 @@ public class Boid_UIFlkVars implements IUIManagerOwner {
                 "Radius : Fl : "+String.format("%.2f",nghbrRad)+ " |  Avd : "+String.format("%.2f",colRad)+" |  VelMatch : "+ String.format("%.2f",velRad),
                // "           "+(nghbrRad > 10 ?(nghbrRad > 100 ? "":" "):"  ")+String.format("%.2f",nghbrRad)+" | "+(colRad > 10 ?(colRad > 100 ? "":" "):"  ")+String.format("%.2f",colRad)+" | "+(velRad > 10 ?(velRad > 100 ? "":" "):"  ")+ String.format("%.2f",velRad),
                 "Wts: Ctr |  Avoid | VelM | Wndr | AvPrd | Chase" ,
-                "     "+String.format("%.2f", wts[wFrcCtrIDX])
-                       +"  |  "+String.format("%.2f", wts[wFrcAvdIDX])
-                       +"  |  "+String.format("%.2f", wts[wFrcVelIDX])
-                       +"  |  "+String.format("%.2f", wts[wFrcWndIDX])
-                       +"  |  "+String.format("%.2f", wts[wFrcAvdPredIDX])
-                       +"  |  "+String.format("%.2f", wts[wFrcChsPreyIDX]),
+                "     "+String.format("%.2f", wts[gIDX_FlkFrcWt])
+                       +"  |  "+String.format("%.2f", wts[gIDX_ColAvoidWt])
+                       +"  |  "+String.format("%.2f", wts[gIDX_VelMatchRad])
+                       +"  |  "+String.format("%.2f", wts[gIDX_WanderFrcWt])
+                       +"  |  "+String.format("%.2f", wts[gIDX_PredAvoidWt])
+                       +"  |  "+String.format("%.2f", wts[gIDX_PreyChaseWt]),
                "                  % success |  radius  |  # cycles.",
                "Spawning : "+(spawnPct > .1f ? "" : " ")+String.format("%.2f", (spawnPct*100))+" | "+(spawnRad > 10 ?(spawnRad > 100 ? "":" "):"  ")+String.format("%.2f", spawnRad)+" | "+spawnFreq,
                "Hunting   :  "+(killPct > .1f ? "" : " ")+String.format("%.2f", (killPct*100))+" | "+(predRad > 10 ?(predRad > 100 ? "":" "):"  ")+String.format("%.2f", predRad)+" | "+eatFreq,    
