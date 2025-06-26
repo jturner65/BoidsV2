@@ -227,8 +227,8 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	
 	public Base_BoidsWindow(IRenderInterface _p, GUI_AppManager _AppMgr, int _winIdx) {
 		super(_p, _AppMgr, _winIdx);
-		bdgSizeX_base = AppMgr.getTextHeightOffset() * .75f;
-		bdgSizeY = AppMgr.getTextHeightOffset() * .75f;
+		bdgSizeX_base = AppMgr.getSwitchTextHeightOffset();
+		bdgSizeY = bdgSizeX_base;
 	}
 	
 	public ExecutorService getTh_Exec() {return th_exec;}
@@ -520,40 +520,6 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 		for(int i=0;i<mnBdgBox[type].length;++i){	((ProcessingRenderer)ri).vTextured(mnBdgBox[type][i], uvAra[i].y, uvAra[i].x);} 
 		ri.gl_endShape(true);
 	}//
-		
-//	public void drawFlockMenu(int i, int numBoids){
-//		drawMenuBadge(mnUVBox,i);
-//		ri.translate(bdgSizeX[i]+4,0);
-//		//p.setColorValFill(flkMenuClr);
-//		currRndrTmplPerFlockAra[i].setMenuColor();
-//		String fvData[] = flockVars[i].getData(numBoids);
-//		ri.showText(fvData[0],0, fvDataTxtStY);ri.translate(0,fvDataNewLineY);
-//		ri.translate(-bdgSizeX[i]-3,0);
-//		for(int j=1;j<fvData.length; ++j){ri.showText(fvData[j],0,fvDataTxtStY);ri.translate(0,fvDataNewLineY);}
-//	}//drawFlockMenu
-	
-	@Override
-	public void drawCustMenuObjs(float animTimeMod){
-///	    var parentUIClkCoords = uiMgr.getUIClkCoords();
-//		ri.pushMatState();	
-//		//all flock menu drawing within push mat call
-//		ri.translate(parentUIClkCoords[2],parentUIClkCoords[3]);
-//		ri.setFill(255,255,255,255);
-//		ri.drawRect(0,0,parentUIClkCoords[2], 1000);
-//		for(int i =0; i<flocks.length; ++i){
-//			drawFlockMenu(i, flocks[i].numBoids);
-//			ri.translate(0,fvDataNewLineY);
-//		}		
-//		ri.popMatState();
-		ri.pushMatState();    
-		for(int i =0; i<flocks.length; ++i){
-	        drawMenuBadge(mnUVBox,i);
-	        //ri.translate(bdgSizeX[i]+4,0);
-	        currRndrTmplPerFlockAra[i].setMenuColor();
-		    flockVars[i].drawMe(animTimeMod);
-		}
-		ri.popMatState();
-	}
 	
 	//set camera to be on a boid in one of the flocks
 	public void setBoidCam(float rx, float ry, float dz){
@@ -843,7 +809,23 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
 	}
 	
 	protected abstract void initTransform();
-	
+	   
+    @Override
+    public void drawCustMenuObjs(float animTimeMod){
+        ri.pushMatState();    
+        for(int i =0; i<flocks.length; ++i){
+            //ri.translate(bdgSizeX[i]+4,0);
+            currRndrTmplPerFlockAra[i].setMenuColor();
+            ri.pushMatState(); 
+            flockVars[i].moveToUIRegion();
+            drawMenuBadge(mnUVBox,i);
+                       
+            ri.popMatState();
+            flockVars[i].drawMe(animTimeMod);
+        }
+        ri.popMatState();
+    }
+    
 	@Override
 	protected void drawMe(float animTimeMod) {
 		ri.pushMatState();

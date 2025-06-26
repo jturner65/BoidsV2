@@ -249,6 +249,9 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
      * @param animTimeMod
      */
     public final void drawMe(float animTimeMod) {        uiMgr.drawGUIObjs(AppMgr.isDebugMode(), animTimeMod);   }
+    
+    @Override
+    public final void moveToUIRegion() {uiMgr.moveToUIRegion();}
 
     @Override
     public final int getID() {return ID;}
@@ -410,12 +413,17 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
         LinkedHashMap<String, GUIObj_Params> tmpUIGrpBuilderMap = new LinkedHashMap<String, GUIObj_Params>(); 
         // zero row TODO labels for count, name, velocity and mass limits
         int grpIdx = 0;
-//        
+//      
+//      
+//      
+//      
+//      
+//      
 //        tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_header", uiMgr.buildUIObjGroupParams(tmpUIObjMap));
 //        tmpUIObjMap.clear();
         
         //first row
-        tmpUIObjMap.put("label_radius", uiMgr.uiObjInitAra_LabelInLine(gIDX_FlkRad+100000,"Radii : "));
+        tmpUIObjMap.put("label_radius", uiMgr.uiObjInitAra_LabelInLine(gIDX_FlkRad+100000,"      Radii :"));
         tmpUIObjMap.put("gIDX_FlkRad", uiMgr.uiObjInitAra_FloatMultiLine(gIDX_FlkRad, new double[]{minNeighborRad,maxNeighborRad,radMod}, nghbrRad, "Flocking"));
         tmpUIObjMap.put("gIDX_ColAvoidRad", uiMgr.uiObjInitAra_FloatMultiLine(gIDX_ColAvoidRad, new double[]{minRad,.9f*maxNeighborRad,radMod}, colRad, "Col Avoid"));
         tmpUIObjMap.put("gIDX_VelMatchRad", uiMgr.uiObjInitAra_FloatMultiLine(gIDX_VelMatchRad, new double[]{minRad,maxNeighborRad,radMod}, velRad, "Vel Match"));
