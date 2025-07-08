@@ -14,13 +14,14 @@ import base_UI_Objects.windowUI.uiData.UIDataUpdater;
 import base_UI_Objects.windowUI.uiObjs.base.GUIObj_Params;
 
 /**
- * struct-type class to hold flocking variables for a specific flock
+ * struct-type class to hold flocking variables for a specific flock. Displayed on sidebar under main window variables
  * @author John Turner
  *
  */
 public class Boids_UIFlkVars implements IUIManagerOwner {
     public final int ID;
-    //Counter of how many Boids_UIFlkVars are built in the application. Used to specify unique ID for each new Boids_UIFlkVars
+    //Counter of how many Boids_UIFlkVars are built in the application. 
+    //Used to specify unique ID for each new Boids_UIFlkVars
     private static int flkVarCnt = 0;
     /**
      * Owning window
@@ -131,7 +132,7 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
      * Idxs for the UI objects this construct holds
      */
     public final static int 
-        //These weights' idxs also match indices in weights array for first 6
+        //These first 6 weights' idxs also match indices in weights array
         gIDX_FlkFrcWt              = 0,
         gIDX_ColAvoidWt            = 1,
         gIDX_VelMatchWt            = 2,
@@ -152,7 +153,6 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
     // offset value to use to specify a label of a section
     private final static int lblOffset = 100000;
     public final static int
-        disp_Spacer              = 2000,
         disp_FlockName           = 1000,
         disp_FlockCount          = 1001,
         disp_MassRange           = 1002,
@@ -185,7 +185,7 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
         radMod = minRad;
         _flkColor = new int[_flkClr.length];
         System.arraycopy(_flkClr, 0, _flkColor, 0, _flkClr.length);
-        uiMgr = new UIObjectManager(Base_DispWindow.ri, this, AppMgr, owner.getMsgObj());
+        uiMgr = new UIObjectManager(Base_DispWindow.ri, this, AppMgr, _owner.getMsgObj());
         _initFlockVals(_nRadMult, .05f, _predRad);
     }//ctor
     
@@ -433,20 +433,19 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
         LinkedHashMap<String, GUIObj_Params> tmpUIGrpBuilderMap = new LinkedHashMap<String, GUIObj_Params>(); 
         // zero row labels for count, name, velocity and mass limits
         int grpIdx = 0;
-        tmpUIObjMap.put("disp_Spacer_0", uiMgr.uiObjInitAra_Label(disp_Spacer+1, "     "));
-        tmpUIObjMap.get("disp_Spacer_0").setReadOnlyColors(new int[] {255,255,255,0});
+        tmpUIObjMap.put("disp_FirstSpacer", uiMgr.uiObjectInitAra_Spacer());
         tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_space", uiMgr.buildUIObjGroupParams(tmpUIObjMap));
         tmpUIObjMap.clear();               
         
-        
-        tmpUIObjMap.put("disp_Spacer", uiMgr.uiObjInitAra_Label(disp_Spacer, "     "));
+        //badge spacer
+        tmpUIObjMap.put("disp_BadgeSpacer", uiMgr.uiObjectInitAra_Spacer(owner.getFlockBadgeDims(flockIdx)));
         tmpUIObjMap.put("disp_FlockName", uiMgr.uiObjInitAra_DispString(disp_FlockName, flockIdx, "Flock Name", owner.getFlknNames(), false, false));
         tmpUIObjMap.put("disp_FlockCount",uiMgr.uiObjInitAra_DispInt(disp_FlockCount, 0, "Pop", true, false));
         tmpUIObjMap.put("disp_MassRange", uiMgr.uiObjInitAra_DispFloatRange(disp_MassRange, massForType, 0, "Mass", true, false));         
         tmpUIObjMap.put("disp_VelRange", uiMgr.uiObjInitAra_DispFloatRange(disp_VelRange, new double[]{minVelMag, maxVelMag, 0.1}, 0, "Velocity", true, false));        
         //assign colors
         for (var entry : tmpUIObjMap.entrySet()) {entry.getValue().setReadOnlyColors(_flkColor);}
-        tmpUIObjMap.get("disp_Spacer").setReadOnlyColors(new int[] {255,255,255,0});
+        tmpUIObjMap.get("disp_BadgeSpacer").setReadOnlyColors(new int[] {255,255,255,0});
         var lblGroup = uiMgr.buildUIObjGroupParams(tmpUIObjMap);
         lblGroup.setNumObjsPerLine(50);
         tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_header", lblGroup);
@@ -609,11 +608,13 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
      */
     @Override
     public final boolean handleMouseDrag(int mouseX, int mouseY,int pmouseX, int pmouseY, myVector mseDragInWorld, int mseBtn){
-        int delX = (mouseX-pmouseX), delY = (mouseY-pmouseY);
-        boolean shiftPressed = AppMgr.shiftIsPressed();
-        boolean retVals[] = uiMgr.handleMouseDrag(delX, delY, mseBtn, shiftPressed);
-        if (retVals[1]){objsModified = true;}
-        if (retVals[0]){return true;}
+        if (msClickInUIObj) {
+            int delX = (mouseX-pmouseX), delY = (mouseY-pmouseY);
+            boolean shiftPressed = AppMgr.shiftIsPressed();
+            boolean retVals[] = uiMgr.handleMouseDrag(delX, delY, mseBtn, shiftPressed);
+            if (retVals[1]){objsModified = true;}
+            if (retVals[0]){return true;}
+        }
         return false;
     }//handleMouseDrag
     

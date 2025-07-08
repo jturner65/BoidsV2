@@ -130,11 +130,11 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
 
         for(Boid b : bAra){
             if (b.forces.magn > epsValCalcSq) {
-                b.velocity.set(integrate(myVectorf._mult(b.forces, (1.0f/b.mass)), b.velocity, deltaT));            //myVectorf._add(velocity[0], myVectorf._mult(forces[1], p.delT/(1.0f * mass)));    divide by  mass, multiply by delta t
+                b.velocity.set(integrate(myVectorf._mult(b.forces, (1.0f/b.mass)), b.velocity, deltaT));            //myVectorf._add(velocity[0], myVectorf._mult(forces[1], ri.delT/(1.0f * mass)));    divide by  mass, multiply by delta t
                 if(b.velocity.magn < minVelMag){b.velocity._mult(minVelMag/b.velocity.magn);}
                 else if(b.velocity.magn > maxVelMag){b.velocity._mult(maxVelMag/b.velocity.magn);}
             }
-            //b.coords.set(integrate(b.velocity, b.getCoords(), deltaT));                                                // myVectorf._add(coords[0], myVectorf._mult(velocity[1], p.delT));    
+            //b.coords.set(integrate(b.velocity, b.getCoords(), deltaT));                                                // myVectorf._add(coords[0], myVectorf._mult(velocity[1], ri.delT));    
             //Account for wrapping if torroidal
             setValWrapCoordsForDraw(b, integrate(b.velocity, b.getCoords(), deltaT));
             setOrientation(b, deltaT);

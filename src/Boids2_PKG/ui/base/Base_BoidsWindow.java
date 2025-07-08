@@ -95,10 +95,9 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
      */
     protected Boids_UIFlkVars[] flockVars;
     
-//    // structure holding boid flocks and the rendered versions of them - move to myRenderObj?
-    //5 different flocks will display nicely on side menu
-    protected String[] flkNames = new String[]{"Privateers", "Pirates", "Corsairs", "Marauders", "Freebooters"};
-    protected float[] flkRadMults = {1.0f, 0.5f, 0.25f, 0.75f, 0.66f, 0.33f};
+    // Up to 6 different flocks will display nicely on side menu
+    protected String[] flkNames = new String[]{"Privateers", "Pirates", "Corsairs", "Marauders", "Freebooters", "Picaroons"};
+    protected float[] flkRadMults = {1.0f, 0.5f, 0.25f, 0.75f, 0.66f, 0.33f, 0.85f};
     
     ///////////
     //graphical constructs for boids 
@@ -119,9 +118,9 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
      * Divide fill color for each type by these values for stroke
      */
     private static final float[][] strokeScaleFact = new float[][]{
-        {1.25f,0.42f,1.33f,0.95f,3.3f},                //sphere    
-        {1.25f,0.42f,1.33f,0.95f,3.3f},                //boat      
-        {1.25f,1.25f,1.25f,1.25f,1.25f}};      //jellyfish 
+        {1.25f,0.42f,1.33f,0.95f,3.3f,2.7f},                //sphere    
+        {1.25f,0.42f,1.33f,0.95f,3.3f,2.7f},                //boat      
+        {1.25f,1.25f,1.25f,1.25f,1.25f,1.25f}};               //jellyfish 
         
     /**
      * scale all fill colors by this value for emissive value
@@ -140,9 +139,9 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
      * per type, per flock fill colors
      */
     private static final int[][][] objFillColors = new int[][][]{
-        {{110, 65, 30,255},    {30, 30, 30,255}, {130, 22, 10,255}, {22, 188, 110,255}, {22, 10, 130,255}},        //sphere
-        {{110, 65, 30,255}, {20, 20, 20,255}, {130, 22, 10,255}, {22, 128, 50,255}, {22, 10, 150,255}},         //boats
-        {{180, 125, 100,255}, {90, 130, 80, 255}, {180, 82, 90,255}, {190, 175, 60,255}, {50, 90, 240,255}}    //jellyfish
+        {{110, 65, 30, 255}, {30, 30, 30,255}, {130, 22, 10,255}, {22, 188, 110, 255}, {22, 10, 130,255}, {0,180,120,255}},        //sphere
+        {{110, 65, 30, 255}, {20, 20, 20,255}, {130, 22, 10,255}, {22, 128, 50, 255}, {22, 10, 150,255}, {0,180,120,255}},         //boats
+        {{180, 125, 100,255}, {90, 130, 80, 255}, {180, 82, 90,255}, {190, 175, 60,255}, {50, 90, 240,255}, {30,210,160,255}}    //jellyfish
     };
 
     /**
@@ -157,7 +156,10 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
      * badge size in x per flock
      */
     protected float[] bdgSizeX;
-
+    
+    /**
+     * Menu badge for each type that preserves aspect ratio of pirate flags
+     */
     protected myPointf[][] mnBdgBox;
     /**
      * UV coordinates
@@ -189,7 +191,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
     protected Base_RenderObj[] currRndrTmplPerFlockAra,//set depending on UI choice for complex rndr obj 
         boatRndrTmplPerFlockAra,
         jellyFishRndrTmplPerFlockAra,
-        //add more render obj arrays here
+        //add more render obj arrays here for new boid constructs
         sphrRndrTmplPerFlockAra;//simplified rndr obj (sphere)//always last
     
     protected ConcurrentSkipListMap<String, Base_RenderObj[]> cmplxRndrTmpls;
@@ -312,7 +314,6 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
         mnBdgBox = new myPointf[maxNumFlocks][];
         for(int i=0; i<maxNumFlocks; ++i){    
             flkSails[i] = ((ProcessingRenderer) ri).loadImage(flkNames[i]+".jpg");
-
             float scale = flkSails[i].width / (1.0f*flkSails[i].height);
             bdgSizeX[i] = bdgSizeX_base * scale; 
 
@@ -345,6 +346,13 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
     }
     
     /**
+     * Returns the dimensions of the flag badge, used by flkVars UI to fit the text nicely
+     * @param idx
+     * @return
+     */
+    public final float[] getFlockBadgeDims(int idx) {      return new float[] {bdgSizeX[idx], bdgSizeY};  }
+    
+    /**
      * Initialize all individual flock variable UI groups. Called 1 time
      */
     protected void initFlockVars() {
@@ -369,7 +377,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
      */
     public final float[] getPrevFlkVarsUIClckCoords(int idx) {
         float[] flkVars = (idx == 0) ? uiMgr.getUIClkCoords() : flockVars[idx-1].getUIClkCoords();    
-        //make old ending new beginning
+        //make old ending y coord new beginning y coord
         flkVars[1] = flkVars[3];
         return flkVars;
     }
@@ -813,21 +821,21 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
     protected abstract void initTransform();
     
     private void drawMenuBadge(myPointf[] uvAra, int type) {
-        ri.gl_beginShape(); 
-        ((ProcessingRenderer)ri).texture(flkSails[type]);
-        for(int i=0;i<mnBdgBox[type].length;++i){    ((ProcessingRenderer)ri).vTextured(mnBdgBox[type][i], uvAra[i].y, uvAra[i].x);} 
-        ri.gl_endShape(true);
+        ri.pushMatState(); 
+            flockVars[type].moveToUIRegion();
+            ri.gl_beginShape(); 
+            ((ProcessingRenderer)ri).texture(flkSails[type]);
+            //for(int i=0;i<mnBdgBox[type].length;++i){    ((ProcessingRenderer)ri).vTextured(mnBdgBox[type][i], uvAra[i].y, uvAra[i].x);} 
+            for(int i=0;i<mnBdgBox[type].length;++i){    ((ProcessingRenderer)ri).vTextured(mnBdgBox[type][i], uvAra[i].y, uvAra[i].x);} 
+            ri.gl_endShape(true);
+        ri.popMatState();
     }//       
     @Override
     public void drawCustMenuObjs(float animTimeMod){
         ri.pushMatState();    
         for(int i =0; i<flocks.length; ++i){
             currRndrTmplPerFlockAra[i].setMenuColor();
-            ri.pushMatState(); 
-            flockVars[i].moveToUIRegion();
             drawMenuBadge(mnUVBox,i);
-                       
-            ri.popMatState();
             flockVars[i].setFlockSize(flocks[i].boidFlock.size());
             flockVars[i].drawMe(animTimeMod);
         }
@@ -900,7 +908,9 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
     protected boolean hndlMouseClick_Indiv(int mouseX, int mouseY, myPoint mseClckInWorld, int mseBtn) {
         //not in ui buttons, check if in flk vars region
         if((mouseX < uiMgr.getUIClkCoords()[2]) && (mouseY >= uiMgr.getUIClkCoords()[3])){
-            for(int i = 0; i<flockVars.length; ++i){if(flockVars[i].handleMouseClick(mouseX, mouseY, mseBtn)) {return true;}}
+            for(int i = 0; i<flockVars.length; ++i){if(flockVars[i].handleMouseClick(mouseX, mouseY, mseBtn)) {
+                setMsClickInUIObj(true);
+                return true;}}
         }            
         return false;
     }//hndlMouseClickIndiv

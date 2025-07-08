@@ -463,7 +463,7 @@ public class Boid {
             ri.drawSphere(10);
         ri.popMatState();        
     }        
-    //public double calcBobbing(){        return 2*(p.cos(.01f*animCntr));    }        //bobbing motion
+    //public double calcBobbing(){        return 2*(ri.cos(.01f*animCntr));    }        //bobbing motion
 
     /**
      * Draw a vector starting at the location of this boid
@@ -509,7 +509,7 @@ public class Boid {
     public String toString(){
         String result = "ID : " + ID + " Type : "+flk.getName()+" | Mass : " + mass + " | Spawn CD "+spawnCntr + " | Starve CD " + starveCntr+"\n";
         result+=" | location : " + coords + " | velocity : " + velocity + " | forces : " + forces +"\n" ;
-        //if(p.flags[p.debugMode]){result +="\nOrientation : UP : "+orientation[O_UP] + " | FWD : "+orientation[O_FWD] + " | RIGHT : "+orientation[O_RHT] + "\n";}
+        //if(ri.flags[ri.debugMode]){result +="\nOrientation : UP : "+orientation[O_UP] + " | FWD : "+orientation[O_FWD] + " | RIGHT : "+orientation[O_RHT] + "\n";}
         int num =neighbors.size();
         result += "# neighbors : "+ num + (num==0 ? "\n" : " | Neighbor IDs : \n");
         if(flk.getShowFlkMbrs()){    for(Float bd_K : neighbors.keySet()){result+="\tNeigh ID : "+neighbors.get(bd_K).ID + " dist from me : " + bd_K+"\n";}}

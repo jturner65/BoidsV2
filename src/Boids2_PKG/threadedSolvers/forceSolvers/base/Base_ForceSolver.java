@@ -81,7 +81,7 @@ public abstract class Base_ForceSolver implements Callable<Boolean> {
     }
     
     public void runMe(){
-        //if((p.flags[p.mouseClicked] ) && (!p.flags[p.shiftKeyPressed])){//add click force : overwhelms all forces - is not scaled
+        //if((ri.flags[ri.mouseClicked] ) && (!ri.flags[ri.shiftKeyPressed])){//add click force : overwhelms all forces - is not scaled
         if (addFrc){
             for(Boid b : bAra){b.forces._add(AppMgr.mouseForceAtLoc(msClickForce, b.getCoords(), stFlags[attractMode]));}
         }
@@ -162,7 +162,7 @@ public abstract class Base_ForceSolver implements Callable<Boolean> {
 //                    b.forces.set(dampFrc);        
 //                } 
 //                else {
-//                    float sclAmt = p.cos(b.animPhase);
+//                    float sclAmt = ri.cos(b.animPhase);
 //                    b.forces._scale(b.forces.magn * 1.5f*sclAmt);                                
 //                }
             }            
