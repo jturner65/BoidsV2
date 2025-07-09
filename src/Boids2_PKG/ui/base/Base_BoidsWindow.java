@@ -28,6 +28,7 @@ import base_UI_Objects.renderedObjs.base.Base_RenderObj;
 import base_UI_Objects.renderedObjs.base.RenderObj_ClrPalette;
 import base_UI_Objects.renderer.ProcessingRenderer;
 import base_UI_Objects.windowUI.base.Base_DispWindow;
+import base_UI_Objects.windowUI.base.GUI_AppWinVals;
 import base_UI_Objects.windowUI.drawnTrajectories.DrawnSimpleTraj;
 import base_UI_Objects.windowUI.uiData.UIDataUpdater;
 import base_UI_Objects.windowUI.uiObjs.base.GUIObj_Params;
@@ -278,7 +279,15 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
      * Instance specific init after base class init is finished
      */
     protected abstract void initMe_IndivPost();
-    
+    /**
+     * This function implements the instantiation of a child window owned by this window, if such exists.
+     * The implementation should be similar to how the main windows are implemented in GUI_AppManager::initAllDispWindows.
+     * If no child window exists, this implementation of this function can be empty
+     * 
+     * @param GUI_AppWinVals the window control values for the child window.
+     */
+    @Override
+    protected final void buildAndSetChildWindow_Indiv(GUI_AppWinVals _appVals) {}     
 
     @Override
     protected int[] getFlagIDXsToInitToTrue() {

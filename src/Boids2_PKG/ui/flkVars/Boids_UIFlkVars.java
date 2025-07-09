@@ -433,7 +433,7 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
         LinkedHashMap<String, GUIObj_Params> tmpUIGrpBuilderMap = new LinkedHashMap<String, GUIObj_Params>(); 
         // zero row labels for count, name, velocity and mass limits
         int grpIdx = 0;
-        tmpUIObjMap.put("disp_FirstSpacer", uiMgr.uiObjectInitAra_Spacer());
+        tmpUIObjMap.put("disp_FirstSpacer", uiMgr.uiObjectInitAra_Spacer(new float[] {0, 10}));
         tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_space", uiMgr.buildUIObjGroupParams(tmpUIObjMap));
         tmpUIObjMap.clear();               
         
