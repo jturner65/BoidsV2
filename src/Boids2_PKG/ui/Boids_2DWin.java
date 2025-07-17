@@ -3,7 +3,7 @@ package Boids2_PKG.ui;
 import java.util.LinkedHashMap;
 
 import Boids2_PKG.ui.base.Base_BoidsWindow;
-import base_Render_Interface.IRenderInterface;
+import base_Render_Interface.IGraphicsAppInterface;
 import base_UI_Objects.GUI_AppManager;
 import base_UI_Objects.windowUI.uiObjs.base.GUIObj_Params;
 
@@ -17,9 +17,9 @@ public class Boids_2DWin extends Base_BoidsWindow {
     
     //instance-specific flag idxs should start number at Base_BoidsWindow.numBasePrivFlags
     
-    public Boids_2DWin(IRenderInterface _p, GUI_AppManager _AppMgr, int _winIdx) {
+    public Boids_2DWin(IGraphicsAppInterface _p, GUI_AppManager _AppMgr, int _winIdx) {
         super(_p, _AppMgr, _winIdx);        
-        super.initThisWin(false);
+        
     }
     
     /**

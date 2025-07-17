@@ -16,7 +16,7 @@ import Boids2_PKG.threadedSolvers.updaters.BoidUpdate_Type;
 import Boids2_PKG.threadedSolvers.updaters.BoidMoveSpawnEatUpdater;
 import Boids2_PKG.ui.base.Base_BoidsWindow;
 import Boids2_PKG.ui.flkVars.Boids_UIFlkVars;
-import base_Render_Interface.IRenderInterface;
+import base_Render_Interface.IGraphicsAppInterface;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
@@ -212,13 +212,13 @@ public class BoidFlock {
      */
     public void scatterBoids() {for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).setCoords(randBoidStLoc());}}//    randInit
 
-    public void drawBoids(IRenderInterface ri) {                for(Boid b : boidFlock){b.drawMe(ri);}}
-    public void drawBoidsScaled(IRenderInterface ri) {            for(Boid b : boidFlock){b.drawMeScaled(ri);}}
-    public void drawBoidsAsBall(IRenderInterface ri) {            for(Boid b : boidFlock){b.drawMeAsBall(ri);}}
+    public void drawBoids(IGraphicsAppInterface ri) {                for(Boid b : boidFlock){b.drawMe(ri);}}
+    public void drawBoidsScaled(IGraphicsAppInterface ri) {            for(Boid b : boidFlock){b.drawMeScaled(ri);}}
+    public void drawBoidsAsBall(IGraphicsAppInterface ri) {            for(Boid b : boidFlock){b.drawMeAsBall(ri);}}
     
-    public void drawBoidVels(IRenderInterface ri) {            for(Boid b : boidFlock){b.drawMyVel(ri);}}
-    public void drawBoidFrames(IRenderInterface ri) {            for(Boid b : boidFlock){b.drawMyFrame(ri);}}
-    public void drawBoidsFlkMmbrs(IRenderInterface ri) {        for(Boid b : boidFlock){b.drawClosestPredAndPrey(ri);}}
+    public void drawBoidVels(IGraphicsAppInterface ri) {            for(Boid b : boidFlock){b.drawMyVel(ri);}}
+    public void drawBoidFrames(IGraphicsAppInterface ri) {            for(Boid b : boidFlock){b.drawMyFrame(ri);}}
+    public void drawBoidsFlkMmbrs(IGraphicsAppInterface ri) {        for(Boid b : boidFlock){b.drawClosestPredAndPrey(ri);}}
     
     /**
      * If this is being animated and has a template, return that template's max animation counter, otherwise return 1

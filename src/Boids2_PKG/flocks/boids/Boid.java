@@ -3,7 +3,7 @@ package Boids2_PKG.flocks.boids;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import Boids2_PKG.flocks.BoidFlock;
-import base_Render_Interface.IRenderInterface;
+import base_Render_Interface.IGraphicsAppInterface;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
@@ -307,7 +307,7 @@ public class Boid {
      * align the boid along the current orientation matrix
      * @param ri
      */
-    private void alignBoid(IRenderInterface ri){
+    private void alignBoid(IGraphicsAppInterface ri){
         rotVec.set(O_axisAngle[1],O_axisAngle[2],O_axisAngle[3]);
         float rotAngle = (float) (oldRotAngle + ((O_axisAngle[0]-oldRotAngle) * flk.getDeltaT()));
         ri.rotate(rotAngle, rotVec.x, rotVec.y, rotVec.z);
@@ -329,7 +329,7 @@ public class Boid {
      * @param dPhi
      * @param dz
      */
-    public void setBoatCam(IRenderInterface ri,float dThet, float dPhi, float dz, myPointf winOrigin){
+    public void setBoatCam(IGraphicsAppInterface ri,float dThet, float dPhi, float dz, myPointf winOrigin){
         //set eye to initially be at coords of boid, modified for world being displaced by half grid dims
         myPointf eyeTmp = myPointf._add(coords,winOrigin);
         myPointf tmpEyeMod = new myPointf(orientation[O_FWD]);
@@ -366,7 +366,7 @@ public class Boid {
      * Actual implementation of drawing the boid's shape
      * @param ri
      */
-    private void _drawTmpl(IRenderInterface ri) {
+    private void _drawTmpl(IGraphicsAppInterface ri) {
         ri.pushMatState();
         flk.getCurrTemplate().drawMe(animPhase, ID);
         ri.popMatState();
@@ -387,7 +387,7 @@ public class Boid {
      * Draw this boid
      * @param ri
      */
-    public void drawMe(IRenderInterface ri){
+    public void drawMe(IGraphicsAppInterface ri){
         ri.pushMatState();
             ri.translate(coords.x,coords.y,coords.z);
             alignBoid(ri);
@@ -400,7 +400,7 @@ public class Boid {
      * Draw this boid scaled to a size reflecting its mass
      * @param ri
      */
-    public void drawMeScaled(IRenderInterface ri){
+    public void drawMeScaled(IGraphicsAppInterface ri){
         ri.pushMatState();
             ri.translate(coords.x,coords.y,coords.z);
             alignBoid(ri);
@@ -414,7 +414,7 @@ public class Boid {
      * Draw this boids past locations 
      * @param ri
      */
-    public void drawMyTrajectory(IRenderInterface ri){
+    public void drawMyTrajectory(IGraphicsAppInterface ri){
         ri.pushMatState();
         
         
@@ -426,7 +426,7 @@ public class Boid {
      * @param debugAnim
      * @param showVel
      */
-    public void drawMeAsBall(IRenderInterface ri){
+    public void drawMeAsBall(IGraphicsAppInterface ri){
         ri.pushMatState();
             ri.translate(coords.x,coords.y,coords.z);        //move to location            
             flk.getSphereTemplate().drawMe(animPhase, ID);
@@ -437,13 +437,13 @@ public class Boid {
      * Draw a line to closest predator and prey
      * @param ri
      */
-    public void drawClosestPredAndPrey(IRenderInterface ri){
+    public void drawClosestPredAndPrey(IGraphicsAppInterface ri){
         if(preyFlkLoc.size() == 0){return;}
         myPointf tmp = preyFlkLoc.firstEntry().getValue();
-        _drawClosestOther(ri, tmp, IRenderInterface.gui_LightRed, IRenderInterface.gui_Red);
+        _drawClosestOther(ri, tmp, IGraphicsAppInterface.gui_LightRed, IGraphicsAppInterface.gui_Red);
         if(predFlkLoc.size() == 0){return;}
         tmp = predFlkLoc.firstEntry().getValue();
-        _drawClosestOther(ri, tmp, IRenderInterface.gui_LightCyan, IRenderInterface.gui_Cyan);
+        _drawClosestOther(ri, tmp, IGraphicsAppInterface.gui_LightCyan, IGraphicsAppInterface.gui_Cyan);
     }//drawClosestPredAndPrey
     
     /**
@@ -453,13 +453,13 @@ public class Boid {
      * @param stClr
      * @param endClr
      */
-    private void _drawClosestOther(IRenderInterface ri, myPointf tmp, int stClr, int endClr){
+    private void _drawClosestOther(IGraphicsAppInterface ri, myPointf tmp, int stClr, int endClr){
         ri.pushMatState();
             ri.setStrokeWt(3.0f);
             ri.drawLine(coords, tmp,stClr,endClr );
             ri.translate(tmp.x,tmp.y,tmp.z);        //move to location
             ri.setColorValFill(endClr, 255);
-            ri.noStroke();
+            ri.setNoStroke();
             ri.drawSphere(10);
         ri.popMatState();        
     }        
@@ -472,7 +472,7 @@ public class Boid {
      * @param clr
      * @param sw
      */
-    private void _drawMyVec(IRenderInterface ri, myVectorf vec, int clr, float sw){
+    private void _drawMyVec(IGraphicsAppInterface ri, myVectorf vec, int clr, float sw){
         ri.pushMatState();
             ri.translate(coords.x,coords.y,coords.z);        //move to location
             ri.setColorValStroke(clr, 255);
@@ -485,20 +485,20 @@ public class Boid {
      * Draw velocity vector
      * @param ri
      */
-    public void drawMyVel(IRenderInterface ri) {    _drawMyVec(ri, velocity,IRenderInterface.gui_Magenta, 0.5f);}
+    public void drawMyVel(IGraphicsAppInterface ri) {    _drawMyVec(ri, velocity,IGraphicsAppInterface.gui_Magenta, 0.5f);}
     /**
      * Draw accelerations/forces
      * @param ri
      */
-    public void drawMyForces(IRenderInterface ri) {    _drawMyVec(ri, forces, IRenderInterface.gui_Green, 0.5f);}
+    public void drawMyForces(IGraphicsAppInterface ri) {    _drawMyVec(ri, forces, IGraphicsAppInterface.gui_Green, 0.5f);}
     /**
      * Draw rotation vector and orientation frame
      * @param ri
      */
-    public void drawMyFrame(IRenderInterface ri) {
+    public void drawMyFrame(IGraphicsAppInterface ri) {
         ri.pushMatState();
             ri.translate(coords.x,coords.y,coords.z);        //move to location
-            ri.setColorValStroke(IRenderInterface.gui_Cyan, 255);
+            ri.setColorValStroke(IGraphicsAppInterface.gui_Cyan, 255);
             ri.setStrokeWt(2.0f);
             ri.drawLine(myPointf.ZEROPT,myPointf._mult(rotVec, 100f));
             AppMgr.drawRGBAxes(100, 2.0f, myPointf.ZEROPT, orientation, 255);
