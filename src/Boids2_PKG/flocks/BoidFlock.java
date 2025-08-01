@@ -85,7 +85,6 @@ public class BoidFlock {
      */
     private int curWinFlagState;                    //holds current state of first 32 flags from win/UI
     
-    public final int mtFrameSize = 100;        //mtFrameSize is # of boids per thread
     private Base_RenderObj tmpl, sphTmpl;                //template to render boid; simplified sphere template
     public BoidFlock preyFlock, predFlock;        //direct reference to flock that is my prey and my predator -- set in main program after init is called
     

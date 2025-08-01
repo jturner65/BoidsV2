@@ -103,7 +103,7 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
     public float[] maxFrcs;                                    //max forces for this flock, for each force type
     public float[] wts;                                        //weights for flock calculations for this flock
     
-    public final float maxVelMag = 180,        //max velocity for flock member 
+    public final float maxVelMag = 30,        //max velocity for flock member 
                 minVelMag = 0.0f;                                        //min velocity for flock member
     
     // default min and max values
@@ -153,26 +153,39 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
     // offset value to use to specify a label of a section
     private final static int lblOffset = 100000;
     public final static int
-        disp_FlockName           = 1000,
-        disp_FlockCount          = 1001,
-        disp_MassRange           = 1002,
-        disp_VelRange            = 1003;
+        disp_FlockName          = 1000,
+        disp_PredFlockName      = 1001,
+        disp_PreyFlockName      = 1002,
+        disp_FlockCount         = 1003,
+        disp_MassRange          = 1004,
+        disp_VelRange           = 1005;
     
     /**
      * Index in owner's flock vars array
      */
     public final int flockIdx;
+    
+    /**
+     * Index of predator flock
+     */
+    public int predIdx;
+    /**
+     * Index of prey flock
+     */
+    public int preyIdx;
     /**
      * 
      * @param _owner
-     * @param _idx
+     * @param _flockIdx
      * @param _flockName
      * @param _nRadMult
      * @param _predRad
      */
-    public Boids_UIFlkVars(Base_BoidsWindow _owner, int _idx, String _flockName, float _nRadMult, float _predRad, int[] _flkClr) {
+    public Boids_UIFlkVars(Base_BoidsWindow _owner, int _flockIdx, String _flockName, float _nRadMult, float _predRad, int[] _flkClr) {
         ID = flkVarCnt++;
-        flockIdx = _idx;
+        flockIdx = _flockIdx;
+        predIdx = _flockIdx;
+        preyIdx = _flockIdx;
         owner = _owner;
         AppMgr = Base_BoidsWindow.AppMgr;
         className = this.getClass().getSimpleName();
@@ -190,6 +203,18 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
     }//ctor
     
     public float getInitMass(){return (float)(massForType[0] + (massForType[1] - massForType[0])*MyMathUtils.randomFloat());}
+    
+    /**
+     * Set the predator and prey idx of the flock this vars represents
+     * @param _predIdx
+     * @param _preyIdx
+     */
+    public void setPredPreyIDX(int _predIdx, int _preyIdx) {
+        predIdx = _predIdx;        preyIdx = _preyIdx;        
+        uiMgr.setNewUIValue(disp_PredFlockName, predIdx);
+        uiMgr.setNewUIValue(disp_PreyFlockName, preyIdx);
+        uiMgr.setAllUIWinVals();
+    }
     
     /**
      * 
@@ -439,7 +464,7 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
         
         //badge spacer
         tmpUIObjMap.put("disp_BadgeSpacer", uiMgr.uiObjectInitAra_Spacer(owner.getFlockBadgeDims(flockIdx)));
-        tmpUIObjMap.put("disp_FlockName", uiMgr.uiObjInitAra_DispString(disp_FlockName, flockIdx, "Flock Name", owner.getFlknNames(), false, false));
+        tmpUIObjMap.put("disp_FlockName", uiMgr.uiObjInitAra_DispString(disp_FlockName, flockIdx, "  Flock Name", owner.getFlknNames(), false, false));
         tmpUIObjMap.put("disp_FlockCount",uiMgr.uiObjInitAra_DispInt(disp_FlockCount, 0, "Pop", true, false));
         tmpUIObjMap.put("disp_MassRange", uiMgr.uiObjInitAra_DispFloatRange(disp_MassRange, massForType, 0, "Mass", true, false));         
         tmpUIObjMap.put("disp_VelRange", uiMgr.uiObjInitAra_DispFloatRange(disp_VelRange, new double[]{minVelMag, maxVelMag, 0.1}, 0, "Velocity", true, false));        
@@ -451,17 +476,27 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
         tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_header", lblGroup);
         tmpUIObjMap.clear();
         
-        //first row - radii
+        // first row - prey and predators
+        tmpUIObjMap.put("disp_PredFlockName", uiMgr.uiObjInitAra_DispString(disp_PredFlockName, predIdx, "  Predator Name", owner.getFlknNames(), false, false));
+        tmpUIObjMap.put("disp_PreyFlockName", uiMgr.uiObjInitAra_DispString(disp_PreyFlockName, preyIdx, "  Prey Name", owner.getFlknNames(), false, false));
+        for (var entry : tmpUIObjMap.entrySet()) {entry.getValue().setReadOnlyColors(_flkColor);}
+        tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_preyPred", uiMgr.buildUIObjGroupParams(tmpUIObjMap));
+        tmpUIObjMap.clear();        
+        
+        
+        //second row - radii
         tmpUIObjMap.put("label_radius", uiMgr.uiObjInitAra_Label(gIDX_FlkRad+lblOffset,"Radii : "));
-        tmpUIObjMap.put("gIDX_FlkRad", uiMgr.uiObjInitAra_Float(gIDX_FlkRad, new double[]{minNeighborRad,maxNeighborRad,radMod}, nghbrRad, "Flocking", true, false));
-        tmpUIObjMap.put("gIDX_ColAvoidRad", uiMgr.uiObjInitAra_Float(gIDX_ColAvoidRad, new double[]{minRad,maxNeighborRad,radMod}, colRad, "Col Avoid", true, false));
-        tmpUIObjMap.put("gIDX_VelMatchRad", uiMgr.uiObjInitAra_Float(gIDX_VelMatchRad, new double[]{minRad,maxNeighborRad,radMod}, velRad, "Vel Match", true, false));
+        var rndrConfig = uiMgr.buildGUIObjRendererFlags(false, false, false, false);
+        rndrConfig.setHasOrnament(false);rndrConfig.setHasOutline(true);
+        tmpUIObjMap.put("gIDX_FlkRad", uiMgr.uiObjInitAra_Float(gIDX_FlkRad, new double[]{minNeighborRad,maxNeighborRad,radMod}, nghbrRad, "  Flocking", uiMgr.buildDefaultGUIObjConfigFlags(), rndrConfig));
+        tmpUIObjMap.put("gIDX_ColAvoidRad", uiMgr.uiObjInitAra_Float(gIDX_ColAvoidRad, new double[]{minRad,maxNeighborRad,radMod}, colRad, "  Col Avoid", uiMgr.buildDefaultGUIObjConfigFlags(), rndrConfig));
+        tmpUIObjMap.put("gIDX_VelMatchRad", uiMgr.uiObjInitAra_Float(gIDX_VelMatchRad, new double[]{minRad,maxNeighborRad,radMod}, velRad, "  Vel Match", uiMgr.buildDefaultGUIObjConfigFlags(), rndrConfig));
         for (var entry : tmpUIObjMap.entrySet()) {entry.getValue().setReadOnlyColors(_flkColor);}
 
         tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_radii", uiMgr.buildUIObjGroupParams(tmpUIObjMap));
         tmpUIObjMap.clear();
         
-        //second row - weights
+        //third row - weights
         tmpUIObjMap.put("label_weights", uiMgr.uiObjInitAra_Label(gIDX_FlkFrcWt+lblOffset,"Wts : "));
         int wIdx = gIDX_FlkFrcWt;
         tmpUIObjMap.put("gIDX_FlkFrcWt", uiMgr.uiObjInitAra_Float(wIdx, new double[]{MinWtAra[wIdx],MaxWtAra[wIdx],MinWtAra[wIdx]}, wts[wIdx], "Flock", true, false));
@@ -481,7 +516,7 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
         wtsObjParams.setNumObjsPerLine(50);
         tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_weights", wtsObjParams);
         tmpUIObjMap.clear();
-        // third row labels
+        // fourth row labels
         tmpUIObjMap.put("label_activity", uiMgr.uiObjInitAra_Label(gIDX_SpawnRad+10000,"Activity"));
         tmpUIObjMap.put("label_actRadius", uiMgr.uiObjInitAra_Label(gIDX_SpawnRad+10001,"Radius"));
         tmpUIObjMap.put("label_actSuccess", uiMgr.uiObjInitAra_Label(gIDX_SpawnRad+10002,"% Success"));
@@ -491,7 +526,7 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
         tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_activityLabels", uiMgr.buildUIObjGroupParams(tmpUIObjMap));
         tmpUIObjMap.clear();
         
-        // fourth row spawning
+        // fifth row spawning
         tmpUIObjMap.put("label_spawning", uiMgr.uiObjInitAra_Label(gIDX_SpawnRad+lblOffset,"Spawning : "));
         tmpUIObjMap.put("gIDX_SpawnRad", uiMgr.uiObjInitAra_Float(gIDX_SpawnRad, new double[]{minRad,maxNeighborRad,radMod}, spawnRad, "", false, false));
         tmpUIObjMap.put("gIDX_SpawnSuccessPct", uiMgr.uiObjInitAra_Float(gIDX_SpawnSuccessPct, new double[]{minPct,maxPct, minPct}, spawnPct, "", false, false));
@@ -501,7 +536,7 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
         tmpUIGrpBuilderMap.put("row_"+(grpIdx++)+"_spawning", uiMgr.buildUIObjGroupParams(tmpUIObjMap));
         tmpUIObjMap.clear();
         
-        // fifth row hunting
+        // sixth row hunting
         tmpUIObjMap.put("label_spawning", uiMgr.uiObjInitAra_Label(gIDX_HuntingRad+lblOffset,"Hunting : "));
         tmpUIObjMap.put("gIDX_HuntingRad", uiMgr.uiObjInitAra_Float(gIDX_HuntingRad, new double[]{minRad, maxNeighborRad,radMod}, killRad, "", false, false));
         tmpUIObjMap.put("gIDX_HuntingSuccessPct", uiMgr.uiObjInitAra_Float(gIDX_HuntingSuccessPct, new double[]{minPct, maxPct, minPct}, killPct, "", false, false));

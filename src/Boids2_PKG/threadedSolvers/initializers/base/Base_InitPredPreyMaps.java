@@ -19,15 +19,14 @@ public abstract class Base_InitPredPreyMaps implements Callable<Boolean> {
     protected GUI_AppManager AppMgr;
     protected Boids_UIFlkVars fv;
     
-    protected float tot2MaxRad, totMaxRadSq;
+    //protected float tot2MaxRad, totMaxRadSq;
     protected List<Boid> bAra;                                //boid ara being worked on
     public BoidFlock flock, pry, prd;
     protected int flagInt;                        //bitmask of current flags
-    protected int nearCount;
-    protected boolean[] stFlags; // tor, doHunt, doSpawn;                            //is torroidal
-    protected final int         
-            doHunt         = 0,
-            doSpawn     = 1;
+    protected boolean[] stFlags; // tor, doHuntIDX, doSpawnIDX;                            //is torroidal
+    protected static final int         
+            doHuntIDX    = 0,
+            doSpawnIDX   = 1;
     
     protected final int[] stFlagIDXs = new int[]{Boids_3DWin.flkHunt, Boids_3DWin.flkSpawn};
 
@@ -44,10 +43,8 @@ public abstract class Base_InitPredPreyMaps implements Callable<Boolean> {
      */
     public Base_InitPredPreyMaps(GUI_AppManager _AppMgr, BoidFlock _flk, BoidFlock _pry, BoidFlock _prd, Boids_UIFlkVars _fv, int _flagInt, List<Boid> _bAra) {
         AppMgr = _AppMgr;    flock = _flk; pry=_pry; prd=_prd; bAra=_bAra;
-        fv=_fv;
+        fv=_fv; 
         gridDims = AppMgr.get3dGridDims();
-        tot2MaxRad = 2* flock.totMaxRad;
-        totMaxRadSq = flock.totMaxRad * flock.totMaxRad;
         //TODO set these via passed int
         flagInt = _flagInt;
         setStFlags();
@@ -65,8 +62,8 @@ public abstract class Base_InitPredPreyMaps implements Callable<Boolean> {
      * @param _src
      */
     private final void findMyNeighbors(Boid _src) {
-        if(nearCount >= bAra.size() ){        srchForNeighbors(_src, bAra, tot2MaxRad, totMaxRadSq);    }        //if we want to have more than the size of the flock, get the whole flock            
-        else{                                srchForNeighbors(_src, bAra, 2 * fv.predRad, fv.nghbrRadSq);    }        
+        if(flock.nearCount >= bAra.size() ){          srchForNeighbors(_src, bAra, 2*fv.nghbrRad, fv.nghbrRadSq);    }        //if we want to have more than the size of the flock, get the whole flock            
+        else{                                   srchForNeighbors(_src, bAra, 2*fv.predRad, fv.nghbrRadSq);    }        
         _src.copySubSetBoidsCol(fv.colRadSq);
     }
     
@@ -125,9 +122,9 @@ public abstract class Base_InitPredPreyMaps implements Callable<Boolean> {
      * @return closest squared distance between p1 and p2, accounting for torroidal distance
      */
     private float calcMinSqDist1D(float p1, float p2, float dim, float[] newP1, float[] newP2){
-        float     d1 = (p1-p2),        d1s = d1*d1,
-                d2 = (p1-(p2-dim)),    d2s = d2*d2,
-                d3 = ((p1-dim)-p2),    d3s = d3*d3;
+        float d1 = (p1-p2),        d1s = d1*d1,
+              d2 = (p1-(p2-dim)),  d2s = d2*d2,
+              d3 = ((p1-dim)-p2),  d3s = d3*d3;
         if(d1s <= d2s){
             if(d1s <= d3s){    newP1[0] = p1;newP2[0] = p2;return d1s;}             //d1s is min, for this dim newP1 == p1 and newP2 == p2
             else {            newP1[0] = p1-dim;newP2[0] = p2+dim;return d3s;}}     //d3s is the min
@@ -169,10 +166,10 @@ public abstract class Base_InitPredPreyMaps implements Callable<Boolean> {
         
     public void run(){    
         for(Boid b : bAra){    findMyNeighbors(b);}                                        //find neighbors to each boid        
-        if(stFlags[doHunt] && (flock!=pry)){                                                //flock==pry means only 1 flock
+        if(stFlags[doHuntIDX] && (flock!=pry)){                                                //flock==pry means only 1 flock
             for(Boid b : bAra){if(b.isHungry()){srchForPrey(b, pry.boidFlock);}}        //find nearby prey to each boid        
         }
-        if (stFlags[doSpawn]) {    for(Boid b : bAra){    if(b.canSpawn()){    b.copySubSetBoidsMate(fv.spawnRadSq);    }}    }
+        if (stFlags[doSpawnIDX]) {    for(Boid b : bAra){    if(b.canSpawn()){    b.copySubSetBoidsMate(fv.spawnRadSq);    }}    }
     }// run()
     
     @Override

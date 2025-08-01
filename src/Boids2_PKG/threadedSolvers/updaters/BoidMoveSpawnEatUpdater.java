@@ -5,6 +5,7 @@ import java.util.concurrent.Callable;
 
 import Boids2_PKG.flocks.BoidFlock;
 import Boids2_PKG.flocks.boids.Boid;
+import Boids2_PKG.ui.flkVars.Boids_UIFlkVars;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Math_Objects.vectorObjs.floats.myVectorf;
@@ -17,13 +18,13 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
     private final int O_FWD = Boid.O_FWD;
     private final int O_RHT = Boid.O_RHT;
     private final int O_UP = Boid.O_UP;  
-    private final float epsValCalcSq =  MyMathUtils.EPS_F * MyMathUtils.EPS_F;
-    private final float spawnPct;
-    private final float minVelMag;
-    private final float maxVelMag;
-    private final double deltaT;
-    
+    private final float epsValCalcSq =  MyMathUtils.EPS_F * MyMathUtils.EPS_F;    
     private final float[] gridDims;
+    /**
+     * Flock variables for this flock
+     */
+    private Boids_UIFlkVars flv;
+    private BoidFlock flk;
     
     /**
      * Type of update to do - start with move
@@ -32,10 +33,8 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
     
     public BoidMoveSpawnEatUpdater(GUI_AppManager _AppMgr, BoidFlock _f, List<Boid> _bAra){
         bAra=_bAra;AppMgr=_AppMgr;
-        deltaT = _f.getDeltaT();
-        spawnPct = _f.flv.spawnPct;
-        minVelMag = _f.flv.minVelMag;
-        maxVelMag = _f.flv.maxVelMag;
+        flk = _f;
+        flv = _f.flv;
         gridDims = AppMgr.get3dGridDims();
     }    
 
@@ -43,7 +42,7 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
         float chance;
         for(Boid ptWife : b.posMate.values()){
             chance = MyMathUtils.randomFloat();
-            if(chance < spawnPct){
+            if(chance < flv.spawnPct){
                 b.haveChild(new myPointf(ptWife.getCoords(),.5f,b.getCoords()), new myVectorf(ptWife.velocity,.5f,b.velocity), new myVectorf(ptWife.forces,.5f,b.forces));
                 ptWife.hasSpawned();    
                 b.hasSpawned();    return;
@@ -126,13 +125,13 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
         b.O_axisAngle = toAxisAngle(b.orientation);
     }
     
-    private void moveBoids() {
-
+    private void moveBoids() { 
+        double deltaT = flk.getDeltaT();
         for(Boid b : bAra){
             if (b.forces.magn > epsValCalcSq) {
                 b.velocity.set(integrate(myVectorf._mult(b.forces, (1.0f/b.mass)), b.velocity, deltaT));            //myVectorf._add(velocity[0], myVectorf._mult(forces[1], ri.delT/(1.0f * mass)));    divide by  mass, multiply by delta t
-                if(b.velocity.magn < minVelMag){b.velocity._mult(minVelMag/b.velocity.magn);}
-                else if(b.velocity.magn > maxVelMag){b.velocity._mult(maxVelMag/b.velocity.magn);}
+                if(b.velocity.magn < flv.minVelMag){b.velocity._mult(flv.minVelMag/b.velocity.magn);}
+                else if(b.velocity.magn > flv.maxVelMag){b.velocity._mult(flv.maxVelMag/b.velocity.magn);}
             }
             //b.coords.set(integrate(b.velocity, b.getCoords(), deltaT));                                                // myVectorf._add(coords[0], myVectorf._mult(velocity[1], ri.delT));    
             //Account for wrapping if torroidal

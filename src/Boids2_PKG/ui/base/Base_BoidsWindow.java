@@ -474,6 +474,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
             predIDX = ((i+1)%flocks.length);
             preyIDX = (((i+flocks.length)-1)%flocks.length);
             flocks[i].setPredPreySphereTmpl(flocks[predIDX], flocks[preyIDX], currRndrTmplPerFlockAra[i], sphrRndrTmplPerFlockAra[i]);
+            flockVars[i].setPredPreyIDX(predIDX, preyIDX);
         }    
         for(int i =0; i<flocks.length; ++i){            flocks[i].initFlock();        }
         

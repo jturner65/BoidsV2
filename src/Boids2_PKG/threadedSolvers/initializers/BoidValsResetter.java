@@ -15,7 +15,7 @@ import base_Math_Objects.vectorObjs.floats.myPointf;
  */
 public class BoidValsResetter implements Callable<Boolean> {
     public List<Boid> bAra;                                //boid ara being worked on
-    public BoidFlock f;
+    public BoidFlock flk;
     private int flagInt;                        //bitmask of current flags
     public boolean[] stFlags; // doHunt, doSpawn;                            //is torroidal
     public final int         
@@ -24,7 +24,7 @@ public class BoidValsResetter implements Callable<Boolean> {
     public final int[] stFlagIDXs = new int[]{Boids_3DWin.flkHunt, Boids_3DWin.flkSpawn};
 
     public BoidValsResetter(BoidFlock _f, int _flagInt,  List<Boid> _bAra) {
-        f = _f; bAra=_bAra;
+        flk = _f; bAra=_bAra;
         flagInt = _flagInt;
         setStFlags();        
     }
