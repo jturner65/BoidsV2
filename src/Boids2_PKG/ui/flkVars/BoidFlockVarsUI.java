@@ -14,14 +14,15 @@ import base_UI_Objects.windowUI.uiData.UIDataUpdater;
 import base_UI_Objects.windowUI.uiObjs.base.GUIObj_Params;
 
 /**
- * struct-type class to hold flocking variables for a specific flock. Displayed on sidebar under main window variables
+ * Class to manage user interaction of flocking variables for a specific flock. 
+ * Displayed on sidebar under main window variables
+ * 
  * @author John Turner
- *
  */
-public class Boids_UIFlkVars implements IUIManagerOwner {
+public class BoidFlockVarsUI implements IUIManagerOwner {
     public final int ID;
-    //Counter of how many Boids_UIFlkVars are built in the application. 
-    //Used to specify unique ID for each new Boids_UIFlkVars
+    //Counter of how many BoidFlockVarsUI are built in the application. 
+    //Used to specify unique ID for each new BoidFlockVarsUI
     private static int flkVarCnt = 0;
     /**
      * Owning window
@@ -131,7 +132,7 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
     /**
      * Idxs for the UI objects this construct holds
      */
-    public final static int 
+    public static final int 
         //These first 6 weights' idxs also match indices in weights array
         gIDX_FlkFrcWt              = 0,
         gIDX_ColAvoidWt            = 1,
@@ -149,10 +150,20 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
         gIDX_HuntingRad            = 12,
         gIDX_HuntingSuccessPct     = 13,
         gIDX_HuntingFrequency      = 14;
-    public final static int numFlockUIObjs = 15;
+    public static final int numFlockUIObjs = 15;
+  
+    private static final int[] wtIDXs = new int[] {
+            gIDX_FlkFrcWt,   
+            gIDX_ColAvoidWt, 
+            gIDX_VelMatchWt,
+            gIDX_WanderFrcWt,
+            gIDX_PredAvoidWt,
+            gIDX_PreyChaseWt  
+    };
+    
     // offset value to use to specify a label of a section
-    private final static int lblOffset = 100000;
-    public final static int
+    private static final int lblOffset = 100000;
+    public static final int
         disp_FlockName          = 1000,
         disp_PredFlockName      = 1001,
         disp_PreyFlockName      = 1002,
@@ -181,7 +192,7 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
      * @param _nRadMult
      * @param _predRad
      */
-    public Boids_UIFlkVars(Base_BoidsWindow _owner, int _flockIdx, String _flockName, float _nRadMult, float _predRad, int[] _flkClr) {
+    public BoidFlockVarsUI(Base_BoidsWindow _owner, int _flockIdx, String _flockName, float _nRadMult, float _predRad, int[] _flkClr) {
         ID = flkVarCnt++;
         flockIdx = _flockIdx;
         predIdx = _flockIdx;
@@ -211,9 +222,9 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
      */
     public void setPredPreyIDX(int _predIdx, int _preyIdx) {
         predIdx = _predIdx;        preyIdx = _preyIdx;        
-        uiMgr.setNewUIValue(disp_PredFlockName, predIdx);
-        uiMgr.setNewUIValue(disp_PreyFlockName, preyIdx);
-        uiMgr.setAllUIWinVals();
+        uiMgr.forceNewUIValue(disp_PredFlockName, predIdx);
+        uiMgr.forceNewUIValue(disp_PreyFlockName, preyIdx);
+        uiMgr.updateOwnerWithAllNewUIVals();
     }
     
     /**
@@ -281,8 +292,8 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
      */
     public final void setDefaultWtVals(boolean useOrig){    
         float[] srcAra = (useOrig ? defOrigWtAra: defWtAra);
-        for(int i=0;i<srcAra.length;++i) {            uiMgr.setNewUIValue(i, srcAra[i]);       }
-        uiMgr.setAllUIWinVals();        
+        for(int wtIdx : wtIDXs) {            uiMgr.forceNewUIValue(wtIdx, srcAra[wtIdx]);       }
+        uiMgr.updateOwnerWithAllNewUIVals();        
     }
     
     /**
@@ -292,18 +303,18 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
     public final void setClipToNeighborRad(boolean clipToNRad) {
         float maxRadiusToUse = (float) (clipToNRad ? uiMgr.getUIValue(gIDX_FlkRad) : maxNeighborRad);
         // set max radii based on specification
-        uiMgr.setNewUIMaxVal(gIDX_ColAvoidRad, maxRadiusToUse);
-        uiMgr.setNewUIMaxVal(gIDX_VelMatchRad, maxRadiusToUse);
-        uiMgr.setNewUIMaxVal(gIDX_SpawnRad, maxRadiusToUse);
-        uiMgr.setNewUIMaxVal(gIDX_HuntingRad, maxRadiusToUse); 
-        uiMgr.setAllUIWinVals(); 
+        uiMgr.forceNewUIMaxVal(gIDX_ColAvoidRad, maxRadiusToUse);
+        uiMgr.forceNewUIMaxVal(gIDX_VelMatchRad, maxRadiusToUse);
+        uiMgr.forceNewUIMaxVal(gIDX_SpawnRad, maxRadiusToUse);
+        uiMgr.forceNewUIMaxVal(gIDX_HuntingRad, maxRadiusToUse); 
+        uiMgr.updateOwnerWithAllNewUIVals(); 
     }//setClipToNeighborRad
     
     /**
      * Draw the UI this flkVars manages
      * @param animTimeMod
      */
-    public final void drawMe(float animTimeMod) {        uiMgr.drawGUIObjs(AppMgr.isDebugMode(), animTimeMod);   }
+    public final void drawMe(float animTimeMod, boolean isGlblAppDebug) {        uiMgr.drawGUIObjs(animTimeMod, isGlblAppDebug);   }
     
     @Override
     public final void moveToUIRegion() {uiMgr.moveToUIRegion();}
@@ -411,7 +422,8 @@ public class Boids_UIFlkVars implements IUIManagerOwner {
      * @param flockSize
      */
     public final void setFlockSize(int flockSize) {
-        uiMgr.setNewUIValue(disp_FlockCount, flockSize);
+        uiMgr.forceNewUIValue(disp_FlockCount, flockSize);
+        uiMgr.updateOwnerWithAllNewUIVals(); 
     }
     /**
      * Build flkVars UIDataUpdater instance for application

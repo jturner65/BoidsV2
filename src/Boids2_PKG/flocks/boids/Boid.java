@@ -268,7 +268,7 @@ public class Boid {
     /**
      * update hunger counters
      */
-    public void updateHungerCntr(){
+    public void updateHungerCntr(boolean isDebug){
         --starveCntr;
         if (starveCntr<=0){killMe("Starvation"); return;}//if can get hungry then can starve to death
         //once boid is hungry he stays hungry unless he eats (hungry set to false elsewhere)
@@ -318,7 +318,7 @@ public class Boid {
      * @param cause
      */
     public void killMe(String cause){
-        if(AppMgr.isDebugMode()){AppMgr.msgObj.dispConsoleDebugMessage("myBoid", "killMe", "Boid : " +ID+" killed by : " + cause);}
+        if(AppMgr.isGlblDebug()){AppMgr.msgObj.dispConsoleDebugMessage("myBoid", "killMe", "Boid : " +ID+" killed by : " + cause);}
         boidFlags[isDead]=true;
     }    
     

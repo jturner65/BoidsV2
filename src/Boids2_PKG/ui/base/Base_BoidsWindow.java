@@ -14,13 +14,14 @@ import Boids2_PKG.flocks.BoidFlock;
 import Boids2_PKG.flocks.boids.Boid;
 import Boids2_PKG.threadedSolvers.updaters.BoidHuntUpdater;
 import Boids2_PKG.threadedSolvers.updaters.BoidUpdate_Type;
-import Boids2_PKG.ui.flkVars.Boids_UIFlkVars;
+import Boids2_PKG.ui.flkVars.BoidFlockVarsUI;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
 import base_Math_Objects.vectorObjs.doubles.myVector;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Render_Interface.IGraphicsAppInterface;
 import base_UI_Objects.GUI_AppManager;
+import base_UI_Objects.baseApp.GUI_AppUIFlags;
 import base_UI_Objects.renderedObjs.Boat_RenderObj;
 import base_UI_Objects.renderedObjs.JFish_RenderObj;
 import base_UI_Objects.renderedObjs.Sphere_RenderObj;
@@ -94,7 +95,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
     /**
      * Array of each flock's UI variables/values
      */
-    protected Boids_UIFlkVars[] flockVars;
+    protected BoidFlockVarsUI[] flockVars;
     
     // Up to 6 different flocks will display nicely on side menu
     protected String[] flkNames = new String[]{"Privateers", "Pirates", "Corsairs", "Marauders", "Freebooters", "Picaroons"};
@@ -233,20 +234,24 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
     public ExecutorService getTh_Exec() {return th_exec;}
         
     /**
-     * Initialize any UI control flags appropriate for all boids window applications
+     * Initialize any UI control flags appropriate for window application
+     * @param appUIFlags Snapshot of the initial flags structure for the application. 
+     * Will not reflect future changes, so should not be retained
      */
     @Override
-    protected final void initDispFlags() {
+    protected final void initDispFlags(GUI_AppUIFlags appUIFlags) {
         //this window is runnable
         dispFlags.setIsRunnable(true);
         //this window uses a customizable camera
         dispFlags.setUseCustCam(true);        
-        initDispFlags_Indiv();
+        initDispFlags_Indiv(appUIFlags);
     }
     /**
      * Initialize any UI control flags appropriate for specific instanced boids window
+     * @param appUIFlags Snapshot of the initial flags structure for the application. 
+     * Will not reflect future changes, so should not be retained
      */
-    protected abstract void initDispFlags_Indiv();
+    protected abstract void initDispFlags_Indiv(GUI_AppUIFlags appUIFlags);
     
     @Override
     protected void initMe() {
@@ -270,8 +275,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
         }
             
         initFlocks();    
-        //flkMenuOffset = uiClkCoords[1] + uiClkCoords[3] - y45Off;    //495
-        //custMenuOffset = uiClkCoords[3] + AppMgr.getClkBoxDim();    
+   
         initMe_IndivPost();
     }//initMe
     
@@ -369,9 +373,9 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
         // Get dimensions of 3d box region
         float[] gridDims = AppMgr.get3dGridDims();
         float initPredRad = MyMathUtils.min(gridDims);
-        flockVars = new Boids_UIFlkVars[maxNumFlocks];
+        flockVars = new BoidFlockVarsUI[maxNumFlocks];
         for(int i = 0; i<flockVars.length; ++i){         
-            flockVars[i] = new Boids_UIFlkVars(this, i, flkNames[i], flkRadMults[i], initPredRad, objFillColors[1][i]);    
+            flockVars[i] = new BoidFlockVarsUI(this, i, flkNames[i], flkRadMults[i], initPredRad, objFillColors[1][i]);    
         }
         // Now build flock vars - each will use the UIclickara of the previous
         for(int i = 0; i<flockVars.length; ++i){  
@@ -462,6 +466,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
         boidToWatch = 0;
         setMaxUIFlockToWatch();
         flocks = new BoidFlock[numFlocks];
+        // get click coordinates to be able to rebuild flock UIs
         float[] UIFlkVarClkCoords = getUIClkCoords();
         // make new ui flk var clk coords start at end of old
         UIFlkVarClkCoords[1] = UIFlkVarClkCoords[3];
@@ -540,42 +545,39 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
     @Override
     public void handlePrivFlags_Indiv(int idx, boolean val, boolean oldVal){
         switch(idx){
-            case showBoidFrame           : {break;}
-            case drawBoids               : {break;}
-            case drawScaledBoids         : {break;}        
-            case clearPath               : {
-                //TODO this needs to change how it works so that initialization doesn't call ProcessingRenderer before it is ready
-                //ri.setClearBackgroundEveryStep( !val);//turn on or off background clearing in main window
-                break;}
-            case showVel                 : {break;}
-            case attractMode             : {break;}
-            case showFlkMbrs             : {break;}
-            case flkCenter               : {break;}
-            case flkVelMatch             : {break;}
-            case flkAvoidCol             : {break;}
-            case flkWander               : {break;}
-            case flkAvoidPred            : {break;}
-            case flkHunt                 : {break;}
-            case flkHunger               : {break;}
-            case flkSpawn                : {break;}
-            case flkClipToNeighbors      : {
+            case showBoidFrame          : {break;}
+            case drawBoids              : {break;}
+            case drawScaledBoids        : {break;}        
+            case clearPath              : {break;}
+            case showVel                : {break;}
+            case attractMode            : {break;}
+            case showFlkMbrs            : {break;}
+            case flkCenter              : {break;}
+            case flkVelMatch            : {break;}
+            case flkAvoidCol            : {break;}
+            case flkWander              : {break;}
+            case flkAvoidPred           : {break;}
+            case flkHunt                : {break;}
+            case flkHunger              : {break;}
+            case flkSpawn               : {break;}
+            case flkClipToNeighbors     : {
                 if(flocks == null){break;}
                 for(int i=0; i<flocks.length; ++i){flockVars[i].setClipToNeighborRad(val);}
                 break;}
-            case modDelT                 : {
+            case modDelT                : {
                 timeStepMult = val ?  60.0f/ ri.getFrameRate() : 1.0f;                
                 break;}
-            case flkCyclesFrc            : {break;}
-            case viewFromBoid            : {
+            case flkCyclesFrc           : {break;}
+            case viewFromBoid           : {
                 dispFlags.setDrawMseEdge(!val);//if viewing from boid, then don't show mse edge, and vice versa
                 break;}    //whether viewpoint is from a boid's perspective or global
-            case useOrigDistFuncs         : {
+            case useOrigDistFuncs       : {
                 if(flocks == null){break;}
                 for(int i=0; i<flocks.length; ++i){flockVars[i].setDefaultWtVals(val);}
                 break;
             }
-            case useTorroid                : { break;}        
-            case isMTCapableIDX            : {break;}
+            case useTorroid             : {break;}        
+            case isMTCapableIDX         : {break;}
             default : {
                 if (!handlePrivBoidFlags_Indiv(idx, val, oldVal)){
                     msgObj.dispErrorMessage(className, "handlePrivFlags_Indiv", "Unknown/unhandled flag idx :"+idx+" attempting to be set to "+val+" from "+oldVal+". Aborting.");
@@ -610,7 +612,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
      * @param flockIDX
      * @return
      */    
-    public Boids_UIFlkVars getFlkVars(int flockIDX) {return flockVars[flockIDX];}
+    public BoidFlockVarsUI getFlkVars(int flockIDX) {return flockVars[flockIDX];}
     public String getFlkName(int flockIDX) {return flkNames[flockIDX];}
     
     public String[] getFlknNames() {return flkNames.clone();}
@@ -722,12 +724,32 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
      *                 the final element is integer flag idx 
      */
     protected abstract void setupGUIBoolSwitchAras_Indiv(int firstIdx, LinkedHashMap<String, GUIObj_Params> tmpUIBoolSwitchObjMap);
-
     
-    //when flockToWatch changes, reset maxBoidToWatch value ((Base_NumericGUIObj)guiObjs_Numeric[gIDX_BoidToObs])
-    private void setMaxUIBoidToWatch(int flkIdx){uiMgr.setNewUIMaxVal(gIDX_BoidToObs,flocks[flkIdx].boidFlock.size()-1);uiMgr.setUIWinVals(gIDX_BoidToObs);}    
-    private void setMaxUIFlockToWatch(){uiMgr.setNewUIMaxVal(gIDX_FlockToObs, numFlocks - 1);    uiMgr.setUIWinVals(gIDX_FlockToObs);}        
-    
+    /**
+     * When flockToWatch changes, reset maxBoidToWatch value ((Base_NumericGUIObj)guiObjs_Numeric[gIDX_BoidToObs])
+     * @param flkIdx
+     */
+    private void setMaxUIBoidToWatch(int flkIdx){
+        uiMgr.forceNewUIMaxVal(gIDX_BoidToObs,flocks[flkIdx].boidFlock.size()-1);
+        uiMgr.updateOwnerWithUIVal(gIDX_BoidToObs);
+    }  
+    /**
+     * Specify the max value possible for flock to watch based on current count of flocks
+     */
+    private void setMaxUIFlockToWatch(){uiMgr.forceNewUIMaxVal(gIDX_FlockToObs, numFlocks - 1);    uiMgr.updateOwnerWithUIVal(gIDX_FlockToObs);}
+    /**
+     * Programmatically set UI value for what flock to watch. When flockToWatch changes, reset maxBoidToWatch to match new flock size
+     * @param flkIdx
+     */
+    protected void setUIFlockToWatch(int flkIdx) {        
+        uiMgr.forceNewUIValue(gIDX_FlockToObs, flkIdx);
+        setMaxUIBoidToWatch(flkIdx);
+    }
+    /**
+     * Programmatically set UI value for what boid to watch within the currently watched flock
+     * @param boidToWatch
+     */
+    protected void setUIBoidToWatch(int boidToWatch) {    uiMgr.forceNewUIValue(gIDX_BoidToObs, boidToWatch);    }
     /**
      * Called if int-handling guiObjs_Numeric[UIidx] (int or list) has new data which updated UI adapter. 
      * Intended to support custom per-object handling by owning window.
@@ -842,19 +864,19 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
         ri.popMatState();
     }//       
     @Override
-    public void drawCustMenuObjs(float animTimeMod){
+    public void drawCustMenuObjs(float animTimeMod, boolean isGlblAppDebug){
         ri.pushMatState();    
         for(int i =0; i<flocks.length; ++i){
             currRndrTmplPerFlockAra[i].setMenuColor();
             drawMenuBadge(mnUVBox,i);
             flockVars[i].setFlockSize(flocks[i].boidFlock.size());
-            flockVars[i].drawMe(animTimeMod);
+            flockVars[i].drawMe(animTimeMod, isGlblAppDebug);
         }
         ri.popMatState();
     }
     
     @Override
-    protected void drawMe(float animTimeMod) {
+    protected void drawMe(float animTimeMod, boolean isGlblAppDebug) {
         ri.pushMatState();
         initTransform();
         
@@ -873,10 +895,10 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
     
 
     @Override
-    protected void drawRightSideInfoBarPriv(float modAmtMillis) {}
+    protected void drawRightSideInfoBarPriv(float modAmtMillis, boolean isGlblAppDebug) {}
 
     @Override
-    protected void drawOnScreenStuffPriv(float modAmtMillis) {}
+    protected void drawOnScreenStuffPriv(float modAmtMillis, boolean isGlblAppDebug) {}
     
     @Override
     protected boolean simMe(float modAmtSec) {//run simulation

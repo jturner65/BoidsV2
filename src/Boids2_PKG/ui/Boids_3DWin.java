@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import Boids2_PKG.ui.base.Base_BoidsWindow;
 import base_Render_Interface.IGraphicsAppInterface;
 import base_UI_Objects.GUI_AppManager;
+import base_UI_Objects.baseApp.GUI_AppUIFlags;
 import base_UI_Objects.windowUI.uiObjs.base.GUIObj_Params;
 
 /**
@@ -18,8 +19,7 @@ public class Boids_3DWin extends Base_BoidsWindow {
     //instance-specific flag idxs should start number at Base_BoidsWindow.numBasePrivFlags
     
     public Boids_3DWin(IGraphicsAppInterface _p, GUI_AppManager _AppMgr, int _winIdx) {
-        super(_p, _AppMgr, _winIdx);        
-        
+        super(_p, _AppMgr, _winIdx);       
     }
 
     /**
@@ -30,9 +30,13 @@ public class Boids_3DWin extends Base_BoidsWindow {
 
     @Override
     protected void initMe_IndivPost() {}
-
+    /**
+     * Initialize any UI control flags appropriate for specific instanced boids window
+     * @param appUIFlags Snapshot of the initial flags structure for the application. 
+     * Will not reflect future changes, so should not be retained
+     */
     @Override
-    protected void initDispFlags_Indiv() {
+    protected void initDispFlags_Indiv(GUI_AppUIFlags appUIFlags) {
         dispFlags.setDrawMseEdge(true);
     }
 

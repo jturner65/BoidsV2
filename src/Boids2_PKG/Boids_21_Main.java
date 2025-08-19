@@ -97,25 +97,26 @@ public class Boids_21_Main extends GUI_AppManager {
     @Override
     protected int setAppWindowDimRestrictions() {    return 1;}    
     
-    /**
-     * this is called to determine which main flags to display in the window
-     */
     @Override
-    protected void initBaseFlags_Indiv() {
-        setBaseFlagToShow_debugMode(true);
-        setBaseFlagToShow_saveAnim(true); 
-        setBaseFlagToShow_runSim(true);
-        setBaseFlagToShow_singleStep(true);
-        setBaseFlagToShow_showRtSideMenu(true);        
-        setBaseFlagToShow_showStatusBar(true);    
-        setBaseFlagToShow_showDrawableCanvas(false);
-    }
+    protected boolean hideAppFlag_DebugMode() {             return false;}
+    @Override
+    protected boolean hideAppFlag_SaveAnim() {              return false;}
+    @Override
+    protected boolean hideAppFlag_RunSim() {                return false;}
+    @Override
+    protected boolean hideAppFlag_SingleStep() {            return false;}
+    @Override
+    protected boolean hideAppFlag_showRtSideInfoDisp() {    return false;}
+    @Override
+    protected boolean hideAppFlag_showStatusBar() {         return false;}
+    @Override
+    protected boolean hideAppFlag_showCanvas() {            return true;}
+    
     /**
      * this is called to build all the Base_DispWindows in the instancing class
      */
     @Override
     protected void initAllDispWindows() {
-        showInfo = true;
         String[] _winTitles = new String[]{"","Boids ver2.0 3D","Boids ver2.0 2D"},
                 _winDescr = new String[]{"", "Multi Flock Predator/Prey Boids 3D Simulation","Multi Flock Predator/Prey Boids 2D Simulation"};
         //instanced window dims when open and closed - only showing 1 open at a time - and init cam vals
@@ -192,7 +193,6 @@ public class Boids_21_Main extends GUI_AppManager {
     @Override
     protected void initOnce_Indiv() {
         setWinVisFlag(dispWindow1IDX, true);
-        setShowStatusBar(true);
     }
 
     @Override
@@ -247,7 +247,7 @@ public class Boids_21_Main extends GUI_AppManager {
      * @param is3DDraw
      */
     @Override
-    protected void drawMePost_Indiv(float modAmtMillis, boolean is3DDraw) {}
+    protected void drawMePost_Indiv(float modAmtMillis, boolean is3DDraw, boolean isGlblAppDebug) {}
     
     
     

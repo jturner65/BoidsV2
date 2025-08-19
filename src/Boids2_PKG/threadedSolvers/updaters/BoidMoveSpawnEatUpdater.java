@@ -148,7 +148,8 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
     
     private void updateHunger() {
         //dead boids may exist only after hunt
-        for(Boid b : bAra){if(!b.isDead()){                b.updateHungerCntr();}}        
+        boolean isDebug = AppMgr.isGlblDebug();
+        for(Boid b : bAra){if(!b.isDead()){                b.updateHungerCntr(isDebug);}}        
     }
     /**
      * Determine which update procedure to perform

@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import Boids2_PKG.flocks.BoidFlock;
 import Boids2_PKG.flocks.boids.Boid;
 import Boids2_PKG.ui.Boids_3DWin;
-import Boids2_PKG.ui.flkVars.Boids_UIFlkVars;
+import Boids2_PKG.ui.flkVars.BoidFlockVarsUI;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_UI_Objects.GUI_AppManager;
 
@@ -17,7 +17,7 @@ public abstract class Base_InitPredPreyMaps implements Callable<Boolean> {
     //an overlay for calculations to be used to determine forces acting on a creature
     
     protected GUI_AppManager AppMgr;
-    protected Boids_UIFlkVars fv;
+    protected BoidFlockVarsUI fv;
     
     protected float tot2MaxRad, totMaxRadSq;
     protected List<Boid> bAra;                                //boid ara being worked on
@@ -42,7 +42,7 @@ public abstract class Base_InitPredPreyMaps implements Callable<Boolean> {
      * @param _flagInt
      * @param _bAra
      */
-    public Base_InitPredPreyMaps(GUI_AppManager _AppMgr, BoidFlock _flk, BoidFlock _pry, BoidFlock _prd, Boids_UIFlkVars _fv, int _flagInt, List<Boid> _bAra) {
+    public Base_InitPredPreyMaps(GUI_AppManager _AppMgr, BoidFlock _flk, BoidFlock _pry, BoidFlock _prd, BoidFlockVarsUI _fv, int _flagInt, List<Boid> _bAra) {
         AppMgr = _AppMgr;    flock = _flk; pry=_pry; prd=_prd; bAra=_bAra;
         fv=_fv;
         gridDims = AppMgr.get3dGridDims();

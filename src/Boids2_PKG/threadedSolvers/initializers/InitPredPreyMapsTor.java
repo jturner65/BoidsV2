@@ -5,7 +5,7 @@ import java.util.List;
 import Boids2_PKG.flocks.BoidFlock;
 import Boids2_PKG.flocks.boids.Boid;
 import Boids2_PKG.threadedSolvers.initializers.base.Base_InitPredPreyMaps;
-import Boids2_PKG.ui.flkVars.Boids_UIFlkVars;
+import Boids2_PKG.ui.flkVars.BoidFlockVarsUI;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_UI_Objects.GUI_AppManager;
 
@@ -24,7 +24,7 @@ public class InitPredPreyMapsTor extends Base_InitPredPreyMaps {
      * @param _flagInt
      * @param _bAra
      */
-    public InitPredPreyMapsTor(GUI_AppManager _AppMgr, BoidFlock _f, BoidFlock _pry, BoidFlock _prd, Boids_UIFlkVars _fv,
+    public InitPredPreyMapsTor(GUI_AppManager _AppMgr, BoidFlock _f, BoidFlock _pry, BoidFlock _prd, BoidFlockVarsUI _fv,
             int _flagInt, List<Boid> _bAra) {
         super(_AppMgr, _f, _pry, _prd, _fv, _flagInt, _bAra);
     }
