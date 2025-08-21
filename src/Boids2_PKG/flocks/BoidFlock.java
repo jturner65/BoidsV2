@@ -41,7 +41,7 @@ public class BoidFlock {
     /**
      * Current number of members in this flock
      */
-    public int numBoids;
+    private int _numBoids;
     /**
      * Collection of flock members
      */
@@ -75,11 +75,11 @@ public class BoidFlock {
     /**
      * # of creatures required to have a neighborhood - some % of total # of creatures, or nearMinCnt, whichever is larger
      */
-    public int nearCount;
+    //public int nearCount;
     /**
      * TODO : smallest neighborhood size allowed -> 5 or total # of creatures, whichever is smaller
      */
-    private final int nearMinCnt = 5;            
+    //private final int nearMinCnt = 5;            
     /**
      * holds current state of first 32 flags from win/UI
      */
@@ -114,7 +114,7 @@ public class BoidFlock {
         
         //Boids_2 _p, myBoids3DWin _win, myBoidFlock _flock, int _bodyClr, int numSpc, float _nRadMult
         delT = (float) win.getTimeStep();
-        setNumBoids(_numBoids);        
+        _setNumBoids(_numBoids);        
         
         grid3dDims = AppMgr.get3dGridDims();
         totMaxRad = grid3dDims[0] + grid3dDims[1] + grid3dDims[2];
@@ -140,11 +140,11 @@ public class BoidFlock {
      * Initialize flock by creating boids
      */
     public void initFlock(){
-        boidFlock = new ArrayList<Boid>(numBoids);
-        for(int c = 0; c < numBoids; ++c){
+        boidFlock = new ArrayList<Boid>(_numBoids);
+        for(int c = 0; c < _numBoids; ++c){
             boidFlock.add( new Boid(this, randBoidStLoc()));
         }
-        setNumBoids(boidFlock.size());
+        _setNumBoids(boidFlock.size());
         //initial build of per-thread boid population
         buildThreadFrames();
     }//initFlock - run after each flock has been constructed
@@ -175,15 +175,33 @@ public class BoidFlock {
         sphTmpl = _sphrTmpl;
     }//set after init - all flocks should be made
     
-    //finds valid coordinates if torroidal walls 
-    public myPointf findValidWrapCoordsForDraw(myPointf _coords){return new myPointf(((_coords.x+grid3dDims[0]) % grid3dDims[0]),((_coords.y+grid3dDims[1]) % grid3dDims[1]),((_coords.z+grid3dDims[2]) % grid3dDims[2]));    }//findValidWrapCoords    
-    public void setValidWrapCoordsForDraw(myPointf _coords){_coords.set(((_coords.x+grid3dDims[0]) % grid3dDims[0]),((_coords.y+grid3dDims[1]) % grid3dDims[1]),((_coords.z+grid3dDims[2]) % grid3dDims[2]));    }//findValidWrapCoords    
-    public float calcRandLocation(float randNum1, float randNum2, float sqDim, float mathCalc, float mult){return ((sqDim/2.0f) + (randNum2 * (sqDim/3.0f) * mathCalc * mult));}
-    public myPointf randBoidStLoc(){        return new myPointf(MyMathUtils.randomFloat()*grid3dDims[0],MyMathUtils.randomFloat()*grid3dDims[1],MyMathUtils.randomFloat()*grid3dDims[2]);    }
+    /**
+     * finds valid coordinates if torroidal walls 
+     * @param _coords
+     * @return
+     */
+    public myPointf findValidWrapCoordsForDraw(myPointf _coords){
+        return new myPointf(((_coords.x+grid3dDims[0]) % grid3dDims[0]),((_coords.y+grid3dDims[1]) % grid3dDims[1]),((_coords.z+grid3dDims[2]) % grid3dDims[2]));    
+    }//findValidWrapCoords
+    /**
+     * 
+     * @param _coords
+     */
+    public void setValidWrapCoordsForDraw(myPointf _coords){
+        _coords.set(((_coords.x+grid3dDims[0]) % grid3dDims[0]),((_coords.y+grid3dDims[1]) % grid3dDims[1]),((_coords.z+grid3dDims[2]) % grid3dDims[2]));    
+    }//setValidWrapCoordsForDraw 
     
-    private void setNumBoids(int _numBoids){
-        numBoids = _numBoids;
-        nearCount = (int) Math.max(Math.min(nearMinCnt,numBoids), numBoids*nearPct);         
+    /**
+     * Random start location within box grid
+     * @return
+     */
+    public myPointf randBoidStLoc(){        
+        return new myPointf(MyMathUtils.randomFloat()*grid3dDims[0],MyMathUtils.randomFloat()*grid3dDims[1],MyMathUtils.randomFloat()*grid3dDims[2]);    
+    }
+    
+    private void _setNumBoids(int numBoids){
+        _numBoids = numBoids;
+        //nearCount = (int) Math.max(Math.min(nearMinCnt,_numBoids), _numBoids*nearPct);         
     }
     
     /**
@@ -196,7 +214,7 @@ public class BoidFlock {
     protected Boid addBoid(myPointf stLoc){
         Boid tmp = new Boid(this, stLoc); 
         boidFlock.add(tmp);
-        setNumBoids(boidFlock.size());
+        _setNumBoids(boidFlock.size());
         return tmp;
     }//addBoid    
     
@@ -204,7 +222,7 @@ public class BoidFlock {
     protected void removeBoid(int idx){
         if(idx<0){return;}    
         boidFlock.remove(idx);
-        setNumBoids(boidFlock.size());
+        _setNumBoids(boidFlock.size());
     }//removeBoid        
     
     /**
@@ -212,21 +230,19 @@ public class BoidFlock {
      */
     public void scatterBoids() {for(int c = 0; c < boidFlock.size(); ++c){boidFlock.get(c).setCoords(randBoidStLoc());}}//    randInit
 
-    public void drawBoids(IGraphicsAppInterface ri) {                for(Boid b : boidFlock){b.drawMe(ri);}}
-    public void drawBoidsScaled(IGraphicsAppInterface ri) {            for(Boid b : boidFlock){b.drawMeScaled(ri);}}
-    public void drawBoidsAsBall(IGraphicsAppInterface ri) {            for(Boid b : boidFlock){b.drawMeAsBall(ri);}}
+    public void drawBoids(IGraphicsAppInterface ri) {               for(Boid b : boidFlock){b.drawMe(ri);}}
+    public void drawBoidsScaled(IGraphicsAppInterface ri) {         for(Boid b : boidFlock){b.drawMeScaled(ri);}}
+    public void drawBoidsAsBall(IGraphicsAppInterface ri) {         for(Boid b : boidFlock){b.drawMeAsBall(ri);}}
     
     public void drawBoidVels(IGraphicsAppInterface ri) {            for(Boid b : boidFlock){b.drawMyVel(ri);}}
-    public void drawBoidFrames(IGraphicsAppInterface ri) {            for(Boid b : boidFlock){b.drawMyFrame(ri);}}
-    public void drawBoidsFlkMmbrs(IGraphicsAppInterface ri) {        for(Boid b : boidFlock){b.drawClosestPredAndPrey(ri);}}
+    public void drawBoidFrames(IGraphicsAppInterface ri) {          for(Boid b : boidFlock){b.drawMyFrame(ri);}}
+    public void drawBoidsFlkMmbrs(IGraphicsAppInterface ri) {       for(Boid b : boidFlock){b.drawClosestPredAndPrey(ri);}}
     
     /**
      * If this is being animated and has a template, return that template's max animation counter, otherwise return 1
      * @return
      */
-    public double getMaxAnimCounter() {
-        return tmpl == null ? 1.0 : tmpl.getMaxAnimCounter();
-    }
+    public double getMaxAnimCounter() {return tmpl == null ? 1.0 : tmpl.getMaxAnimCounter();}
     
     ////////////////
     // Simulation step functions for flock
@@ -236,13 +252,13 @@ public class BoidFlock {
      */
     @SuppressWarnings("unchecked")
     private void buildThreadFrames() {
-        int numFrames = (numBoids > numThrdsToUse ? numThrdsToUse : numBoids); 
+        int numFrames = (_numBoids > numThrdsToUse ? numThrdsToUse : _numBoids); 
         boidThrdFrames = new List[numFrames];        
         if (numFrames == 0) {return;}
         // Base # of boids per frame
-        int frSize = numBoids/numFrames;
+        int frSize = _numBoids/numFrames;
         // # of frames to add 1 to, to equally disperse remainder after integer div
-        int framesToOverload = numBoids % numFrames;
+        int framesToOverload = _numBoids % numFrames;
         int stIdx = 0, endIdx;
         //for these frames add an extra 1
         for (int i = 0;i<framesToOverload;++i) {
