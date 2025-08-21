@@ -46,9 +46,9 @@ public class BoidFlockVarsUI implements IUIManagerOwner {
     protected boolean msClickInUIObj;
     
     /**
-     * Whether objects have been modified or not
+     * Whether an object has been modified or not
      */
-    protected boolean objsModified;
+    protected boolean objModified;
     
     private final float neighborMult = .5f;                   //multiplier for neighborhood consideration against zone size - all rads built off this
     
@@ -110,8 +110,9 @@ public class BoidFlockVarsUI implements IUIManagerOwner {
     private static final float[] 
             defWtAra = new float[]{.5f, .75f, .5f, .5f, .5f, .1f},              //default array of weights for different forces
             defOrigWtAra = new float[]{5.0f, 12.0f, 7.0f, 3.5f, .5f, .1f},      //default array of weights for different forces using original calcs
-            MaxWtAra = new float[]{15, 15, 15, 15, 15, 15},                                
-            MinWtAra = new float[]{.01f, .01f, .01f, .01f, .001f, .001f};
+            MaxWtAra = new float[]{15, 15, 15, 15, 15, 15}                                
+            //MinWtAra = new float[]{.01f, .01f, .01f, .01f, .001f, .001f}
+    ;
       
     private static final float
             minPct = 0.001f,
@@ -202,9 +203,9 @@ public class BoidFlockVarsUI implements IUIManagerOwner {
         typeName = _flockName;
         msClickInUIObj = false;
         // max neighborhood radius
+        minRad = 0.01f;//1.0f;
         maxNeighborRad = _predRad*neighborMult;
-        minNeighborRad = 0.01f * maxNeighborRad;
-        minRad = 1.0f;
+        minNeighborRad = minRad;//0.01f * maxNeighborRad;
         radMod = minRad;
         _flkColor = new int[_flkClr.length];
         System.arraycopy(_flkClr, 0, _flkColor, 0, _flkClr.length);
@@ -223,7 +224,6 @@ public class BoidFlockVarsUI implements IUIManagerOwner {
         predIdx = _predIdx;        preyIdx = _preyIdx;        
         uiMgr.forceNewUIValue(disp_PredFlockName, predIdx);
         uiMgr.forceNewUIValue(disp_PreyFlockName, preyIdx);
-        uiMgr.updateOwnerWithAllNewUIVals();
     }
     
     /**
@@ -292,7 +292,6 @@ public class BoidFlockVarsUI implements IUIManagerOwner {
     public final void setDefaultWtVals(boolean useOrig){    
         float[] srcAra = (useOrig ? defOrigWtAra: defWtAra);
         for(int wtIdx : wtIDXs) {            uiMgr.forceNewUIValue(wtIdx, srcAra[wtIdx]);       }
-        uiMgr.updateOwnerWithAllNewUIVals();        
     }
     
     /**
@@ -306,8 +305,16 @@ public class BoidFlockVarsUI implements IUIManagerOwner {
         uiMgr.forceNewUIMaxVal(gIDX_VelMatchRad, maxRadiusToUse);
         uiMgr.forceNewUIMaxVal(gIDX_SpawnRad, maxRadiusToUse);
         uiMgr.forceNewUIMaxVal(gIDX_HuntingRad, maxRadiusToUse); 
-        uiMgr.updateOwnerWithAllNewUIVals(); 
     }//setClipToNeighborRad
+    
+    
+    /**
+     * This will set the flock size display label to have the correct value
+     * @param flockSize
+     */
+    public final void setFlockSize(int flockSize) {
+        uiMgr.forceNewUIValue(disp_FlockCount, flockSize);
+    }
     
     /**
      * Draw the UI this flkVars manages
@@ -371,12 +378,24 @@ public class BoidFlockVarsUI implements IUIManagerOwner {
     @Override
     public final void setUI_OwnerFloatValsCustom(int UIidx, float val, float oldVal) {    
         switch(UIidx) {
-            case gIDX_FlkFrcWt          :{     wts[gIDX_FlkFrcWt] = val;     break;}       
-            case gIDX_ColAvoidWt        :{     wts[gIDX_ColAvoidWt] = val;   break;}           
-            case gIDX_VelMatchWt        :{     wts[gIDX_VelMatchWt] = val;   break;}            
-            case gIDX_WanderFrcWt       :{     wts[gIDX_WanderFrcWt] = val;  break;}           
-            case gIDX_PredAvoidWt       :{     wts[gIDX_PredAvoidWt] = val;  break;}           
-            case gIDX_PreyChaseWt       :{     wts[gIDX_PreyChaseWt] = val;  break;}           
+            case gIDX_FlkFrcWt          :{     
+                uiMgr._dispWarnMsg("setUI_OwnerFloatValsCustom", "Setting new gIDX_FlkFrcWt from " + wts[gIDX_FlkFrcWt] + " to "+val);
+                wts[gIDX_FlkFrcWt] = val;     break;}       
+            case gIDX_ColAvoidWt        :{     
+                uiMgr._dispWarnMsg("setUI_OwnerFloatValsCustom", "Setting new gIDX_ColAvoidWt from " + wts[gIDX_ColAvoidWt] + " to "+val);
+                wts[gIDX_ColAvoidWt] = val;   break;}           
+            case gIDX_VelMatchWt        :{     
+                uiMgr._dispWarnMsg("setUI_OwnerFloatValsCustom", "Setting new gIDX_VelMatchWt from " + wts[gIDX_VelMatchWt] + " to "+val);
+                wts[gIDX_VelMatchWt] = val;   break;}            
+            case gIDX_WanderFrcWt       :{     
+                uiMgr._dispWarnMsg("setUI_OwnerFloatValsCustom", "Setting new gIDX_WanderFrcWt from " + wts[gIDX_WanderFrcWt] + " to "+val);
+                wts[gIDX_WanderFrcWt] = val;  break;}           
+            case gIDX_PredAvoidWt       :{     
+                uiMgr._dispWarnMsg("setUI_OwnerFloatValsCustom", "Setting new gIDX_PredAvoidWt from " + wts[gIDX_PredAvoidWt] + " to "+val);
+                wts[gIDX_PredAvoidWt] = val;  break;}           
+            case gIDX_PreyChaseWt       :{     
+                uiMgr._dispWarnMsg("setUI_OwnerFloatValsCustom", "Setting new gIDX_PreyChaseWt from " + wts[gIDX_PreyChaseWt] + " to "+val);
+                wts[gIDX_PreyChaseWt] = val;  break;}           
             case gIDX_FlkRad            :{
                 uiMgr._dispWarnMsg("setUI_OwnerFloatValsCustom", "Setting new nghbrRad from " + nghbrRad + " to "+val);
                 nghbrRad = val;
@@ -416,14 +435,6 @@ public class BoidFlockVarsUI implements IUIManagerOwner {
         }
     }//setUI_OwnerFloatValsCustom
         
-    /**
-     * This will set the flock size display label to have the correct value
-     * @param flockSize
-     */
-    public final void setFlockSize(int flockSize) {
-        uiMgr.forceNewUIValue(disp_FlockCount, flockSize);
-        uiMgr.updateOwnerWithAllNewUIVals(); 
-    }
     /**
      * Build flkVars UIDataUpdater instance for application
      * @return
@@ -510,17 +521,17 @@ public class BoidFlockVarsUI implements IUIManagerOwner {
         //third row - weights
         tmpUIObjMap.put("label_weights", uiMgr.uiObjInitAra_Label(gIDX_FlkFrcWt+lblOffset,"Wts : "));
         int wIdx = gIDX_FlkFrcWt;
-        tmpUIObjMap.put("gIDX_FlkFrcWt", uiMgr.uiObjInitAra_Float(wIdx, new double[]{MinWtAra[wIdx],MaxWtAra[wIdx],MinWtAra[wIdx]}, wts[wIdx], "Flock", true, false));
+        tmpUIObjMap.put("gIDX_FlkFrcWt", uiMgr.uiObjInitAra_Float(wIdx, new double[]{0.0f,MaxWtAra[wIdx],0.01f}, wts[wIdx], "Flock", true, false));
         wIdx = gIDX_ColAvoidWt;
-        tmpUIObjMap.put("gIDX_ColAvoidWt", uiMgr.uiObjInitAra_Float(wIdx, new double[]{MinWtAra[wIdx],MaxWtAra[wIdx],MinWtAra[wIdx]}, wts[wIdx], "Col Avoid", true, false));
+        tmpUIObjMap.put("gIDX_ColAvoidWt", uiMgr.uiObjInitAra_Float(wIdx, new double[]{0.0f,MaxWtAra[wIdx],0.01f}, wts[wIdx], "Col Avoid", true, false));
         wIdx = gIDX_VelMatchWt;
-        tmpUIObjMap.put("gIDX_VelMatchWt", uiMgr.uiObjInitAra_Float(wIdx, new double[]{MinWtAra[wIdx],MaxWtAra[wIdx],MinWtAra[wIdx]}, wts[wIdx], "Vel Match", true, false));
+        tmpUIObjMap.put("gIDX_VelMatchWt", uiMgr.uiObjInitAra_Float(wIdx, new double[]{0.0f,MaxWtAra[wIdx],0.01f}, wts[wIdx], "Vel Match", true, false));
         wIdx = gIDX_WanderFrcWt;
-        tmpUIObjMap.put("gIDX_WanderFrcWt", uiMgr.uiObjInitAra_Float(wIdx, new double[]{MinWtAra[wIdx],MaxWtAra[wIdx],MinWtAra[wIdx]}, wts[wIdx], "Wander", true, false));
+        tmpUIObjMap.put("gIDX_WanderFrcWt", uiMgr.uiObjInitAra_Float(wIdx, new double[]{0.0f,MaxWtAra[wIdx],0.01f}, wts[wIdx], "Wander", true, false));
         wIdx = gIDX_PredAvoidWt;
-        tmpUIObjMap.put("gIDX_PredAvoidWt", uiMgr.uiObjInitAra_Float(wIdx, new double[]{MinWtAra[wIdx],MaxWtAra[wIdx],MinWtAra[wIdx]}, wts[wIdx], "Pred Avoid", true, false));
+        tmpUIObjMap.put("gIDX_PredAvoidWt", uiMgr.uiObjInitAra_Float(wIdx, new double[]{0.0f,MaxWtAra[wIdx],0.01f}, wts[wIdx], "Pred Avoid", true, false));
         wIdx = gIDX_PreyChaseWt;
-        tmpUIObjMap.put("gIDX_PreyChaseWt", uiMgr.uiObjInitAra_Float(wIdx, new double[]{MinWtAra[wIdx],MaxWtAra[wIdx],MinWtAra[wIdx]}, wts[wIdx], "Chase Prey", true, false));
+        tmpUIObjMap.put("gIDX_PreyChaseWt", uiMgr.uiObjInitAra_Float(wIdx, new double[]{0.0f,MaxWtAra[wIdx],0.01f}, wts[wIdx], "Chase Prey", true, false));
         for (var entry : tmpUIObjMap.entrySet()) {entry.getValue().setReadOnlyColors(_flkColor);}
 
         var wtsObjParams = uiMgr.buildUIObjGroupParams(tmpUIObjMap);
@@ -637,7 +648,7 @@ public class BoidFlockVarsUI implements IUIManagerOwner {
     public final boolean handleMouseClick(int mouseX, int mouseY, int mseBtn){
         boolean[] retVals = new boolean[] {false,false};
         msClickInUIObj = uiMgr.handleMouseClick(mouseX, mouseY, mseBtn, AppMgr.isClickModUIVal(), retVals);
-        if (retVals[1]){objsModified = true;}
+        if (retVals[1]){objModified = true;}
         if (retVals[0]){return true;}
         return false;
     }//handleMouseClick
@@ -657,7 +668,7 @@ public class BoidFlockVarsUI implements IUIManagerOwner {
             int delX = (mouseX-pmouseX), delY = (mouseY-pmouseY);
             boolean shiftPressed = AppMgr.shiftIsPressed();
             boolean retVals[] = uiMgr.handleMouseDrag(delX, delY, mseBtn, shiftPressed);
-            if (retVals[1]){objsModified = true;}
+            if (retVals[1]){objModified = true;}
             if (retVals[0]){return true;}
         }
         return false;
@@ -687,7 +698,7 @@ public class BoidFlockVarsUI implements IUIManagerOwner {
         if (msClickInUIObj) {
             //modify object that was clicked in by mouse motion
             boolean retVals[] = uiMgr.handleMouseWheel(ticks, mult);
-            if (retVals[1]){objsModified = true;}
+            if (retVals[1]){objModified = true;}
             if (retVals[0]){return true;}        
         }
         return false;
@@ -700,8 +711,8 @@ public class BoidFlockVarsUI implements IUIManagerOwner {
     public final void handleMouseRelease(){
         //TODO no buttons currently built to be cleared on future draw
         msClickInUIObj = false;
-        objsModified = false;
-        if(uiMgr.handleMouseRelease(objsModified)) {}
+        objModified = false;
+        if(uiMgr.handleMouseRelease(objModified)) {}
     }//handleMouseRelease
     
     ///////////////////////////////////////////////////////

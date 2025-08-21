@@ -43,7 +43,7 @@ public class InitPredPreyMapsTor extends Base_InitPredPreyMaps {
         for(Boid chk : flock){
             if(chk.ID == _src.ID){continue;}
             tarLoc = new myPointf(chk.getCoords()); srcLoc = new myPointf(_src.getCoords());//resetting because may be changed in calcMinSqDist
-            distSq = calcMinDistSq(_src.getCoords(), chk.getCoords(), srcLoc, tarLoc, gridDims[0], gridDims[1], gridDims[2], min2Dist);
+            distSq = calcMinDistSq(_src.getCoords(), chk.getCoords(), srcLoc, tarLoc, gridDims[0], gridDims[1], gridDims[2], minDistSq);
             if(distSq>minDistSq){continue;}
             //what if same dist as another? nudge distance a tiny amount. Introduces bias, FIFO        
             distSq = chkPutDistInMap(_src.neighLoc,chk.neighLoc,distSq,srcLoc, tarLoc);
@@ -60,12 +60,12 @@ public class InitPredPreyMapsTor extends Base_InitPredPreyMaps {
      */
     @Override
     protected void srchForPrey(Boid _src, List<Boid> preyflock) {
-        Float distSq, min2dist = (2 * fv.predRad);
+        Float distSq;//, min2dist = (2 * fv.predRad);
         myPointf preyLoc, srcLoc;
         if(_src == null){return;}//_src boid might have been eaten
         for(Boid prey : preyflock){
             preyLoc = new myPointf(prey.getCoords()); srcLoc = new myPointf(_src.getCoords());//resetting because may be changed in calcMinSqDist
-            distSq = calcMinDistSq(_src.getCoords(), prey.getCoords(), srcLoc, preyLoc, gridDims[0], gridDims[1], gridDims[2], min2dist);
+            distSq = calcMinDistSq(_src.getCoords(), prey.getCoords(), srcLoc, preyLoc, gridDims[0], gridDims[1], gridDims[2], fv.predRadSq);
             if(distSq>fv.predRadSq){continue;}
             //what if same dist as another? nudge distance a tiny amount. Introduces bias, FIFO        
             distSq = chkPutDistInMap(_src.preyFlkLoc, prey.predFlkLoc, distSq, srcLoc, preyLoc);

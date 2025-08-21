@@ -730,12 +730,11 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
      */
     private void setMaxUIBoidToWatch(int flkIdx){
         uiMgr.forceNewUIMaxVal(gIDX_BoidToObs,flocks[flkIdx].boidFlock.size()-1);
-        uiMgr.updateOwnerWithUIVal(gIDX_BoidToObs);
     }  
     /**
      * Specify the max value possible for flock to watch based on current count of flocks
      */
-    private void setMaxUIFlockToWatch(){uiMgr.forceNewUIMaxVal(gIDX_FlockToObs, numFlocks - 1);    uiMgr.updateOwnerWithUIVal(gIDX_FlockToObs);}
+    private void setMaxUIFlockToWatch(){uiMgr.forceNewUIMaxVal(gIDX_FlockToObs, numFlocks - 1); }
     /**
      * Programmatically set UI value for what flock to watch. When flockToWatch changes, reset maxBoidToWatch to match new flock size
      * @param flkIdx
