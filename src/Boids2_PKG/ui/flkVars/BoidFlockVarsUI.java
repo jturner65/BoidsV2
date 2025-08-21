@@ -5,7 +5,6 @@ import java.util.LinkedHashMap;
 
 import Boids2_PKG.ui.base.Base_BoidsWindow;
 import base_Math_Objects.MyMathUtils;
-import base_Math_Objects.vectorObjs.doubles.myVector;
 import base_UI_Objects.GUI_AppManager;
 import base_UI_Objects.windowUI.UIObjectManager;
 import base_UI_Objects.windowUI.base.Base_DispWindow;
@@ -649,12 +648,11 @@ public class BoidFlockVarsUI implements IUIManagerOwner {
      * @param mouseY current mouse y on screen
      * @param pmouseX previous mouse x on screen
      * @param pmouseY previous mouse y on screen
-     * @param mseDragInWorld vector of mouse drag in the world, for interacting with trajectories
      * @param mseBtn what mouse btn is pressed
      * @return whether a UI object has been modified via a drag action
      */
     @Override
-    public final boolean handleMouseDrag(int mouseX, int mouseY,int pmouseX, int pmouseY, myVector mseDragInWorld, int mseBtn){
+    public final boolean handleMouseDrag(int mouseX, int mouseY,int pmouseX, int pmouseY, int mseBtn){
         if (msClickInUIObj) {
             int delX = (mouseX-pmouseX), delY = (mouseY-pmouseY);
             boolean shiftPressed = AppMgr.shiftIsPressed();

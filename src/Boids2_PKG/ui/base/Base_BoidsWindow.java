@@ -17,7 +17,6 @@ import Boids2_PKG.threadedSolvers.updaters.BoidUpdate_Type;
 import Boids2_PKG.ui.flkVars.BoidFlockVarsUI;
 import base_Math_Objects.MyMathUtils;
 import base_Math_Objects.vectorObjs.doubles.myPoint;
-import base_Math_Objects.vectorObjs.doubles.myVector;
 import base_Math_Objects.vectorObjs.floats.myPointf;
 import base_Render_Interface.IGraphicsAppInterface;
 import base_UI_Objects.GUI_AppManager;
@@ -938,7 +937,7 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
     /// Start mouse interaction
 
     @Override
-    protected boolean hndlMouseClick_Indiv(int mouseX, int mouseY, myPoint mseClckInWorld, int mseBtn) {
+    protected boolean hndlMouseClick_Indiv(int mouseX, int mouseY, int mseBtn) {
         //not in ui buttons, check if in flk vars region
         if((mouseX < uiMgr.getUIClkCoords()[2]) && (mouseY >= uiMgr.getUIClkCoords()[3])){
             for(int i = 0; i<flockVars.length; ++i){if(flockVars[i].handleMouseClick(mouseX, mouseY, mseBtn)) {
@@ -955,15 +954,15 @@ public abstract class Base_BoidsWindow extends Base_DispWindow {
     }
 
     @Override
-    protected boolean hndlMouseMove_Indiv(int mouseX, int mouseY, myPoint mseClckInWorld){
+    protected boolean hndlMouseMove_Indiv(int mouseX, int mouseY){
         for(int i = 0; i<flockVars.length; ++i){if(flockVars[i].handleMouseMove(mouseX, mouseY)) {return true;}}
         return false;
     }
     
     @Override
-    protected boolean hndlMouseDrag_Indiv(int mouseX, int mouseY, int pmouseX, int pmouseY, myPoint mouseClickIn3D, myVector mseDragInWorld, int mseBtn) {
+    protected boolean hndlMouseDrag_Indiv(int mouseX, int mouseY, int pmouseX, int pmouseY, int mseBtn) {
         for(int i = 0; i<flockVars.length; ++i){
-            if(flockVars[i].handleMouseDrag(mouseX, mouseY, pmouseX, pmouseY, mseDragInWorld, mseBtn)) {return true;}
+            if(flockVars[i].handleMouseDrag(mouseX, mouseY, pmouseX, pmouseY, mseBtn)) {return true;}
         }
         return false;
     }
