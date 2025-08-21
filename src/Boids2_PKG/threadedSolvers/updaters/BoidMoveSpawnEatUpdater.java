@@ -60,38 +60,41 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
      * @return axis-angle representation of orientation
      */    
     private float[] toAxisAngle(myVectorf[] orientation) {
-        float angle,x=rt2,y=rt2,z=rt2,s;
+        float angle,x=MyMathUtils.INV_SQRT_2_F,y=MyMathUtils.INV_SQRT_2_F,z=MyMathUtils.INV_SQRT_2_F;
         float fyrx = -orientation[O_FWD].y+orientation[O_RHT].x,
             uxfz = -orientation[O_UP].x+orientation[O_FWD].z,
             rzuy = -orientation[O_RHT].z+orientation[O_UP].y;
-            
-        if (((fyrx*fyrx) < epsValCalcSq) && ((uxfz*uxfz) < epsValCalcSq) && ((rzuy*rzuy) < epsValCalcSq)) {            //checking for rotational singularity
-            // first check angle == 0
+        //verify not near-symmetric
+        if (((fyrx*fyrx) < MyMathUtils.EPS_F_SQ) && ((uxfz*uxfz) < MyMathUtils.EPS_F_SQ) && ((rzuy*rzuy) < MyMathUtils.EPS_F_SQ)) {            
+            //checking for rotational singularity
+            // angle == 0 or pi
             float fyrx2 = orientation[O_FWD].y+orientation[O_RHT].x,
                 fzux2 = orientation[O_FWD].z+orientation[O_UP].x,
                 rzuy2 = orientation[O_RHT].z+orientation[O_UP].y,
                 fxryuz3 = orientation[O_FWD].x+orientation[O_RHT].y+orientation[O_UP].z-3;
-            if (((fyrx2*fyrx2) < 1)    && (fzux2*fzux2 < 1) && ((rzuy2*rzuy2) < 1) && ((fxryuz3*fxryuz3) < 1)) {    return new float[]{0,1,0,0}; }
-            // angle == pi
+            // If this is true, then angle is 0
+            if (((fyrx2*fyrx2) < 0.1f) && (fzux2*fzux2 < 0.1f) && ((rzuy2*rzuy2) < 0.1f) && ((fxryuz3*fxryuz3) < 0.1f)) {return new float[]{0,1,0,0}; }
+            // else angle == pi
             angle = MyMathUtils.PI_F;
-            float fwd2x = (orientation[O_FWD].x+1)/2.0f,rht2y = (orientation[O_RHT].y+1)/2.0f,up2z = (orientation[O_UP].z+1)/2.0f,
-                fwd2y = fyrx2/4.0f, fwd2z = fzux2/4.0f, rht2z = rzuy2/4.0f;
+            float fwd2x = (orientation[O_FWD].x+1)/2.0f,
+                    rht2y = (orientation[O_RHT].y+1)/2.0f,
+                    up2z = (orientation[O_UP].z+1)/2.0f,
+                    fwd2y = fyrx2/4.0f, 
+                    fwd2z = fzux2/4.0f, 
+                    rht2z = rzuy2/4.0f;
             if ((fwd2x > rht2y) && (fwd2x > up2z)) { // orientation[O_FWD].x is the largest diagonal term
-                if (fwd2x< MyMathUtils.EPS_F) {    x = 0;} else {            x = (float) Math.sqrt(fwd2x);y = fwd2y/x;z = fwd2z/x;} 
+                if (fwd2x< MyMathUtils.EPS_F) {     x = 0;} else {      x = (float) Math.sqrt(fwd2x);   y = fwd2y/x;    z = fwd2z/x;} 
             } else if (rht2y > up2z) {         // orientation[O_RHT].y is the largest diagonal term
-                if (rht2y< MyMathUtils.EPS_F) {    y = 0;} else {            y = (float) Math.sqrt(rht2y);x = fwd2y/y;z = rht2z/y;}
+                if (rht2y< MyMathUtils.EPS_F) {     y = 0;} else {      y = (float) Math.sqrt(rht2y);   x = fwd2y/y;    z = rht2z/y;}
             } else { // orientation[O_UP].z is the largest diagonal term so base result on this
-                if (up2z< MyMathUtils.EPS_F) {    z = 0;} else {            z = (float) Math.sqrt(up2z);    x = fwd2z/z;y = rht2z/z;}
+                if (up2z< MyMathUtils.EPS_F) {      z = 0;} else {      z = (float) Math.sqrt(up2z);    x = fwd2z/z;    y = rht2z/z;}
             }
             return new float[]{angle,x,y,z}; // return 180 deg rotation
         }
         //no singularities - handle normally
-        myVectorf tmp = new myVectorf(rzuy, uxfz, fyrx);
-        s = tmp.magn;
-        if (s < MyMathUtils.EPS_F){ s=1; }
-        tmp._scale(s);//changes mag to s
-            // prevent divide by zero, should not happen if matrix is orthogonal -- should be caught by singularity test above
-        angle = (float) -Math.acos(( orientation[O_FWD].x + orientation[O_RHT].y + orientation[O_UP].z - 1)/2.0);
+        myVectorf tmp = new myVectorf(rzuy, uxfz, fyrx)._normalize();
+        // (Trace(orientation) - 1)/2.0
+        angle = (float) Math.acos(( orientation[O_FWD].x + orientation[O_RHT].y + orientation[O_UP].z - 1)/2.0);        
        return new float[]{angle,tmp.x,tmp.y,tmp.z};
     }//toAxisAngle
     
