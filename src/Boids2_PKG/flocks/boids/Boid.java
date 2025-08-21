@@ -89,11 +89,11 @@ public class Boid {
     public myVectorf[] orientation;    
         
     public boolean[] boidFlags;    
-    public final static int canSpawn         = 0,                            //whether enough time has passed that this boid can spawn
-                             isDead            = 1,                            //whether this boid is dead
-                             isHungry        = 2,                            //whether this boid is hungry
-                             hadChild        = 3;                            //had a child this cycle, needs to "deliver"
-    private final static int NumBoidFlags     = 4;
+    public final static int canSpawn        = 0,                            //whether enough time has passed that this boid can spawn
+                             isDead         = 1,                            //whether this boid is dead
+                             isHungry       = 2,                            //whether this boid is hungry
+                             hadChild       = 3;                            //had a child this cycle, needs to "deliver"
+    private final static int NumBoidFlags   = 4;
     
     /**
      * location to put new child
@@ -231,7 +231,7 @@ public class Boid {
         birthLoc=_bl;
         birthVel=_bVel;
         birthForce=_bFrc;
-    }
+    }//haveChild
     /**
      * This boid
      * @param _bl
@@ -247,7 +247,7 @@ public class Boid {
             return true;
         } 
         return false;
-    }    
+    }//hadAChild
     private int resetCntrs(int cntrBseVal, float mod){return (int)(cntrBseVal*(1+mod));}
     /**
      * Only reset spawn counters once boid has spawned

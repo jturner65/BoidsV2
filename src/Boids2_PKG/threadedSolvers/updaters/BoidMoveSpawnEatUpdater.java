@@ -13,11 +13,9 @@ import base_UI_Objects.GUI_AppManager;
 public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
     private GUI_AppManager AppMgr;
     private List<Boid> bAra;
-    private final float rt2 = MyMathUtils.INV_SQRT_2_F;//1/sqrt2; 
     private final int O_FWD = Boid.O_FWD;
     private final int O_RHT = Boid.O_RHT;
     private final int O_UP = Boid.O_UP;  
-    private final float epsValCalcSq =  MyMathUtils.EPS_F * MyMathUtils.EPS_F;
     private final float spawnPct;
     private final float minVelMag;
     private final float maxVelMag;
@@ -108,7 +106,7 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
 
     private myVectorf getUpVec(Boid b){    
         float fwdUpDotm1 = 1 - b.orientation[O_FWD].z;//b.orientation[O_FWD]._dot(myVectorf.UP);
-        if ((fwdUpDotm1 * fwdUpDotm1) < epsValCalcSq){return myVectorf._cross(b.orientation[O_RHT], b.orientation[O_FWD]);    }
+        if ((fwdUpDotm1 * fwdUpDotm1) < MyMathUtils.EPS_F_SQ){return myVectorf._cross(b.orientation[O_RHT], b.orientation[O_FWD]);    }
         return myVectorf.UP.cloneMe();
     }    
     
@@ -132,7 +130,7 @@ public class BoidMoveSpawnEatUpdater implements Callable<Boolean> {
     private void moveBoids() {
 
         for(Boid b : bAra){
-            if (b.forces.magn > epsValCalcSq) {
+            if (b.forces.magn > MyMathUtils.EPS_F_SQ) {
                 b.velocity.set(integrate(myVectorf._mult(b.forces, (1.0f/b.mass)), b.velocity, deltaT));            //myVectorf._add(velocity[0], myVectorf._mult(forces[1], ri.delT/(1.0f * mass)));    divide by  mass, multiply by delta t
                 if(b.velocity.magn < minVelMag){b.velocity._mult(minVelMag/b.velocity.magn);}
                 else if(b.velocity.magn > maxVelMag){b.velocity._mult(maxVelMag/b.velocity.magn);}

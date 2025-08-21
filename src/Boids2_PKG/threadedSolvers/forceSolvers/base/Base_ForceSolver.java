@@ -14,9 +14,21 @@ import base_Math_Objects.vectorObjs.floats.myVectorf;
 import base_UI_Objects.GUI_AppManager;
 
 public abstract class Base_ForceSolver implements Callable<Boolean> {
+    /**
+     * 
+     */
     private GUI_AppManager AppMgr;
+    /**
+     * 
+     */
     protected BoidFlockVarsUI fv;
-    protected List<Boid> bAra;                                //boid being worked on
+    /**
+     * Array of boids this callable is working on
+     */
+    protected List<Boid> bAra;
+    /**
+     * 
+     */
     protected BoidFlock f;
     protected myVectorf dampFrc;        
     private int flagInt;                        //bitmask of current flags
@@ -25,15 +37,15 @@ public abstract class Base_ForceSolver implements Callable<Boolean> {
     public final float epsValCalc;
         
     protected final float msClickForce = 100000000;
-    public final int         
+    protected static final int         
         flkCenter        = 0,
-        flkVelMatch        = 1,
-        flkAvoidCol        = 2,
+        flkVelMatch      = 1,
+        flkAvoidCol      = 2,
         flkWander        = 3,
         flkAvoidPred     = 4,
-        flkHunt            = 5,
-        attractMode     = 6,
-        flkCyclesFrc = 7;
+        flkHunt          = 5,
+        attractMode      = 6,
+        flkCyclesFrc     = 7;
     
     public static final int[] stFlagIDXs = new int[]{
         Boids_3DWin.flkCenter,
